@@ -1,5 +1,5 @@
 import sharp from 'sharp';
-import { type Archetype, type Content, type ModerationVerdict, type Rarity, type WaifuProfile } from '@wl/shared';
+import { pickLook, type Archetype, type Content, type Look, type ModerationVerdict, type Rarity, type WaifuProfile } from '@wl/shared';
 import { attachLogsToPool, BudgetExceededError } from '../../server/src/ai-store.js';
 import { sql } from '../../server/src/db.js';
 import { cryptoSeed } from '../../server/src/rng.js';
@@ -24,6 +24,7 @@ export interface AiWaifuResult {
   attempts?: number;
   validationErrors?: string[];
   budgetExceeded?: boolean;
+  look?: Look;
 }
 
 /** Постобработка (ТЗ 10.1 п.5): обрезка до 3:4, WebP 768×1024 и миниатюра 240×320. */
@@ -36,6 +37,14 @@ export async function postprocess(raw: Buffer): Promise<{ image: Buffer; thumb: 
 export async function takenAiNames(): Promise<Set<string>> {
   const rows = await sql<{ name: string }[]>`SELECT lower(name) AS name FROM waifu_pool WHERE source = 'ai' AND status <> 'rejected'`;
   return new Set(rows.map((r) => r.name));
+}
+
+/** Сколько раз каждая тема образа уже есть среди ИИ-waifu этой редкости. */
+export async function themeUsage(rarity: Rarity): Promise<Record<string, number>> {
+  const rows = await sql<{ theme: string; n: number }[]>`
+    SELECT gen_meta->'look'->>'theme' AS theme, count(*)::int AS n FROM waifu_pool
+    WHERE source = 'ai' AND rarity = ${rarity} AND status <> 'rejected' AND gen_meta->'look' IS NOT NULL GROUP BY 1`;
+  return Object.fromEntries(rows.map((r) => [r.theme, r.n]));
 }
 
 /** Архетип, которого среди готовых ИИ-waifu этой редкости меньше всего, — для разнообразия пула. */
@@ -63,14 +72,17 @@ export async function generateAiWaifu(opts: {
   const ctx: GenContext = { purpose: opts.purpose, rarity: opts.rarity, logIds: [], log: opts.log };
   const res: AiWaifuResult = { ok: false, stage: 'profile', costRub: 0, durationMs: 0, models: {} };
   const archetype = opts.archetype ?? (await leastUsedArchetype(opts.content, opts.rarity));
+  const s = opts.provider.settings.image;
+  const look = pickLook({ themes: s.themes, poses: s.poses, shots: s.shots }, opts.rarity, seed, await themeUsage(opts.rarity));
+  res.look = look;
   const done = (r: Partial<AiWaifuResult>): AiWaifuResult => Object.assign(res, r, { durationMs: Date.now() - t0 });
 
   try {
-    const p = await opts.provider.generateProfile({ rarity: opts.rarity, archetype, seed, takenNames: opts.takenNames }, ctx);
+    const p = await opts.provider.generateProfile({ rarity: opts.rarity, archetype, seed, takenNames: opts.takenNames, look }, ctx);
     Object.assign(res, { profile: p.profile, imagePrompt: p.imagePrompt, attempts: p.attempts, validationErrors: p.errors, costRub: p.costRub, models: { text: p.model } });
 
     res.stage = 'image';
-    const img = await opts.provider.generatePortrait({ rarity: opts.rarity, imagePrompt: p.imagePrompt, seed }, ctx);
+    const img = await opts.provider.generatePortrait({ rarity: opts.rarity, imagePrompt: p.imagePrompt, seed, look }, ctx);
     res.costRub += img.costRub;
     res.models.image = img.model;
     const { image, thumb } = await postprocess(img.value);
@@ -88,7 +100,7 @@ export async function generateAiWaifu(opts: {
     res.thumbUrl = await opts.storage.put(`${key}_thumb.webp`, thumb, 'image/webp');
 
     if (opts.purpose === 'pool') {
-      const meta = { models: res.models, attempts: p.attempts, validation_errors: p.errors, repaired_stats: p.repairedStats, image_prompt_full: img.prompt, duration_ms: Date.now() - t0 };
+      const meta = { look, models: res.models, attempts: p.attempts, validation_errors: p.errors, repaired_stats: p.repairedStats, image_prompt_full: img.prompt, duration_ms: Date.now() - t0 };
       const pr = p.profile;
       const [row] = await sql<{ id: string }[]>`
         INSERT INTO waifu_pool (rarity, archetype, name, age, bio, quote, appearance, stats, talents, portrait_url, thumb_url, seed, source, status,

@@ -1,4 +1,4 @@
-import type { AiSettings, GachaHistoryItemDTO, PullResponseDTO, Rarity, StateDTO, UserSettings } from '@wl/shared';
+import type { AiSettings, Look, GachaHistoryItemDTO, PullResponseDTO, Rarity, StateDTO, UserSettings } from '@wl/shared';
 
 const BASE = `${import.meta.env.BASE_URL}api`;
 
@@ -63,6 +63,7 @@ export interface AiOverview {
     calls: { kind: string; calls: number; failed: number; first_try: number; cost: number }[];
     verdicts: { status: string; n: number }[];
   };
+  themes: { theme: string; ok: number; review: number; rejected: number }[];
   archetypes: { id: string; name: string }[];
 }
 export interface ModelInfo {
@@ -87,6 +88,7 @@ export interface AiTestResult {
   models: { text?: string; image?: string; moderation?: string };
   attempts?: number;
   validationErrors?: string[];
+  look?: Look;
 }
 export interface AiLogItem {
   id: string;

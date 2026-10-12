@@ -76,6 +76,8 @@ export const ArchetypeSchema = z.object({
   look: z.string(),
   /** Внешность для игрока (поле appearance процедурных waifu). */
   look_ru: z.string().min(20),
+  /** Внешность и фирменная деталь без одежды: ИИ-портрет одевает героиню по теме образа. */
+  traits: z.string().min(20),
   tone: z.string(),
   /** Шаблоны БИО для процедурной генерации. Плейсхолдеры: {name} {age} {cargo}. */
   bio_templates: z.array(z.object({ text: z.string(), swear: SwearLevelSchema })).min(3),

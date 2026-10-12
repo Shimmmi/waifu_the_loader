@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { RARITIES, type AiSettings, type Rarity } from '@wl/shared';
+import { RARITIES, ThemeSchema, type AiSettings, type Rarity } from '@wl/shared';
 import { adminApi, ApiError, type AiLogItem, type AiOverview, type AiSettingsVersion, type AiTestResult, type ModelInfo, type ReviewItem } from '../api';
 import { rarityStyle } from '../components/ui';
 import { useStore } from '../store';
@@ -96,6 +96,34 @@ function Overview({ o, onReload }: { o: AiOverview; onReload: () => void }) {
           </table>
         </div>
       </div>
+      {o.themes.length > 0 && (
+        <div className="panel">
+          <h3>Темы образов в ИИ-пуле</h3>
+          <table className="tbl">
+            <thead>
+              <tr>
+                <th>Тема</th>
+                <th>В пуле и выдано</th>
+                <th>На проверке</th>
+                <th>Брак</th>
+              </tr>
+            </thead>
+            <tbody>
+              {o.themes.map((t) => (
+                <tr key={t.theme}>
+                  <td>{s.image.themes.find((x) => x.id === t.theme)?.name ?? t.theme}</td>
+                  <td>{t.ok}</td>
+                  <td>{t.review}</td>
+                  <td>
+                    {t.rejected}
+                    {t.ok + t.review + t.rejected > 0 && <span className="muted"> ({pct(t.rejected, t.ok + t.review + t.rejected)})</span>}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
       <div className="panel">
         <div className="row" style={{ justifyContent: 'space-between' }}>
           <h3 style={{ margin: 0 }}>Пул</h3>
@@ -315,6 +343,8 @@ function Settings({ current, onSaved }: { current: AiSettingsVersion; onSaved: (
         </div>
       </div>
 
+      <Looks draft={draft} onChange={(image) => setDraft((d) => ({ ...d, image }))} />
+
       <div className="panel">
         <h3>Автомодерация</h3>
         <label className="row" style={{ marginBottom: 8 }}>
@@ -417,6 +447,95 @@ function Settings({ current, onSaved }: { current: AiSettingsVersion; onSaved: (
         </table>
       </div>
     </>
+  );
+}
+
+// ---------- темы образов ----------
+
+const lines = (xs: string[]) => xs.join('\n');
+const unlines = (t: string) =>
+  t
+    .split('\n')
+    .map((x) => x.trim())
+    .filter(Boolean);
+
+function Looks({ draft, onChange }: { draft: AiSettings; onChange: (image: AiSettings['image']) => void }) {
+  const img = draft.image;
+  const [json, setJson] = useState(() => JSON.stringify(img.themes, null, 2));
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    setJson((cur) => {
+      try {
+        if (JSON.stringify(JSON.parse(cur)) === JSON.stringify(img.themes)) return cur;
+      } catch {
+        /* текст с ошибкой заменяется актуальными темами */
+      }
+      setError(null);
+      return JSON.stringify(img.themes, null, 2);
+    });
+  }, [img.themes]);
+
+  const applyJson = (text: string) => {
+    setJson(text);
+    try {
+      const parsed = ThemeSchema.array().min(1).safeParse(JSON.parse(text));
+      if (!parsed.success) return setError(parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; '));
+      setError(null);
+      onChange({ ...img, themes: parsed.data });
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  };
+  const setWeight = (id: string, weight: number) => onChange({ ...img, themes: img.themes.map((t) => (t.id === id ? { ...t, weight } : t)) });
+  const total = img.themes.reduce((a, t) => a + t.weight, 0);
+
+  return (
+    <div className="panel">
+      <h3>Образы</h3>
+      <p className="muted" style={{ fontSize: 13, marginTop: 0 }}>
+        Для каждой waifu сервер выбирает тему (место, одежда, груз, свет), позу и план. Темы, которых в пуле меньше их доли, выпадают чаще. Вес 0 — тема
+        выключена.
+      </p>
+      <table className="tbl">
+        <thead>
+          <tr>
+            <th>Тема</th>
+            <th>С редкости</th>
+            <th>Вес</th>
+            <th>Доля</th>
+          </tr>
+        </thead>
+        <tbody>
+          {img.themes.map((t) => (
+            <tr key={t.id}>
+              <td>
+                {t.name} <span className="muted">({t.id})</span>
+              </td>
+              <td>{t.min_rarity}</td>
+              <td>
+                <input className="input" style={{ width: 80 }} type="number" step={0.1} min={0} value={t.weight} onChange={(e) => setWeight(t.id, Number(e.target.value))} />
+              </td>
+              <td className="muted">{pct(t.weight, total)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div className="grid2">
+        <Field label="Позы (по одной в строке)">
+          <textarea className="input" rows={7} value={lines(img.poses)} onChange={(e) => onChange({ ...img, poses: unlines(e.target.value) })} />
+        </Field>
+        <Field label="Планы и ракурсы (по одному в строке)">
+          <textarea className="input" rows={7} value={lines(img.shots)} onChange={(e) => onChange({ ...img, shots: unlines(e.target.value) })} />
+        </Field>
+      </div>
+      <details>
+        <summary>Редактировать темы целиком (JSON)</summary>
+        <Field label="Темы" hint="Поля: id, name, weight, min_rarity, scene, outfits[], cargo[], lighting[], story_ru">
+          <textarea className="input" rows={18} value={json} onChange={(e) => applyJson(e.target.value)} />
+        </Field>
+        {error && <p style={{ color: 'var(--danger)', fontSize: 13 }}>Не сохранится: {error}</p>}
+      </details>
+    </div>
   );
 }
 
@@ -535,6 +654,11 @@ function TestResultView({ r }: { r: AiTestResult }) {
                 ))}
               </ul>
             </>
+          )}
+          {r.look && (
+            <p style={{ fontSize: 13 }}>
+              Образ: <b>{r.look.themeName}</b> · {r.look.outfit} · груз: {r.look.cargo} · {r.look.pose} · {r.look.shot}
+            </p>
           )}
           <p className="muted" style={{ fontSize: 12 }}>
             Модели: {[r.models.text, r.models.image, r.models.moderation].filter(Boolean).join(' · ')}

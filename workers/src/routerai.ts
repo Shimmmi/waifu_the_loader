@@ -14,6 +14,7 @@ import {
   type Archetype,
   type Content,
   type EconomyConfig,
+  type Look,
   type Moderation,
   type ModerationVerdict,
   type Rarity,
@@ -182,7 +183,7 @@ export class RouterAiProvider {
   readonly name = 'routerai';
   constructor(
     private readonly client: RouterAiClient,
-    private readonly settings: AiSettings,
+    readonly settings: AiSettings,
     private readonly content: Content,
     private readonly cfg: EconomyConfig,
   ) {}
@@ -219,7 +220,7 @@ export class RouterAiProvider {
 
   /** Генерация профиля с валидацией и повтором до 3 попыток (ТЗ 10.1 п.1–2). */
   async generateProfile(
-    req: { rarity: Rarity; archetype: Archetype; seed: number; takenNames: Set<string> },
+    req: { rarity: Rarity; archetype: Archetype; seed: number; takenNames: Set<string>; look?: Look },
     ctx: GenContext,
   ): Promise<{ profile: WaifuProfile; imagePrompt: string; attempts: number; errors: string[]; costRub: number; model: string; repairedStats: boolean }> {
     const errors: string[] = [];
@@ -232,7 +233,7 @@ export class RouterAiProvider {
       );
     let lastModel = s.model;
     for (let attempt = 1; attempt <= 3; attempt++) {
-      const user = profileUserPrompt({ rarity: req.rarity, archetype: req.archetype, seed: req.seed + attempt, avoidNames: [...req.takenNames].slice(-30) }, this.content, this.cfg, this.settings);
+      const user = profileUserPrompt({ rarity: req.rarity, archetype: req.archetype, seed: req.seed + attempt, look: req.look, avoidNames: [...req.takenNames].slice(-30) }, this.content, this.cfg, this.settings);
       const feedback = errors.length ? `\nПрошлый ответ отклонён: ${errors.at(-1)}. Исправь это.` : '';
       const r = await this.withFallback('text', s, ctx, (model) =>
         this.client.chat(
@@ -265,9 +266,9 @@ export class RouterAiProvider {
     throw new ProfileValidationError(errors, costRub);
   }
 
-  async generatePortrait(req: { rarity: Rarity; imagePrompt: string; seed: number }, ctx: GenContext): Promise<CallResult<Buffer> & { prompt: string }> {
+  async generatePortrait(req: { rarity: Rarity; imagePrompt: string; seed: number; look?: Look }, ctx: GenContext): Promise<CallResult<Buffer> & { prompt: string }> {
     const s = this.settings.image;
-    const prompt = imagePrompt(req.imagePrompt, req.rarity, this.settings);
+    const prompt = imagePrompt(req.imagePrompt, req.rarity, this.settings, req.look);
     const r = await this.withFallback('image', s, ctx, (model) =>
       this.client.image(model, prompt, { aspectRatio: s.aspect_ratio, resolution: s.resolution || undefined, seed: s.seed || undefined, timeoutSec: s.timeout_sec }),
     );

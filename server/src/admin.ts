@@ -56,7 +56,7 @@ export async function registerAdmin(api: FastifyInstance, connection: { url: str
     admin.addHook('preHandler', requireAdmin);
 
     admin.get('/admin/ai', async () => {
-      const [current, spend, pool, calls, verdicts] = await Promise.all([
+      const [current, spend, pool, calls, verdicts, themes] = await Promise.all([
         getAiSettings(),
         aiSpend(),
         sql<{ rarity: string; source: string; status: string; n: number }[]>`
@@ -69,6 +69,12 @@ export async function registerAdmin(api: FastifyInstance, connection: { url: str
         sql<{ status: string; n: number }[]>`
           SELECT status, count(*)::int AS n FROM waifu_pool
           WHERE source = 'ai' AND created_at > now() - interval '7 days' GROUP BY 1`,
+        sql<{ theme: string; ok: number; review: number; rejected: number }[]>`
+          SELECT gen_meta->'look'->>'theme' AS theme,
+                 count(*) FILTER (WHERE status IN ('ready', 'taken'))::int AS ok,
+                 count(*) FILTER (WHERE status = 'review')::int AS review,
+                 count(*) FILTER (WHERE status = 'rejected')::int AS rejected
+          FROM waifu_pool WHERE source = 'ai' AND gen_meta->'look' IS NOT NULL GROUP BY 1 ORDER BY 2 DESC`,
       ]);
       return {
         current,
@@ -76,6 +82,7 @@ export async function registerAdmin(api: FastifyInstance, connection: { url: str
         spend,
         pool,
         week: { calls, verdicts },
+        themes,
         archetypes: loadContent().archetypes.map((a) => ({ id: a.id, name: a.name })),
       };
     });

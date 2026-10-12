@@ -7,6 +7,7 @@ import { rarityConfig } from './config.js';
 import type { Content } from './content.js';
 import { talentFromTemplate } from './procedural.js';
 import { RaritySchema, STATS, type Archetype, type EconomyConfig, type Rarity, type Stats, type WaifuProfile } from './schemas.js';
+import { DEFAULT_POSES, DEFAULT_SHOTS, DEFAULT_THEMES, ThemeSchema, type Look } from './looks.js';
 import { findForbidden, validateProfile } from './validate.js';
 
 // ---------- Настройки (таблица ai_settings, версии и откат) ----------
@@ -36,6 +37,10 @@ export const AiSettingsSchema = z.object({
     style_prompt: z.string().min(10),
     negative_prompt: z.string().min(10),
     rarity_modifiers: z.record(RaritySchema, z.string()),
+    /** Темы образов: место, одежда, груз, свет (ТЗ 10: разнообразие портретов) */
+    themes: z.array(ThemeSchema).min(1),
+    poses: z.array(z.string().min(5)).min(1),
+    shots: z.array(z.string().min(5)).min(1),
   }),
   moderation: ModelBlock.extend({
     enabled: z.boolean(),
@@ -69,11 +74,11 @@ export const DEFAULT_AI_SETTINGS: AiSettings = {
     swear: true,
     lang: 'ru',
     system_prompt: [
-      'Ты — сценарист юмористической браузерной игры 18+ «Грузчицы Inc.» про аниме-девушек, которые работают грузчицами на складе и с серьёзным лицом таскают холодильники, пианино и сейфы.',
-      'Ты пишешь карточки персонажей: короткие, смешные, с бытовым складским абсурдом и чёрным юмором.',
+      'Ты — сценарист юмористической браузерной игры 18+ «Грузчицы Inc.» про аниме-девушек из бригады грузчиц, которые где угодно — на складе, пляже, в офисе, на фестивале, в фэнтези-мире — с серьёзным лицом таскают холодильники, рояли и сейфы.',
+      'Ты пишешь карточки персонажей: короткие, смешные, с бытовым абсурдом и чёрным юмором. Что она грузчица, должно быть понятно из ситуации и груза, а не из униформы.',
       'Жёсткие правила:',
-      '- Каждый персонаж — взрослая женщина от 21 года. Никаких упоминаний детства в настоящем, школы, подросткового возраста.',
-      '- Контент SFW: без эротики, флирта с телом, обнажёнки и сексуальных намёков.',
+      '- Каждый персонаж — взрослая женщина от 21 года. Никаких упоминаний детства в настоящем, школы, школьной формы, подросткового возраста.',
+      '- Контент SFW: без эротики, флирта с телом, обнажёнки и сексуальных намёков. Купальник на пляже — просто одежда, без акцента на теле.',
       '- Без реальных людей, знаменитостей, брендов и чужих персонажей.',
       '- Без оскорблений по расе, национальности, религии, полу, ориентации.',
       '- Отвечаешь строго одним JSON-объектом без пояснений и без markdown.',
@@ -87,16 +92,19 @@ export const DEFAULT_AI_SETTINGS: AiSettings = {
     resolution: '',
     seed: 0,
     style_prompt:
-      'Anime illustration, vertical full-body character card art. Gritty warehouse interior with cardboard boxes, pallets and yellow-black hazard stripes, warm industrial lighting, clean lineart, cel shading, rich colors.',
+      'Modern TV anime style, like a frame from a seasonal anime series. Simple cel shading with one shadow tone, clean bold outlines, flat bright colors, expressive anime eyes. Simplified background with few details, soft even lighting. Vertical character card art.',
     negative_prompt:
-      'child, kid, teen, teenager, loli, schoolgirl, school uniform, childlike face, baby face, petite childlike body, chibi, nudity, cleavage, lingerie, swimsuit, sexualized pose, text, letters, watermark, logo, brand names, real person likeness',
+      'child, kid, teen, teenager, loli, schoolgirl, school uniform, childlike face, baby face, petite childlike body, chibi, nudity, see-through clothing, lingerie, cleavage focus, sexualized pose, hyper-detailed realistic rendering, text, letters, watermark, logo, brand names, real person likeness',
     rarity_modifiers: {
       N: 'Plain everyday look, simple composition.',
       R: 'Subtle cool blue rim light.',
-      SR: 'Soft violet glow accents around the character.',
-      SSR: 'Dramatic golden backlight with floating sparks.',
-      UR: 'Epic composition, radiant crimson-and-gold aura, dynamic heroic lighting.',
+      SR: 'Soft violet glow outline around the character.',
+      SSR: 'Golden rim light and a few simple anime sparkles.',
+      UR: 'Heroic pose with a bold crimson-and-gold aura drawn as simple flat anime effect shapes.',
     },
+    themes: DEFAULT_THEMES,
+    poses: DEFAULT_POSES,
+    shots: DEFAULT_SHOTS,
   },
   moderation: {
     enabled: true,
@@ -104,7 +112,9 @@ export const DEFAULT_AI_SETTINGS: AiSettings = {
     fallback: 'google/gemini-3.8-flash',
     timeout_sec: 60,
     prompt: [
-      'You are a strict content moderator for an 18+ SFW game. All characters must be clearly adult women (21+) with mature adult faces and adult body proportions, fully clothed, no sexualization.',
+      'You are a strict content moderator for an 18+ SFW game. All characters must be clearly adult women (21+) with mature adult faces and adult body proportions, no sexualization.',
+      'Allowed: any normal clothing, including modest swimwear (swimsuit, bikini with shorts or sarong) in a beach or pool setting.',
+      '"nsfw" is true for nudity, see-through clothing, lingerie, sexual poses or a camera focus on breasts, buttocks or crotch.',
       'Check the attached image and the character text. Answer with ONE JSON object only:',
       '{"adult_appearance": boolean, "estimated_min_age": integer, "childlike_features": boolean, "nsfw": boolean, "real_person_or_celebrity": boolean, "brand_or_ip": boolean, "discrimination": boolean, "text_or_watermark": boolean, "notes": "short reason"}',
       '"childlike_features" is true if the face, body proportions or clothing look like a child or teenager (school uniform, very small body, baby face).',
@@ -133,6 +143,8 @@ export interface ProfileRequest {
   rarity: Rarity;
   archetype: Archetype;
   seed: number;
+  /** Образ для портрета: тема, одежда, груз */
+  look?: Look;
   /** Имена, которые уже заняты — модель должна придумать другое. */
   avoidNames: string[];
 }
@@ -150,7 +162,13 @@ export function profileUserPrompt(req: ProfileRequest, content: Content, cfg: Ec
     `Создай персонажа. Редкость: ${req.rarity} («${rc.name}»). Чем выше редкость, тем эпичнее и абсурднее легенда.`,
     `Архетип: ${a.name}. ${a.description} Тон: ${a.tone}.`,
     `Типичный груз архетипа: ${a.cargo.slice(0, 6).join('; ')}.`,
-    `Опорная внешность архетипа (можно варьировать причёску, цвет волос, детали формы): ${a.look}`,
+    `Характерные черты архетипа (причёску и цвет волос можно варьировать, фирменную деталь сохрани): ${a.traits}`,
+    ...(req.look
+      ? [
+          `Ситуация: ${req.look.story}. В bio обыграй её и груз «${req.look.cargo}».`,
+          `Одежда в этой карточке (англ., для портрета): ${req.look.outfit}.`,
+        ]
+      : []),
     swear,
     lang,
     `Имя в формате «Имя «Прозвище»» (японское или русское имя + смешное складское прозвище), до 40 символов.${req.avoidNames.length ? ` Не используй имена: ${req.avoidNames.slice(0, 30).join(', ')}.` : ''}`,
@@ -158,8 +176,8 @@ export function profileUserPrompt(req: ProfileRequest, content: Content, cfg: Ec
     `stats: положительные целые str, end, spd, cha, lck, каждое от 1 до ${cap}, сумма строго ${rc.stat_budget} (например ${exampleStats(rc.stat_budget)}). Распредели под характер архетипа.`,
     `talent_ids: ровно ${rc.talent_count} разных id из списка (подходящих по смыслу):`,
     ...talents.map((t) => `- ${t.id}: ${t.name} — ${t.description}`),
-    'image_prompt: на английском, 40–90 слов, описание для художника: "adult woman in her <twenties|thirties|forties>", взрослые черты лица, причёска, рабочая одежда (каска, перчатки, лямки, комбинезон), поза с грузом. Без имён, без цифр возраста, без текста на картинке.',
-    'appearance: 1–2 предложения для игрока о внешности, взрослые черты, рабочая одежда.',
+    'image_prompt: на английском, 35–80 слов, только сама героиня: "adult woman in her <twenties|thirties|forties>", взрослые черты лица, причёска и цвет волос, телосложение, выражение лица, одежда из ситуации со своими деталями, фирменная деталь архетипа. Фон, свет и позу не описывай — их добавит сервер. Без имён, без цифр возраста, без текста на картинке.',
+    'appearance: 1–2 предложения для игрока о внешности и одежде, взрослые черты.',
     `Seed для разнообразия: ${req.seed}.`,
     'Формат ответа — только JSON: {"name": "...", "age": 0, "bio": "...", "quote": "...", "appearance": "...", "image_prompt": "...", "stats": {"str": 0, "end": 0, "spd": 0, "cha": 0, "lck": 0}, "talent_ids": ["..."]}',
   ].join('\n');
@@ -276,10 +294,13 @@ export function buildAiProfile(
 // ---------- Портрет ----------
 
 export const ADULT_CLAUSE =
-  'The character is an adult woman, 21 or older, with a mature adult face and adult body proportions, fully clothed in practical work clothes. SFW.';
+  'The character is an adult woman, 21 or older, with a mature adult face and adult body proportions. SFW: no nudity, non-sexualized pose.';
 
-export function imagePrompt(characterPrompt: string, rarity: Rarity, s: AiSettings): string {
-  return [s.image.style_prompt, s.image.rarity_modifiers[rarity] ?? '', `Character: ${characterPrompt}`, ADULT_CLAUSE, `Avoid: ${s.image.negative_prompt}.`]
+export function imagePrompt(characterPrompt: string, rarity: Rarity, s: AiSettings, look?: Look): string {
+  const scene = look
+    ? `Scene: ${look.scene}, ${look.lighting}. Composition: ${look.shot}, she is ${look.pose}; the cargo is ${look.cargo}.`
+    : '';
+  return [s.image.style_prompt, s.image.rarity_modifiers[rarity] ?? '', scene, `Character: ${characterPrompt}`, ADULT_CLAUSE, `Avoid: ${s.image.negative_prompt}.`]
     .filter(Boolean)
     .join('\n');
 }
