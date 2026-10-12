@@ -1,0 +1,48 @@
+{
+  "version": "gacha-1.0.0",
+  "soft_pity_start": 60,
+  "soft_pity_step": 0.05,
+  "hard_pity": 80,
+  "sr_guarantee_every": 10,
+  "banners": [
+    {
+      "id": "newbie",
+      "type": "newbie",
+      "name": "Первый рабочий день",
+      "description": "Один раз ×10 бесплатно. Минимум одна SR+ гарантирована — даже кадровик не облажается.",
+      "cost_per_pull": 0,
+      "pull_sizes": [10],
+      "max_uses": 1,
+      "featured_archetype": null,
+      "featured_share": 0,
+      "starts_at": null,
+      "ends_at": null
+    },
+    {
+      "id": "standard",
+      "type": "standard",
+      "name": "Биржа труда",
+      "description": "Постоянный набор. Никто не знает, кто вылезет из коробки.",
+      "cost_per_pull": 1,
+      "pull_sizes": [1, 10],
+      "max_uses": null,
+      "featured_archetype": null,
+      "featured_share": 0,
+      "starts_at": null,
+      "ends_at": null
+    },
+    {
+      "id": "event_piano_2026_10",
+      "type": "event",
+      "name": "Неделя пианино",
+      "description": "Филармония переезжает. Шанс SSR+ «Сонной с пианино» — 50% от всех SSR+.",
+      "cost_per_pull": 1,
+      "pull_sizes": [1, 10],
+      "max_uses": null,
+      "featured_archetype": "sleepy_piano",
+      "featured_share": 0.5,
+      "starts_at": "2026-10-12T00:00:00+03:00",
+      "ends_at": "2026-10-26T23:59:59+03:00"
+    }
+  ]
+}

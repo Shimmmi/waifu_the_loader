@@ -1,0 +1,422 @@
+[
+  {
+    "id": "quiet_grip",
+    "name": "Тихая хватка",
+    "description": "Молчит и тащит. Холодильник сам стыдится скрипеть: +12% к грузу.",
+    "effect_type": "cargo_mult",
+    "target": "self",
+    "condition": null,
+    "base_value": 0.12,
+    "affinity": ["fridge_quiet"]
+  },
+  {
+    "id": "no_manual",
+    "name": "Инструкция для слабых",
+    "description": "Не читает схемы строповки и всё равно попадает в петлю: +10% к грузу.",
+    "effect_type": "cargo_mult",
+    "target": "self",
+    "condition": null,
+    "base_value": 0.1,
+    "affinity": ["gymnast_rigger", "shout_commander"]
+  },
+  {
+    "id": "piano_nap_haul",
+    "name": "Сон на клавишах",
+    "description": "Засыпает на пианино и везёт его во сне, зато целым: +8% к грузу.",
+    "effect_type": "cargo_mult",
+    "target": "contract:piano",
+    "condition": null,
+    "base_value": 0.08,
+    "affinity": ["sleepy_piano"]
+  },
+  {
+    "id": "yell_instead_of_jack",
+    "name": "Ор вместо домкрата",
+    "description": "Команда «взяли» слышна в соседнем районе: +15% к грузу.",
+    "effect_type": "cargo_mult",
+    "target": "archetype:shout_commander",
+    "condition": null,
+    "base_value": 0.15,
+    "affinity": ["shout_commander"]
+  },
+  {
+    "id": "cloud_delivery",
+    "name": "Доставка в облаках",
+    "description": "Мечтает о море и не замечает вес коробки: +10% к грузу.",
+    "effect_type": "cargo_mult",
+    "target": "self",
+    "condition": null,
+    "base_value": 0.1,
+    "affinity": ["dreamy_courier"]
+  },
+  {
+    "id": "heavy_debit",
+    "name": "Дебет тяжёлый",
+    "description": "Если груз не сходится с накладной, дотаскивает лично: +12% к грузу, зато отчёт потом дымится.",
+    "effect_type": "cargo_mult",
+    "target": "building:warehouse",
+    "condition": null,
+    "base_value": 0.12,
+    "affinity": ["forklift_accountant"]
+  },
+  {
+    "id": "coffin_box",
+    "name": "Упаковано навечно",
+    "description": "Коробка выглядит как гроб, зато не развалится: +8% к грузу.",
+    "effect_type": "cargo_mult",
+    "target": "self",
+    "condition": null,
+    "base_value": 0.08,
+    "affinity": ["goth_packer", "tape_maniac"]
+  },
+  {
+    "id": "accept_the_weight",
+    "name": "Приняла тяжесть",
+    "description": "Стоик между подходами: судьба тяжёлая, я тоже: +15% к грузу.",
+    "effect_type": "cargo_mult",
+    "target": "self",
+    "condition": null,
+    "base_value": 0.15,
+    "affinity": ["gym_philosopher"]
+  },
+  {
+    "id": "tape_cocoon",
+    "name": "Кокон из скотча",
+    "description": "Обмотала палету в три слоя. Палета теперь бессмертна: +10% к грузу.",
+    "effect_type": "cargo_mult",
+    "target": "self",
+    "condition": null,
+    "base_value": 0.1,
+    "affinity": ["tape_maniac"]
+  },
+  {
+    "id": "tray_to_go",
+    "name": "Поднос на вынос",
+    "description": "Холодильник на подносе, сдача не нужна: +12% к грузу.",
+    "effect_type": "cargo_mult",
+    "target": "self",
+    "condition": null,
+    "base_value": 0.12,
+    "affinity": ["retired_waitress"]
+  },
+  {
+    "id": "brigade_wheeze",
+    "name": "Бригадный хрип",
+    "description": "Когда в смене от трёх человек, ящики стесняются лежать: +8% к грузу.",
+    "effect_type": "cargo_mult",
+    "target": "global",
+    "condition": { "type": "brigade_size_gte", "n": 3 },
+    "base_value": 0.08,
+    "affinity": ["shout_commander", "gymnast_rigger", "fridge_quiet"]
+  },
+  {
+    "id": "safe_shoulders",
+    "name": "Плечи под сейф",
+    "description": "Сейф думал, что он недвижимость. Ошибся: +10% к грузу.",
+    "effect_type": "cargo_mult",
+    "target": "contract:safe",
+    "condition": null,
+    "base_value": 0.1,
+    "affinity": ["fridge_quiet", "gym_philosopher"]
+  },
+  {
+    "id": "silent_price",
+    "name": "Молчаливый ценник",
+    "description": "Клиент сам поднимает цену, лишь бы она не смотрела: +10% к монетам.",
+    "effect_type": "coins_mult",
+    "target": "self",
+    "condition": null,
+    "base_value": 0.1,
+    "affinity": ["fridge_quiet"]
+  },
+  {
+    "id": "fridge_tip",
+    "name": "Чаевые за холодильник",
+    "description": "Фраза «сдачи не надо» работает даже с сейфом: +12% к монетам.",
+    "effect_type": "coins_mult",
+    "target": "self",
+    "condition": null,
+    "base_value": 0.12,
+    "affinity": ["retired_waitress", "forklift_accountant"]
+  },
+  {
+    "id": "invoice_extra",
+    "name": "Накладная с припиской",
+    "description": "В графе «прочее» внезапно живут деньги: +15% к монетам.",
+    "effect_type": "coins_mult",
+    "target": "building:autopark",
+    "condition": null,
+    "base_value": 0.15,
+    "affinity": ["forklift_accountant"]
+  },
+  {
+    "id": "vibe_surcharge",
+    "name": "Наценка за атмосферу",
+    "description": "Чёрная лента на коробке. Клиент платит за вайб: +8% к монетам.",
+    "effect_type": "coins_mult",
+    "target": "self",
+    "condition": null,
+    "base_value": 0.08,
+    "affinity": ["goth_packer"]
+  },
+  {
+    "id": "meaning_of_fees",
+    "name": "Тариф «смысл бытия»",
+    "description": "Объяснила клиенту, зачем ему этот шкаф. Он доплатил: +10% к монетам.",
+    "effect_type": "coins_mult",
+    "target": "self",
+    "condition": null,
+    "base_value": 0.1,
+    "affinity": ["gym_philosopher", "shout_commander"]
+  },
+  {
+    "id": "scenic_route",
+    "name": "Красивый крюк",
+    "description": "Заблудилась красиво, счёт тот же: +12% к монетам, зато лишний квартал в ногах.",
+    "effect_type": "coins_mult",
+    "target": "contract:transport",
+    "condition": null,
+    "base_value": 0.12,
+    "affinity": ["dreamy_courier"]
+  },
+  {
+    "id": "tuning_fee",
+    "name": "Настройка в цене",
+    "description": "Пианино приехало, она проснулась, клиент заплатил за сервис: +8% к монетам.",
+    "effect_type": "coins_mult",
+    "target": "contract:piano",
+    "condition": null,
+    "base_value": 0.08,
+    "affinity": ["sleepy_piano"]
+  },
+  {
+    "id": "tape_on_bill",
+    "name": "Скотч в счёте",
+    "description": "Когда смена большая, три рулона уходят в накладную как расходники: +10% к монетам.",
+    "effect_type": "coins_mult",
+    "target": "global",
+    "condition": { "type": "brigade_size_gte", "n": 4 },
+    "base_value": 0.1,
+    "affinity": ["tape_maniac", "goth_packer"]
+  },
+  {
+    "id": "first_loop",
+    "name": "Петля с первого раза",
+    "description": "Стропа садится как надо, кривой груз выпрямляется: +2% к криту.",
+    "effect_type": "crit_chance",
+    "target": "self",
+    "condition": null,
+    "base_value": 0.02,
+    "affinity": ["gymnast_rigger"]
+  },
+  {
+    "id": "lucky_snore",
+    "name": "Удачный храп",
+    "description": "Храп попал в такт, пианино само въехало в кузов: +2% к криту.",
+    "effect_type": "crit_chance",
+    "target": "self",
+    "condition": null,
+    "base_value": 0.02,
+    "affinity": ["sleepy_piano", "dreamy_courier"]
+  },
+  {
+    "id": "lucky_cell",
+    "name": "Счастливая клетка",
+    "description": "Обвела клетку в таблице и попала в крит: +3% к криту.",
+    "effect_type": "crit_chance",
+    "target": "self",
+    "condition": null,
+    "base_value": 0.03,
+    "affinity": ["forklift_accountant", "tape_maniac"]
+  },
+  {
+    "id": "black_box",
+    "name": "Чёрная коробка",
+    "description": "Упаковала так мрачно, что удача испугалась и помогла: +1% к криту.",
+    "effect_type": "crit_chance",
+    "target": "self",
+    "condition": null,
+    "base_value": 0.01,
+    "affinity": ["goth_packer"]
+  },
+  {
+    "id": "tape_joker",
+    "name": "Скотч-джокер",
+    "description": "Конец ленты оторвался ровно на шве: +2% к криту, пальцы потом неделю в скотче.",
+    "effect_type": "crit_chance",
+    "target": "self",
+    "condition": null,
+    "base_value": 0.02,
+    "affinity": ["tape_maniac", "dreamy_courier"]
+  },
+  {
+    "id": "sleep_shift",
+    "name": "Смена во сне",
+    "description": "Пока все спят, она спит на грузе, и он куда-то девается: +5% к офлайну.",
+    "effect_type": "offline_bonus",
+    "target": "self",
+    "condition": null,
+    "base_value": 0.05,
+    "affinity": ["sleepy_piano"]
+  },
+  {
+    "id": "night_fridge",
+    "name": "Ночной холодильник",
+    "description": "Ночью молчит ещё тише и таскает до утра: +8% к офлайну.",
+    "effect_type": "offline_bonus",
+    "target": "building:warehouse",
+    "condition": null,
+    "base_value": 0.08,
+    "affinity": ["fridge_quiet", "goth_packer"]
+  },
+  {
+    "id": "buckwheat_autopilot",
+    "name": "Гречка на автопилоте",
+    "description": "Когда в смене от трёх, столовая кормит даже без начальства: +5% к офлайну.",
+    "effect_type": "offline_bonus",
+    "target": "building:canteen",
+    "condition": { "type": "brigade_size_gte", "n": 3 },
+    "base_value": 0.05,
+    "affinity": ["retired_waitress", "gym_philosopher"]
+  },
+  {
+    "id": "night_is_day",
+    "name": "Ночная смена — её день",
+    "description": "Темно, тихо, коробки в трауре. Офлайн ей к лицу: +6% к офлайну.",
+    "effect_type": "offline_bonus",
+    "target": "self",
+    "condition": null,
+    "base_value": 0.06,
+    "affinity": ["goth_packer", "sleepy_piano"]
+  },
+  {
+    "id": "empty_gym_quote",
+    "name": "Медитация с гантелью",
+    "description": "Пока вас нет, она качается и цитирует пустой склад: +4% к офлайну.",
+    "effect_type": "offline_bonus",
+    "target": "self",
+    "condition": null,
+    "base_value": 0.04,
+    "affinity": ["gym_philosopher"]
+  },
+  {
+    "id": "quiet_brigade",
+    "name": "Тишина в бригаде",
+    "description": "Если в бригаде есть тихоня, остальные стесняются халтурить: +12% к грузу бригады.",
+    "effect_type": "synergy",
+    "target": "global",
+    "condition": { "type": "brigade_has_archetype", "archetype": "fridge_quiet" },
+    "base_value": 0.12,
+    "affinity": ["fridge_quiet", "shout_commander"]
+  },
+  {
+    "id": "strap_for_all",
+    "name": "Стропа на всех",
+    "description": "Бывшая гимнастка в бригаде — узлы вяжутся сами: +15% к грузу бригады.",
+    "effect_type": "synergy",
+    "target": "global",
+    "condition": { "type": "brigade_has_archetype", "archetype": "gymnast_rigger" },
+    "base_value": 0.15,
+    "affinity": ["gymnast_rigger"]
+  },
+  {
+    "id": "snore_metronome",
+    "name": "Храп как метроном",
+    "description": "Сонная с пианино в смене задаёт ритм таскания: +10% к грузу бригады.",
+    "effect_type": "synergy",
+    "target": "global",
+    "condition": { "type": "brigade_has_archetype", "archetype": "sleepy_piano" },
+    "base_value": 0.1,
+    "affinity": ["sleepy_piano", "fridge_quiet"]
+  },
+  {
+    "id": "order_heard",
+    "name": "Команда слышна всем",
+    "description": "Крик-командир в бригаде орёт так, что груз сам идёт: +20% к грузу бригады.",
+    "effect_type": "synergy",
+    "target": "global",
+    "condition": { "type": "brigade_has_archetype", "archetype": "shout_commander" },
+    "base_value": 0.2,
+    "affinity": ["shout_commander", "gymnast_rigger"]
+  },
+  {
+    "id": "one_pallet",
+    "name": "Общий моток",
+    "description": "Маньячка скотча в бригаде мотает всех в одну палету: +12% к грузу бригады.",
+    "effect_type": "synergy",
+    "target": "global",
+    "condition": { "type": "brigade_has_archetype", "archetype": "tape_maniac" },
+    "base_value": 0.12,
+    "affinity": ["tape_maniac", "goth_packer"]
+  },
+  {
+    "id": "why_we_carry",
+    "name": "Смысл в каждой коробке",
+    "description": "Качалка-философ в бригаде объяснила, зачем мы это тащим: +15% к грузу бригады.",
+    "effect_type": "synergy",
+    "target": "global",
+    "condition": { "type": "brigade_has_archetype", "archetype": "gym_philosopher" },
+    "base_value": 0.15,
+    "affinity": ["gym_philosopher", "forklift_accountant"]
+  },
+  {
+    "id": "piano_contract",
+    "name": "Контракт «не уронить до»",
+    "description": "Пианино доезжает целым, даже если она спит по дороге: +15% к контракту на пианино.",
+    "effect_type": "contract_bonus",
+    "target": "contract:piano",
+    "condition": null,
+    "base_value": 0.15,
+    "affinity": ["sleepy_piano", "gymnast_rigger"]
+  },
+  {
+    "id": "cold_contract",
+    "name": "Контракт на холод",
+    "description": "Холодильник приезжает холодным. Как — лучше не спрашивать: +12% к контракту на холодильники.",
+    "effect_type": "contract_bonus",
+    "target": "contract:fridge",
+    "condition": null,
+    "base_value": 0.12,
+    "affinity": ["fridge_quiet", "retired_waitress"]
+  },
+  {
+    "id": "office_move",
+    "name": "Офисный переезд",
+    "description": "Кресла, фикусы и чья-то гордость в коробке доезжают чинно: +18% к офисному контракту.",
+    "effect_type": "contract_bonus",
+    "target": "contract:office",
+    "condition": null,
+    "base_value": 0.18,
+    "affinity": ["forklift_accountant", "dreamy_courier"]
+  },
+  {
+    "id": "pallet_press",
+    "name": "Подход между заказами",
+    "description": "Пока ждёт фургон, жмёт пустую палету: +15% к скорости тренировки.",
+    "effect_type": "training_speed",
+    "target": "self",
+    "condition": null,
+    "base_value": 0.15,
+    "affinity": ["gym_philosopher", "gymnast_rigger"]
+  },
+  {
+    "id": "box_drill",
+    "name": "Строевая с ящиком",
+    "description": "Крик «раз-два» ускоряет даже отжимания: +20% к скорости тренировки.",
+    "effect_type": "training_speed",
+    "target": "archetype:shout_commander",
+    "condition": null,
+    "base_value": 0.2,
+    "affinity": ["shout_commander"]
+  },
+  {
+    "id": "scary_buckwheat",
+    "name": "Гречка с характером",
+    "description": "Столовая выдаёт добавку, мышцы растут от ответственности: +12% к скорости тренировки.",
+    "effect_type": "training_speed",
+    "target": "building:canteen",
+    "condition": null,
+    "base_value": 0.12,
+    "affinity": ["retired_waitress", "gym_philosopher", "fridge_quiet"]
+  }
+]

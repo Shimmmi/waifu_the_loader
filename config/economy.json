@@ -1,0 +1,216 @@
+{
+  "version": "economy-1.1.0",
+  "rarities": [
+    {
+      "id": "N",
+      "name": "Стажёр",
+      "weight": 60,
+      "stat_budget": 50,
+      "talent_count": 1,
+      "power_mult": 1,
+      "talent_scale": 1,
+      "shards_on_duplicate": 1,
+      "level_cost_mult": 1,
+      "color": "#9aa0a6"
+    },
+    {
+      "id": "R",
+      "name": "Грузчик",
+      "weight": 28,
+      "stat_budget": 70,
+      "talent_count": 1,
+      "power_mult": 1.6,
+      "talent_scale": 1.3,
+      "shards_on_duplicate": 3,
+      "level_cost_mult": 1.5,
+      "color": "#4fa3ff"
+    },
+    {
+      "id": "SR",
+      "name": "Бригадир",
+      "weight": 9,
+      "stat_budget": 100,
+      "talent_count": 2,
+      "power_mult": 3,
+      "talent_scale": 1.8,
+      "shards_on_duplicate": 10,
+      "level_cost_mult": 2.5,
+      "color": "#b06cff"
+    },
+    {
+      "id": "SSR",
+      "name": "Мастер такелажа",
+      "weight": 2.5,
+      "stat_budget": 140,
+      "talent_count": 2,
+      "power_mult": 7,
+      "talent_scale": 2.6,
+      "shards_on_duplicate": 30,
+      "level_cost_mult": 4,
+      "color": "#ffb020"
+    },
+    {
+      "id": "UR",
+      "name": "Легенда порта",
+      "weight": 0.5,
+      "stat_budget": 200,
+      "talent_count": 3,
+      "power_mult": 20,
+      "talent_scale": 4,
+      "shards_on_duplicate": 100,
+      "level_cost_mult": 6,
+      "color": "#ff4d6d"
+    }
+  ],
+  "power": {
+    "weights": {
+      "str": 1,
+      "spd": 0.7,
+      "end": 0.5,
+      "cha": 0.3,
+      "lck": 0.3
+    },
+    "level_bonus": 0.05,
+    "star_bonus": 0.25
+  },
+  "production": {
+    "cargo_per_power": 0.05,
+    "base_price_per_kg": 0.1,
+    "cha_price_bonus": 0.002,
+    "lck_crit_chance": 0.002,
+    "crit_mult": 3,
+    "crit_cap": 0.5
+  },
+  "buildings": [
+    {
+      "id": "warehouse",
+      "name": "Склад",
+      "description": "Тут всё и происходит. Больше уровень — больше груза и мест для бригады.",
+      "icon": "🏭",
+      "start_level": 1,
+      "base_cost": 5,
+      "cost_growth": 1.25,
+      "per_level": 0.25
+    },
+    {
+      "id": "canteen",
+      "name": "Столовая",
+      "description": "Гречка, курица, протеиновые батончики сомнительного происхождения.",
+      "icon": "🍲",
+      "start_level": 1,
+      "base_cost": 20,
+      "cost_growth": 1.22,
+      "per_level": 0.05
+    },
+    {
+      "id": "autopark",
+      "name": "Автопарк",
+      "description": "Газели, которые помнят девяностые. Повышают цену за кг.",
+      "icon": "🚚",
+      "start_level": 0,
+      "base_cost": 60,
+      "cost_growth": 1.3,
+      "per_level": 0.2
+    }
+  ],
+  "building_milestones": {
+    "levels": [
+      25,
+      50,
+      100
+    ],
+    "every_after": 100,
+    "mult": 2
+  },
+  "warehouse_slots": {
+    "base": 2,
+    "per_levels": 10,
+    "max": 5
+  },
+  "waifu_level": {
+    "coin_base": 25,
+    "protein_base": 2,
+    "protein_from_level": 5,
+    "growth": 1.15,
+    "cap_base": 10,
+    "cap_per_star": 10
+  },
+  "stars": {
+    "max": 5,
+    "shard_cost": [
+      5,
+      10,
+      20,
+      40,
+      80
+    ],
+    "rarity_cost_mult": {
+      "N": 1,
+      "R": 1.5,
+      "SR": 2,
+      "SSR": 3,
+      "UR": 4
+    }
+  },
+  "offline": {
+    "cap_hours": 12,
+    "online_grace_sec": 90,
+    "report_min_sec": 120,
+    "base_efficiency": 0.5,
+    "end_efficiency": 0.004,
+    "max_efficiency": 1
+  },
+  "start": {
+    "coins": 0,
+    "tickets": 10,
+    "starter_reserve_id": "reserve_fridge_quiet"
+  },
+  "daily": {
+    "tickets": 5,
+    "coins_seconds": 600,
+    "timezone": "Europe/Moscow"
+  },
+  "cargo_milestones": [
+    {
+      "kg": 1000,
+      "tickets": 1
+    },
+    {
+      "kg": 10000,
+      "tickets": 2
+    },
+    {
+      "kg": 100000,
+      "tickets": 2
+    },
+    {
+      "kg": 1000000,
+      "tickets": 3
+    },
+    {
+      "kg": 10000000,
+      "tickets": 3
+    },
+    {
+      "kg": 100000000,
+      "tickets": 5
+    },
+    {
+      "kg": 1000000000,
+      "tickets": 5
+    },
+    {
+      "kg": 10000000000,
+      "tickets": 10
+    },
+    {
+      "kg": 100000000000,
+      "tickets": 10
+    },
+    {
+      "kg": 1000000000000,
+      "tickets": 15
+    }
+  ],
+  "collection_base_capacity": 100
+}
