@@ -61,6 +61,7 @@ describe('ИИ: сборка профиля', () => {
     const cases: [Record<string, unknown>, RegExp][] = [
       [{ age: 19 }, /возраст/],
       [{ talent_ids: ['no_such_talent', 'x'] }, /неизвестный талант/],
+      [{ bio: 'Сумирэ 34 года. Свисток она使用 не для красоты, а чтобы бригада не уронила сейф на лестнице между этажами.' }, /посторонние символы/],
       [{ talent_ids: talentIds(1) }, /талантов 1/],
       [{ image_prompt: 'woman with hard hat lifting a big wooden crate in a warehouse, strong arms' }, /adult/],
       [{ image_prompt: 'adult woman, schoolgirl uniform, lifting a big wooden crate in a warehouse' }, /запрещённое/],

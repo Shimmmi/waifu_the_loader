@@ -66,11 +66,11 @@ export type AiSettings = z.infer<typeof AiSettingsSchema>;
 export const DEFAULT_AI_SETTINGS: AiSettings = {
   enabled: true,
   text: {
-    model: 'deepseek/deepseek-v3.2',
-    fallback: 'google/gemini-3.5-flash-lite',
+    model: '~anthropic/claude-haiku-latest',
+    fallback: 'deepseek/deepseek-v3.2',
     timeout_sec: 90,
     temperature: 0.95,
-    max_tokens: 1800,
+    max_tokens: 3000,
     swear: true,
     lang: 'ru',
     system_prompt: [
@@ -155,7 +155,7 @@ export function profileUserPrompt(req: ProfileRequest, content: Content, cfg: Ec
   const talents = content.talents.filter((t) => t.affinity.length === 0 || t.affinity.includes(a.id));
   const cap = Math.ceil(rc.stat_budget * 0.6);
   const swear = s.text.swear
-    ? 'Мат допустим умеренно (1–2 крепких слова на БИО, не в каждом предложении), без оскорблений групп людей.'
+    ? 'Обязателен умеренный русский мат: в bio или quote 1–2 крепких слова к месту (вроде «бля», «нахрен», «охуеть», «ёб твою мать», «похер»), как ругаются уставшие грузчицы. Мат — про ситуацию и груз, без оскорблений людей и групп.'
     : 'Без мата: только литературная ругань вроде «блин», «чёрт».';
   const lang = s.text.lang === 'en' ? 'Тексты name/bio/quote/appearance пиши на английском.' : 'Тексты name/bio/quote/appearance пиши на русском.';
   return [
@@ -165,13 +165,14 @@ export function profileUserPrompt(req: ProfileRequest, content: Content, cfg: Ec
     `Характерные черты архетипа (причёску и цвет волос можно варьировать, фирменную деталь сохрани): ${a.traits}`,
     ...(req.look
       ? [
-          `Ситуация: ${req.look.story}. В bio обыграй её и груз «${req.look.cargo}».`,
+          `Ситуация: ${req.look.story}. В bio обыграй её и груз (${req.look.cargo}) — название груза пиши по-русски, без английских слов.`,
           `Одежда в этой карточке (англ., для портрета): ${req.look.outfit}.`,
         ]
       : []),
     swear,
     lang,
     `Имя в формате «Имя «Прозвище»» (японское или русское имя + смешное складское прозвище), до 40 символов.${req.avoidNames.length ? ` Не используй имена: ${req.avoidNames.slice(0, 30).join(', ')}.` : ''}`,
+    'bio: 3–5 коротких предложений, не длиннее 550 символов. quote: одна фраза до 120 символов.',
     'Возраст — целое число от 21 до 55. В bio возраст упоминается ровно один раз в форме «N лет»/«N год»/«N года» и совпадает с полем age. Другие числа с «лет» не используй.',
     `stats: положительные целые str, end, spd, cha, lck, каждое от 1 до ${cap}, сумма строго ${rc.stat_budget} (например ${exampleStats(rc.stat_budget)}). Распредели под характер архетипа.`,
     `talent_ids: ровно ${rc.talent_count} разных id из списка (подходящих по смыслу):`,

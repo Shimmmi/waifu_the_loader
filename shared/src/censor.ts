@@ -8,5 +8,5 @@ const ROOTS = [
 const re = new RegExp(`(?<!\\p{L})(${PREFIX}(?:${ROOTS.join('|')})\\p{L}*)`, 'giu');
 
 export function censor(text: string): string {
-  return text.replace(re, (w) => (w.length <= 2 ? w : w[0] + '*'.repeat(w.length - 2) + w[w.length - 1]));
+  return text.replace(re, (w) => (w.length <= 2 ? w[0] + '*'.repeat(w.length - 1) : w[0] + '*'.repeat(w.length - 2) + w[w.length - 1]));
 }

@@ -10,6 +10,9 @@ const FORBIDDEN: RegExp[] = [
   word('хач\\p{L}*|чурк\\p{L}*|жид\\p{L}*|ниггер\\p{L}*|nigg\\p{L}*|пидор\\p{L}*|пидар\\p{L}*|faggot'),
 ];
 
+/** Иероглифы и прочие письменности — типичный сбой LLM посреди русского текста. */
+const FOREIGN_SCRIPT = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}\p{Script=Arabic}\p{Script=Thai}\p{Script=Hebrew}]+/u;
+
 export function findForbidden(text: string): string | null {
   for (const re of FORBIDDEN) {
     const m = text.match(re);
@@ -37,6 +40,8 @@ export function validateProfile(input: unknown, cfg: EconomyConfig): string[] {
   for (const field of [p.name, p.bio, p.quote, p.appearance, ...p.talents.flatMap((t) => [t.name, t.description])]) {
     const bad = findForbidden(field);
     if (bad) errs.push(`запрещённое слово: «${bad}»`);
+    const alien = field.match(FOREIGN_SCRIPT);
+    if (alien) errs.push(`посторонние символы «${alien[0]}»: пиши только кириллицей и латиницей`);
   }
   return errs;
 }
