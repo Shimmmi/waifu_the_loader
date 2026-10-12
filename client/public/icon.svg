@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <pattern id="h" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="8" height="16" fill="#ffc21a"/><rect x="8" width="8" height="16" fill="#1b1b1b"/>
+    </pattern>
+  </defs>
+  <rect width="128" height="128" rx="24" fill="#17150f"/>
+  <rect x="0" y="104" width="128" height="24" fill="url(#h)"/>
+  <rect x="24" y="30" width="80" height="66" rx="4" fill="#c8a46a" stroke="#7a5d2e" stroke-width="4"/>
+  <path d="M24 52h80" stroke="#7a5d2e" stroke-width="3"/>
+  <rect x="56" y="30" width="16" height="66" fill="#efe1b4" opacity=".75"/>
+  <text x="64" y="84" font-family="Impact, Arial Black, sans-serif" font-size="26" text-anchor="middle" fill="#1d1a12">W</text>
+</svg>

@@ -1,0 +1,10 @@
+{
+  "name": "Грузчицы Inc. — Waifu Movers",
+  "short_name": "Грузчицы",
+  "start_url": "/waifu_loader/",
+  "scope": "/waifu_loader/",
+  "display": "standalone",
+  "background_color": "#17150f",
+  "theme_color": "#17150f",
+  "icons": [{ "src": "/waifu_loader/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

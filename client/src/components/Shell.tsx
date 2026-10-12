@@ -1,0 +1,94 @@
+import { useMemo, type ReactNode } from 'react';
+import { D, loadContent, pickLine } from '@wl/shared';
+import { useFmt, useLive, useText } from '../hooks';
+import { useT, type TKey } from '../i18n';
+import { useStore, type Screen } from '../store';
+
+const NAV: { id: Screen; icon: string; key: TKey }[] = [
+  { id: 'warehouse', icon: '🏭', key: 'nav.warehouse' },
+  { id: 'buildings', icon: '🏗️', key: 'nav.buildings' },
+  { id: 'collection', icon: '👷‍♀️', key: 'nav.collection' },
+  { id: 'gacha', icon: '📦', key: 'nav.gacha' },
+  { id: 'profile', icon: '⚙️', key: 'nav.profile' },
+];
+
+function ResourceBar() {
+  const state = useStore((s) => s.state);
+  const live = useLive();
+  const fmt = useFmt();
+  const t = useT();
+  if (!state || !live) return null;
+  const r = state.resources;
+  return (
+    <div className="resbar">
+      <span className="logo">{t('app.title')}</span>
+      <span className="res" title={t('res.cargo')}>
+        <span className="ico">📦</span>
+        <b>{fmt(live.cargoTotal)}</b>
+        <small>{t('unit.kg')}</small>
+      </span>
+      <span className="res" title={t('res.coins')}>
+        <span className="ico">🪙</span>
+        <b>{fmt(live.coins)}</b>
+        <small>+{fmt(state.rates.coinsPerSec)}{t('unit.perSec')}</small>
+      </span>
+      <span className="res" title={t('res.protein')}>
+        <span className="ico">🥤</span>
+        <b>{fmt(live.protein)}</b>
+      </span>
+      <span className="res" title={t('res.tickets')}>
+        <span className="ico">🎟️</span>
+        <b>{r.tickets}</b>
+      </span>
+      <span className="res" title={t('res.shards')}>
+        <span className="ico">💠</span>
+        <b>{r.shards}</b>
+      </span>
+      {D(r.seals).gt(0) && (
+        <span className="res" title={t('res.seals')}>
+          <span className="ico">🔰</span>
+          <b>{fmt(r.seals)}</b>
+        </span>
+      )}
+    </div>
+  );
+}
+
+export function Shell({ children }: { children: ReactNode }) {
+  const screen = useStore((s) => s.screen);
+  const setScreen = useStore((s) => s.setScreen);
+  const state = useStore((s) => s.state);
+  const t = useT();
+  const text = useText();
+  const swear = useStore((s) => s.settings.swear);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- новая подсказка при смене экрана
+  const roll = useMemo(() => Math.random(), [screen]);
+  const tip = text(pickLine(loadContent().flavor.tips, swear, {}, () => roll));
+  const badges: Partial<Record<Screen, number>> = {
+    warehouse: state?.dailyAvailable ? 1 : 0,
+    gacha: state ? Math.floor(state.resources.tickets / 10) + (state.banners.some((b) => b.type === 'newbie' && b.active) ? 1 : 0) : 0,
+  };
+  return (
+    <div className="app">
+      <header className="topbar">
+        <div className="stripe hazard" />
+        <ResourceBar />
+      </header>
+      <nav className="sidenav">
+        {NAV.map((n) => (
+          <button key={n.id} className={`navbtn ${screen === n.id ? 'active' : ''}`} onClick={() => setScreen(n.id)}>
+            <span className="ico">{n.icon}</span>
+            <span>{t(n.key)}</span>
+            {!!badges[n.id] && <span className="badge">{badges[n.id]}</span>}
+          </button>
+        ))}
+      </nav>
+      <main>
+        {children}
+        <div className="tip" key={screen}>
+          💡 {tip}
+        </div>
+      </main>
+    </div>
+  );
+}
