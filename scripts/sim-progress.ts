@@ -11,6 +11,8 @@ import {
   buildingCost,
   cargoMilestoneRewards,
   computeRates,
+  contractSlots,
+  dispatchMult,
   D,
   formatNumber,
   generateProceduralProfile,
@@ -24,6 +26,7 @@ import {
   rarityIndex,
   RARITIES,
   rollOnce,
+  sealsFor,
   settle,
   starCost,
   waifuLevelCost,
@@ -162,7 +165,11 @@ interface Option {
   buy: () => void;
 }
 
-function buildingOption(p: Player, id: string): Option {
+/** Здания без влияния на добычу игрок качает умеренно */
+const UTILITY_CAP: Record<string, number> = { gym: 10, dormitory: 10, bath: 10 };
+
+function buildingOption(p: Player, id: string): Option | null {
+  if ((p.buildings[id] ?? 0) >= (UTILITY_CAP[id] ?? Infinity)) return null;
   return {
     coins: buildingCost(buildingConfig(econ, id), p.buildings[id] ?? 0).toNumber(),
     protein: 0,
@@ -220,10 +227,36 @@ function spend(p: Player) {
   }
 }
 
-function gain(p: Player, sec: number) {
+/**
+ * Контракты (упрощённо): скамейка (не в бригаде) едет на заказы, пока игрок онлайн.
+ * Ожидаемая выплата = шанс × полная + (1 − шанс) × частичная.
+ */
+function contractCoinsPerSec(p: Player, rates: ReturnType<typeof computeRates>): number {
+  const slots = contractSlots(p.buildings, econ);
+  if (slots < 1) return 0;
+  const c = econ.contracts;
+  const team = brigade(p);
+  const inTeam = new Set(team.map((w) => w.id));
+  const powers = p.waifu.map((w) => waifuPower(w, econ)).sort((a, b) => b - a);
+  const refPower = powers.slice(0, c.team_max).reduce((s, v) => s + v, 0);
+  const bench = p.waifu.filter((w) => !inTeam.has(w.id)).map((w) => waifuPower(w, econ)).sort((a, b) => b - a);
+  let earned = 0;
+  for (let i = 0; i < slots; i++) {
+    const members = bench.slice(i * c.team_max, (i + 1) * c.team_max);
+    if (!members.length) break;
+    const ratio = Math.min(c.ratio_cap, members.reduce((s, v) => s + v, 0) / Math.max(1, refPower * ((c.required_power_range[0] + c.required_power_range[1]) / 2)));
+    const chance = Math.min(c.chance_max, Math.max(c.chance_min, c.chance_base + c.chance_per_ratio * ratio));
+    earned += c.reward_coin_seconds_mult * (chance + (1 - chance) * c.partial_reward);
+  }
+  return rates.coinsPerSec.toNumber() * earned * dispatchMult(p.buildings, econ) * CONTRACT_UPTIME;
+}
+const CONTRACT_UPTIME = 0.7;
+
+function gain(p: Player, sec: number, online = false) {
   if (sec <= 0) return;
   const rates = computeRates(brigade(p), p.buildings, econ);
   p.res = produce(p.res, rates, sec);
+  if (online) p.res.coins = p.res.coins.add(contractCoinsPerSec(p, rates) * sec);
   const m = cargoMilestoneRewards(p.res.cargoTotal, p.milestoneIdx, econ);
   p.milestoneIdx = m.newIdx;
   p.tickets += m.tickets;
@@ -245,7 +278,7 @@ function session(p: Player, startSec: number, lenSec: number, day: number) {
   const chunks = Math.max(1, Math.round(lenSec / 300));
   for (let i = 0; i < chunks; i++) {
     p.activeSec += lenSec / chunks;
-    gain(p, lenSec / chunks);
+    gain(p, lenSec / chunks, true);
     pull(p, day);
     spend(p);
   }
@@ -330,3 +363,23 @@ for (const k of KINDS) {
 const all30 = KINDS.flatMap((k) => snaps.get(`${k.name}:${Math.min(30, DAYS)}`) ?? []);
 const full = all30.filter((x) => x.coll >= archetypes.length * RARITIES.length).length;
 console.log(`Полная коллекция (${archetypes.length * RARITIES.length}) к дню ${Math.min(30, DAYS)}: ${full} игроков`);
+
+// ---------- Приёмка M4: от нуля до первого престижа непрерывной игрой (без офлайна) ----------
+const ACCEPT_PLAYERS = Math.min(300, PLAYERS);
+const toPrestige: number[] = [];
+for (let i = 0; i < ACCEPT_PLAYERS; i++) {
+  const p = newPlayer(KINDS[2]!);
+  let t = 0;
+  while (sealsFor(p.res.cargo, econ) < 1 && p.activeSec < 20 * 3600) {
+    session(p, t, 1800, Math.floor(t / 86400));
+    t = p.lastTick;
+  }
+  if (sealsFor(p.res.cargo, econ) >= 1) toPrestige.push(p.activeSec / 3600);
+  if (process.env.SIM_DEBUG && i < 12)
+    console.log(
+      `  ${(p.activeSec / 3600).toFixed(1)} ч: здания ${JSON.stringify(p.buildings)} · waifu ${p.waifu.length} · лучшая ${Math.max(...p.waifu.map((w) => rarityIndex(w.rarity)))} · уровни ${brigade(p).map((w) => w.level).join(',')} · протеин ${fmt(p.res.protein.toNumber())}`,
+    );
+}
+console.log(
+  `Приёмка M4 — первый престиж непрерывной игрой: ${toPrestige.length}/${ACCEPT_PLAYERS} игроков, часов ${tri(toPrestige, (v) => v.toFixed(1))} (цель 3–6)`,
+);

@@ -1,5 +1,5 @@
 {
-  "version": "economy-1.1.0",
+  "version": "economy-1.2.0",
   "rarities": [
     {
       "id": "N",
@@ -111,6 +111,56 @@
       "base_cost": 60,
       "cost_growth": 1.3,
       "per_level": 0.2
+    },
+    {
+      "id": "gym",
+      "name": "Спортзал",
+      "description": "Ржавые блины, зеркало в трещинах и тренер, который видел всё. Открывает тренировки: больше уровень — больше мест и быстрее рост.",
+      "icon": "🏋️",
+      "start_level": 0,
+      "base_cost": 150,
+      "cost_growth": 1.28,
+      "per_level": 0.04
+    },
+    {
+      "id": "dispatch",
+      "name": "Диспетчерская",
+      "description": "Телефон, который звонит всегда. Открывает контракты: больше уровень — больше заказов и выше оплата.",
+      "icon": "📞",
+      "start_level": 0,
+      "base_cost": 300,
+      "cost_growth": 1.28,
+      "per_level": 0.05
+    },
+    {
+      "id": "dormitory",
+      "name": "Общежитие",
+      "description": "Двухъярусные кровати и график душа на холодильнике. Бригада спокойнее спит — склад дольше работает без вас.",
+      "icon": "🛏️",
+      "start_level": 0,
+      "base_cost": 500,
+      "cost_growth": 1.3,
+      "per_level": 0.5
+    },
+    {
+      "id": "merch",
+      "name": "Магазин мерча",
+      "description": "Футболки «Я пережила переезд» и кружки с логотипом. Пассивно поднимает выручку.",
+      "icon": "👕",
+      "start_level": 0,
+      "base_cost": 600,
+      "cost_growth": 1.27,
+      "per_level": 0.06
+    },
+    {
+      "id": "bath",
+      "name": "Баня/Курилка",
+      "description": "Пар, веники и разговоры о смысле жизни. Снимает усталость после тренировок и контрактов.",
+      "icon": "🧖",
+      "start_level": 0,
+      "base_cost": 1200,
+      "cost_growth": 1.3,
+      "per_level": 4
     }
   ],
   "building_milestones": {
@@ -212,5 +262,290 @@
       "tickets": 15
     }
   ],
-  "collection_base_capacity": 100
+  "collection_base_capacity": 100,
+  "gym": {
+    "slots_base": 1,
+    "slots_per_levels": 10,
+    "slots_max": 4
+  },
+  "dispatch": {
+    "active_base": 1,
+    "active_per_levels": 10,
+    "active_max": 4,
+    "board_base": 3,
+    "board_per_levels": 15,
+    "board_max": 6
+  },
+  "dormitory": {
+    "max_extra_hours": 12
+  },
+  "fatigue": {
+    "max": 100,
+    "recovery_per_hour": 10,
+    "canteen_reduction_per_level": 0.01,
+    "canteen_reduction_max": 0.5,
+    "penalty_at_max": 0.5
+  },
+  "training": {
+    "durations_min": [
+      1,
+      15,
+      60,
+      240,
+      480
+    ],
+    "types": [
+      {
+        "id": "strength",
+        "name": "Силовая",
+        "icon": "🏋️",
+        "description": "Приседания с холодильником и становая со шкафом.",
+        "stats": [
+          "str"
+        ],
+        "xp_mult": 1
+      },
+      {
+        "id": "cardio",
+        "name": "Кардио",
+        "icon": "🏃",
+        "description": "Бег по лестнице с коробкой. Пятый этаж, лифта нет.",
+        "stats": [
+          "spd",
+          "end"
+        ],
+        "xp_mult": 1
+      },
+      {
+        "id": "courtesy",
+        "name": "Курсы вежливости",
+        "icon": "🎩",
+        "description": "Учимся говорить «пожалуйста» клиенту, который передумал.",
+        "stats": [
+          "cha"
+        ],
+        "xp_mult": 1
+      },
+      {
+        "id": "luck",
+        "name": "Медитация в курилке",
+        "icon": "🍀",
+        "description": "Сидишь, смотришь в стену, ждёшь, что повезёт.",
+        "stats": [
+          "lck"
+        ],
+        "xp_mult": 1
+      },
+      {
+        "id": "general",
+        "name": "Общая физподготовка",
+        "icon": "📋",
+        "description": "Всего понемногу. Опыта больше, рост статов реже.",
+        "stats": [
+          "str",
+          "end",
+          "spd",
+          "cha",
+          "lck"
+        ],
+        "xp_mult": 1.5,
+        "stat_chance_mult": 0.6
+      }
+    ],
+    "xp_per_min": 6,
+    "xp_level_base": 60,
+    "xp_level_growth": 1.15,
+    "stat_chance_base": 0.2,
+    "stat_chance_per_hour": 0.15,
+    "stat_chance_max": 0.9,
+    "stat_gain_per_hour": 1,
+    "great_chance": 0.1,
+    "fail_chance": 0.08,
+    "stat_bonus_cap_ratio": 0.3,
+    "fatigue_per_hour": 20,
+    "fatigue_min": 3
+  },
+  "contracts": {
+    "durations_min": [
+      5,
+      15,
+      30,
+      60,
+      120,
+      240
+    ],
+    "offer_ttl_min": 90,
+    "team_max": 3,
+    "reward_coin_seconds_mult": 2.2,
+    "reward_protein_seconds_mult": 0.6,
+    "ticket_chance_per_hour": 0.12,
+    "ticket_chance_max": 0.5,
+    "required_power_range": [
+      0.5,
+      1.25
+    ],
+    "chance_base": 0.35,
+    "chance_per_ratio": 0.5,
+    "ratio_cap": 1.5,
+    "stat_bonus_max": 0.1,
+    "lck_bonus": 0.0008,
+    "chance_min": 0.05,
+    "chance_max": 0.97,
+    "partial_reward": 0.35,
+    "xp_per_min": 3,
+    "fatigue_per_hour": 15,
+    "fatigue_min": 3
+  },
+  "prestige": {
+    "seals_divisor": 1000000000.0,
+    "seals_exponent": 0.5,
+    "seal_bonus": 0.1,
+    "tree": [
+      {
+        "id": "cargo",
+        "name": "Становая спина",
+        "icon": "📦",
+        "description": "+25% к грузу за уровень.",
+        "effect": "cargo_mult",
+        "value": 0.25,
+        "costs": [
+          1,
+          2,
+          3,
+          5,
+          8,
+          13
+        ]
+      },
+      {
+        "id": "coins",
+        "name": "Наличка без чека",
+        "icon": "🪙",
+        "description": "+25% к монетам за уровень.",
+        "effect": "coins_mult",
+        "value": 0.25,
+        "costs": [
+          1,
+          2,
+          3,
+          5,
+          8,
+          13
+        ]
+      },
+      {
+        "id": "protein",
+        "name": "Двойная порция",
+        "icon": "🥤",
+        "description": "+50% к протеину за уровень.",
+        "effect": "protein_mult",
+        "value": 0.5,
+        "costs": [
+          1,
+          2,
+          4,
+          7
+        ]
+      },
+      {
+        "id": "xp",
+        "name": "Тренер-садист",
+        "icon": "📈",
+        "description": "+30% к опыту тренировок и контрактов за уровень.",
+        "effect": "xp_mult",
+        "value": 0.3,
+        "costs": [
+          1,
+          3,
+          6
+        ]
+      },
+      {
+        "id": "offline",
+        "name": "Ночная смена",
+        "icon": "🌙",
+        "description": "+2 ч к офлайн-лимиту за уровень.",
+        "effect": "offline_hours",
+        "value": 2,
+        "costs": [
+          1,
+          2,
+          4,
+          7
+        ]
+      },
+      {
+        "id": "gym_slot",
+        "name": "Лишняя скамья",
+        "icon": "🏋️",
+        "description": "+1 место в Спортзале.",
+        "effect": "training_slots",
+        "value": 1,
+        "costs": [
+          2,
+          5
+        ]
+      },
+      {
+        "id": "contract_slot",
+        "name": "Второй телефон",
+        "icon": "📞",
+        "description": "+1 одновременный контракт.",
+        "effect": "contract_slots",
+        "value": 1,
+        "costs": [
+          2,
+          5
+        ]
+      },
+      {
+        "id": "start_coins",
+        "name": "Заначка в шкафчике",
+        "icon": "💰",
+        "description": "Новая смена начинается с 10 000 монет за уровень.",
+        "effect": "start_coins",
+        "value": 10000,
+        "costs": [
+          1,
+          2,
+          4
+        ]
+      },
+      {
+        "id": "tickets",
+        "name": "Премия за смену",
+        "icon": "🎟️",
+        "description": "+3 Билета при каждом Конце смены за уровень.",
+        "effect": "prestige_tickets",
+        "value": 3,
+        "costs": [
+          2,
+          4,
+          8
+        ]
+      },
+      {
+        "id": "auto_claim",
+        "name": "Диспетчер на автомате",
+        "icon": "🤖",
+        "description": "Готовые тренировки и контракты забираются сами, даже пока вас нет.",
+        "effect": "auto_claim",
+        "value": 1,
+        "costs": [
+          3
+        ]
+      },
+      {
+        "id": "auto_buildings",
+        "name": "Прораб на автопилоте",
+        "icon": "🏗️",
+        "description": "Можно включить автоулучшение зданий: прораб тратит до половины монет на самое дешёвое улучшение.",
+        "effect": "auto_buildings",
+        "value": 1,
+        "costs": [
+          4
+        ]
+      }
+    ]
+  }
 }

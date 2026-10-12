@@ -1,13 +1,20 @@
 import {
+  addStats,
+  fatigueNow,
   generateProceduralProfile,
+  levelCap,
+  xpNeed,
   loadContent,
   loadEconomy,
   validateProfile,
   waifuPower,
+  type BuildingLevels,
   type Rarity,
+  type StatBonus,
   type Stats,
   type Talent,
   type WaifuDTO,
+  type WaifuZone,
   type WaifuProfile,
 } from '@wl/shared';
 import { sql, type Sql, type Tx } from './db.js';
@@ -34,15 +41,21 @@ export interface InstanceRow extends PoolRow {
   custom_name: string | null;
   level: number;
   stars: number;
-  zone: 'warehouse' | null;
+  zone: WaifuZone;
   obtained_at: Date;
+  xp: number;
+  stat_bonus: StatBonus;
+  fatigue: number;
+  fatigue_at: Date;
 }
 
 export const basePortraitKey = (archetype: string) => `base/${archetype}.webp`;
 export const baseThumbKey = (archetype: string) => `base/${archetype}_thumb.webp`;
 
-export function toWaifuDTO(r: InstanceRow): WaifuDTO {
+export function toWaifuDTO(r: InstanceRow, ctx?: { buildings: BuildingLevels; nowMs: number }): WaifuDTO {
   const cfg = loadEconomy();
+  const stats = addStats(r.stats, r.stat_bonus);
+  const fatigue = ctx ? fatigueNow(r.fatigue, r.fatigue_at.getTime(), ctx.nowMs, ctx.buildings, cfg) : r.fatigue;
   return {
     id: r.instance_id,
     name: r.name,
@@ -53,7 +66,12 @@ export function toWaifuDTO(r: InstanceRow): WaifuDTO {
     bio: r.bio,
     quote: r.quote,
     appearance: r.appearance,
-    stats: r.stats,
+    stats,
+    baseStats: r.stats,
+    statBonus: r.stat_bonus ?? {},
+    xp: r.xp,
+    xpNeed: r.level >= levelCap(r.stars, cfg) ? 0 : xpNeed(r.level, cfg),
+    fatigue: Math.round(fatigue),
     talents: r.talents,
     portraitUrl: r.portrait_url,
     thumbUrl: r.thumb_url,
@@ -61,13 +79,13 @@ export function toWaifuDTO(r: InstanceRow): WaifuDTO {
     stars: r.stars,
     zone: r.zone,
     obtainedAt: r.obtained_at.toISOString(),
-    power: waifuPower(r, cfg),
+    power: waifuPower({ ...r, stats }, cfg),
   };
 }
 
 /** DTO для waifu из пула, которую игрок не получил (дубликат → осколки). */
 export function poolToPreviewDTO(r: PoolRow): WaifuDTO {
-  return toWaifuDTO({ ...r, instance_id: r.id, custom_name: null, level: 1, stars: 0, zone: null, obtained_at: new Date() });
+  return toWaifuDTO({ ...r, instance_id: r.id, custom_name: null, level: 1, stars: 0, zone: null, obtained_at: new Date(), xp: 0, stat_bonus: {}, fatigue: 0, fatigue_at: new Date() });
 }
 
 export async function insertPoolRow(
@@ -160,7 +178,7 @@ export async function takePoolRow(tx: Tx, poolId: string, userId: string): Promi
 }
 
 export const INSTANCE_SELECT = `
-  i.id AS instance_id, i.custom_name, i.level, i.stars, i.zone, i.obtained_at,
+  i.id AS instance_id, i.custom_name, i.level, i.stars, i.zone, i.obtained_at, i.xp, i.stat_bonus, i.fatigue, i.fatigue_at,
   p.id, p.rarity, p.archetype, p.name, p.age, p.bio, p.quote, p.appearance, p.stats, p.talents, p.portrait_url, p.thumb_url`;
 
 export async function grantWaifu(tx: Tx, userId: string, pool: PoolRow, zone: 'warehouse' | null = null): Promise<InstanceRow> {
@@ -170,7 +188,7 @@ export async function grantWaifu(tx: Tx, userId: string, pool: PoolRow, zone: 'w
     VALUES (${userId}, ${pool.id}, ${pool.rarity}, ${pool.archetype}, ${zone})
     RETURNING id, obtained_at`;
   if (!inst) throw new Error('instance insert failed');
-  return { ...pool, instance_id: inst.id, custom_name: null, level: 1, stars: 0, zone, obtained_at: inst.obtained_at };
+  return { ...pool, instance_id: inst.id, custom_name: null, level: 1, stars: 0, zone, obtained_at: inst.obtained_at, xp: 0, stat_bonus: {}, fatigue: 0, fatigue_at: inst.obtained_at };
 }
 
 export async function poolStats(): Promise<Record<string, number>> {

@@ -1,8 +1,8 @@
 import { create } from 'zustand';
-import { D, DEFAULT_SETTINGS, type Decimal, type OfflineReportDTO, type StateDTO, type UserSettings } from '@wl/shared';
+import { censor, D, DEFAULT_SETTINGS, loadContent, pickLine, type Decimal, type NoticeDTO, type OfflineReportDTO, type StateDTO, type UserSettings } from '@wl/shared';
 import { api, ApiError } from './api';
 
-export type Screen = 'warehouse' | 'buildings' | 'collection' | 'gacha' | 'profile' | 'admin';
+export type Screen = 'warehouse' | 'buildings' | 'collection' | 'gacha' | 'training' | 'contracts' | 'prestige' | 'profile' | 'admin';
 
 export interface Toast {
   id: number;
@@ -31,6 +31,8 @@ interface Store {
 
   setScreen(s: Screen): void;
   toast(text: string, kind?: Toast['kind']): void;
+  /** Итог тренировки/контракта: сводка + реплика из flavor.m4 */
+  notify(n: NoticeDTO): void;
   dropToast(id: number): void;
   apply(s: StateDTO): void;
   load(): Promise<void>;
@@ -62,11 +64,31 @@ export const useStore = create<Store>((set, get) => ({
     setTimeout(() => get().dropToast(id), kind === 'error' ? 5000 : 3500);
   },
   dropToast: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
+  notify: (n) => {
+    const f = loadContent().flavorM4;
+    const lines =
+      n.kind === 'training'
+        ? n.outcome === 'fail'
+          ? f.training_fail
+          : n.outcome === 'great'
+            ? f.training_great
+            : f.training_success
+        : n.kind === 'contract'
+          ? n.outcome === 'contract_success'
+            ? f.contract_success
+            : f.contract_partial
+          : null;
+    const swear = get().settings.swear;
+    const line = lines ? pickLine(lines, swear, n.vars) : '';
+    const text = line ? `${n.text}\n«${line}»` : n.text;
+    get().toast(swear === 0 ? censor(text) : text, n.outcome === 'fail' || n.outcome === 'contract_partial' ? 'info' : 'success');
+  },
 
   apply: (s) => {
     set({ state: s, receivedAt: performance.now(), auth: 'in', settings: s.user.settings });
     if (s.offlineReport) set({ offlineReport: s.offlineReport });
     if (s.milestoneTickets) get().toast(`Веха груза! +${s.milestoneTickets} 🎟`, 'success');
+    for (const n of s.notices ?? []) get().notify(n);
   },
 
   load: async () => {

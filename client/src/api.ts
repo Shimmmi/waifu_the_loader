@@ -1,4 +1,4 @@
-import type { AiSettings, Look, GachaHistoryItemDTO, PullResponseDTO, Rarity, StateDTO, UserSettings } from '@wl/shared';
+import type { AiSettings, Look, GachaHistoryItemDTO, NoticeDTO, PullResponseDTO, Rarity, StateDTO, UserSettings } from '@wl/shared';
 
 const BASE = `${import.meta.env.BASE_URL}api`;
 
@@ -43,6 +43,14 @@ export const api = {
   settings: (patch: Partial<UserSettings>) => req<{ settings: UserSettings }>('PATCH', '/settings', patch),
   nickname: (nickname: string) => req<{ ok: true }>('POST', '/profile/nickname', { nickname }),
   newRecovery: () => req<{ recoveryCode: string }>('POST', '/profile/recovery', {}),
+  trainingStart: (waifuId: string, type: string, durationMin: number) => req<StateDTO>('POST', '/training/start', { waifuId, type, durationMin }),
+  trainingClaim: (id: string) => req<{ notice: NoticeDTO; state: StateDTO }>('POST', `/training/${id}/claim`, {}),
+  contractStart: (id: string, team: string[]) => req<StateDTO>('POST', `/contracts/${id}/start`, { team }),
+  contractClaim: (id: string) => req<{ notice: NoticeDTO; state: StateDTO }>('POST', `/contracts/${id}/claim`, {}),
+  contractDismiss: (id: string) => req<StateDTO>('POST', `/contracts/${id}/dismiss`, {}),
+  endShift: () => req<{ seals: number; tickets: number; state: StateDTO }>('POST', '/prestige/end-shift', {}),
+  prestigeUpgrade: (id: string) => req<StateDTO>('POST', `/prestige/upgrade/${id}`, {}),
+  prestigeAuto: (patch: { buildings?: boolean }) => req<StateDTO>('POST', '/prestige/auto', patch),
   track: (name: string, props: Record<string, unknown> = {}) => req<{ ok: true }>('POST', '/analytics', { name, props }).catch(() => undefined),
 };
 

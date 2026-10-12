@@ -8,6 +8,10 @@ import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
 import {
   ArchetypeSchema,
+  CONTRACT_TAGS,
+  ContractsContentSchema,
+  findForbidden,
+  FlavorM4Schema,
   FlavorSchema,
   NamesSchema,
   ReserveWaifuSchema,
@@ -40,6 +44,8 @@ const talents = check('talents.json', z.array(TalentTemplateSchema).min(30));
 const reserve = check('reserve_waifu.json', z.array(ReserveWaifuSchema).length(10));
 check('names.json', NamesSchema);
 const flavor = check('flavor.ru.json', FlavorSchema);
+const flavorM4 = check('flavor.m4.ru.json', FlavorM4Schema);
+const contracts = check('contracts.json', ContractsContentSchema);
 
 const archIds = new Set(archetypes?.map((a) => a.id) ?? []);
 const buildingIds = new Set(economy.buildings.map((b) => b.id));
@@ -72,6 +78,41 @@ if (reserve) {
 if (flavor) {
   for (const b of buildingIds)
     if (!flavor.building_upgrade[b]) errors.push(`flavor.ru.json: building_upgrade нет ключа ${b}`);
+}
+
+const M4_VARS: Record<string, string[]> = {
+  training_success: ['name', 'training', 'stat', 'amount'],
+  training_great: ['name', 'training', 'stat', 'amount'],
+  training_fail: ['name', 'training', 'stat', 'amount'],
+  contract_success: ['name', 'client', 'cargo', 'coins'],
+  contract_partial: ['name', 'client', 'cargo', 'coins'],
+  fatigue: ['name'],
+  prestige: ['seals'],
+};
+if (flavorM4) {
+  for (const [key, lines] of Object.entries(flavorM4)) {
+    for (const l of lines) {
+      for (const m of l.text.matchAll(/\{(\w+)\}/g))
+        if (!M4_VARS[key]?.includes(m[1]!)) errors.push(`flavor.m4.ru.json: ${key} неизвестный плейсхолдер {${m[1]}}`);
+      const bad = findForbidden(l.text);
+      if (bad) errors.push(`flavor.m4.ru.json: ${key} запрещённое «${bad}»`);
+    }
+    if (!lines.some((l) => l.swear === 0)) errors.push(`flavor.m4.ru.json: ${key} нет строк без мата`);
+  }
+}
+
+if (contracts) {
+  for (const list of [contracts.clients, contracts.cargo]) {
+    const ids = new Set<string>();
+    for (const x of list) {
+      if (ids.has(x.id)) errors.push(`contracts.json: дубль id ${x.id}`);
+      ids.add(x.id);
+      const bad = findForbidden(`${x.name} ${x.blurb}`);
+      if (bad) errors.push(`contracts.json: ${x.id} запрещённое «${bad}»`);
+    }
+  }
+  for (const t of CONTRACT_TAGS)
+    if (!contracts.cargo.some((c) => c.tag === t)) errors.push(`contracts.json: нет грузов с тегом ${t}`);
 }
 
 if (errors.length) {

@@ -17,8 +17,8 @@ import {
 import { sql, type Tx } from './db.js';
 import { advance, GameError, spend, todayIn, type AdvanceResult } from './player.js';
 
-type Extras = Pick<AdvanceResult, 'offlineReport' | 'milestoneTickets'>;
-const extras = (a: AdvanceResult): Extras => ({ offlineReport: a.offlineReport, milestoneTickets: a.milestoneTickets });
+type Extras = Pick<AdvanceResult, 'offlineReport' | 'milestoneTickets' | 'notices'>;
+const extras = (a: AdvanceResult): Extras => ({ offlineReport: a.offlineReport, milestoneTickets: a.milestoneTickets, notices: a.notices });
 
 export async function tick(userId: string): Promise<Extras> {
   return sql.begin(async (tx) => extras(await advance(tx, userId)));
@@ -42,6 +42,11 @@ export async function upgradeBuilding(userId: string, buildingId: string, count:
     await tx`
       INSERT INTO buildings_state (user_id, building_id, level) VALUES (${userId}, ${buildingId}, ${level + n})
       ON CONFLICT (user_id, building_id) DO UPDATE SET level = EXCLUDED.level`;
+    adv.player.buildings[buildingId] = level + n;
+    if (buildingId === 'dispatch') {
+      const { ensureBoard } = await import('./management.js');
+      await ensureBoard(tx, adv.player);
+    }
     return extras(adv);
   });
 }
@@ -105,6 +110,7 @@ export async function assign(userId: string, waifuId: string, zone: 'warehouse' 
   return sql.begin(async (tx) => {
     const adv = await advance(tx, userId);
     const w = await lockInstance(tx, userId, waifuId);
+    if (w.zone === 'gym' || w.zone === 'contract') throw new GameError('busy', w.zone === 'gym' ? 'Она в Спортзале' : 'Она на заказе');
     if (zone === 'warehouse' && w.zone !== 'warehouse') {
       const [{ n } = { n: 0 }] = await tx<{ n: number }[]>`
         SELECT count(*)::int AS n FROM waifu_instances WHERE user_id = ${userId} AND zone = 'warehouse'`;

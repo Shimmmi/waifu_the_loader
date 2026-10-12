@@ -54,21 +54,24 @@ export function WaifuCard({
   onClick,
   badge,
   showDuty = true,
+  picked = false,
 }: {
   w: WaifuDTO;
   onClick?: () => void;
   badge?: ReactNode;
   showDuty?: boolean;
+  picked?: boolean;
 }) {
   const t = useT();
   return (
-    <button className={`card r-${w.rarity}`} style={rarityStyle(w.rarity)} onClick={onClick} type="button">
+    <button className={`card r-${w.rarity}${picked ? ' picked' : ''}`} style={rarityStyle(w.rarity)} onClick={onClick} type="button">
       <img src={w.thumbUrl} alt={displayName(w)} loading="lazy" />
       <span className="rar">{w.rarity}</span>
       <span className="lvl">
         {t('b.level')} {w.level}
       </span>
-      {showDuty && w.zone === 'warehouse' && <span className="onduty">📦</span>}
+      {showDuty && w.zone && <span className="onduty">{w.zone === 'warehouse' ? '📦' : w.zone === 'gym' ? '🏋️' : '📞'}</span>}
+      {w.fatigue >= 1 && <span className="fatigue-chip" title="😮‍💨">😮‍💨 {w.fatigue}</span>}
       {badge}
       <div className="meta">
         <div className="name">{displayName(w)}</div>
@@ -78,6 +81,16 @@ export function WaifuCard({
       </div>
     </button>
   );
+}
+
+/** 90 → «1м 30с», 3900 → «1ч 05м» */
+export function fmtDur(sec: number): string {
+  const s = Math.max(0, Math.ceil(sec));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  if (h) return `${h}ч${m ? ` ${String(m).padStart(2, '0')}м` : ''}`;
+  if (m) return `${m}м${s % 60 && m < 10 ? ` ${s % 60}с` : ''}`;
+  return `${s}с`;
 }
 
 export function Toasts() {

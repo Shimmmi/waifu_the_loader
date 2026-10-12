@@ -1,5 +1,8 @@
 import {
+  boardSize,
   buildingBulkCost,
+  contractSlots,
+  gymSlots,
   buildingCost,
   buildingMaxAffordable,
   loadContent,
@@ -19,8 +22,26 @@ function effect(b: BuildingConfig, level: number): string {
   const m = milestoneMult(level, cfg);
   if (b.id === 'warehouse') return ((1 + b.per_level * Math.max(0, level - 1)) * m).toFixed(2);
   if (b.id === 'canteen') return (b.per_level * level * m).toFixed(2);
-  if (b.id === 'autopark') return ((1 + b.per_level * level) * m).toFixed(2);
+  if (b.id === 'autopark' || b.id === 'merch' || b.id === 'dispatch') return ((1 + b.per_level * level) * (level > 0 ? m : 1)).toFixed(2);
+  if (b.id === 'gym') return String(Math.round(b.per_level * level * 100));
+  if (b.id === 'dormitory') return String(Math.min(cfg.dormitory.max_extra_hours, b.per_level * level));
+  if (b.id === 'bath') return String(cfg.fatigue.recovery_per_hour + b.per_level * level);
   return '';
+}
+
+/** Счётчик мест/слотов здания на уровне level → level+1 */
+function slotsText(b: BuildingConfig, level: number): string {
+  const cfg = loadEconomy();
+  const at = (l: number) => {
+    const lv = { [b.id]: l };
+    if (b.id === 'warehouse') return String(warehouseSlots(l, cfg));
+    if (b.id === 'gym') return String(gymSlots(lv, cfg));
+    if (b.id === 'dispatch') return `${contractSlots(lv, cfg)} · доска ${boardSize(lv, cfg)}`;
+    return '';
+  };
+  const now = at(level);
+  const next = at(level + 1);
+  return next !== now ? `${now} → ${next}` : now;
 }
 
 function nextMilestone(level: number): number {
@@ -86,7 +107,7 @@ export function Buildings() {
                   {t(`b.effect.${b.id}` as TKey, {
                     now: effect(b, level),
                     next: effect(b, level + 1),
-                    slots: `${warehouseSlots(level, cfg)}${warehouseSlots(level + 1, cfg) > warehouseSlots(level, cfg) ? ' → ' + warehouseSlots(level + 1, cfg) : ''}`,
+                    slots: slotsText(b, level),
                   })}
                 </div>
                 <div className="progress" title={`${t('b.next')} ${nm}`}>

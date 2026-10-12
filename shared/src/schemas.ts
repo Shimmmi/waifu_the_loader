@@ -176,6 +176,118 @@ export const RarityConfigSchema = z.object({
 });
 export type RarityConfig = z.infer<typeof RarityConfigSchema>;
 
+export const STAT_KEY = z.enum(STATS);
+
+export const CONTRACT_TAGS = ['piano', 'fridge', 'office', 'safe', 'fragile', 'weird', 'boxes'] as const;
+export type ContractTag = (typeof CONTRACT_TAGS)[number];
+
+export const ContractsContentSchema = z.object({
+  clients: z.array(z.object({ id: z.string().regex(/^[a-z0-9_]+$/), name: z.string().min(2), blurb: z.string().max(160) })).min(5),
+  cargo: z
+    .array(z.object({ id: z.string().regex(/^[a-z0-9_]+$/), name: z.string().min(2), tag: z.enum(CONTRACT_TAGS), stat: STAT_KEY, blurb: z.string().max(160) }))
+    .min(5),
+});
+export type ContractsContent = z.infer<typeof ContractsContentSchema>;
+
+const m4Lines = z.array(FlavorLineSchema).min(3);
+export const FlavorM4Schema = z.object({
+  /** {name} {training} {stat} {amount} */
+  training_success: m4Lines,
+  training_great: m4Lines,
+  training_fail: m4Lines,
+  /** {name} {client} {cargo} {coins} */
+  contract_success: m4Lines,
+  contract_partial: m4Lines,
+  /** {name} */
+  fatigue: m4Lines,
+  /** {seals} */
+  prestige: m4Lines,
+});
+export type FlavorM4 = z.infer<typeof FlavorM4Schema>;
+
+export const TrainingTypeSchema = z.object({
+  id: z.string().regex(/^[a-z_]+$/),
+  name: z.string(),
+  icon: z.string(),
+  description: z.string(),
+  stats: z.array(STAT_KEY).min(1),
+  xp_mult: z.number().positive(),
+  stat_chance_mult: z.number().positive().optional(),
+});
+export type TrainingType = z.infer<typeof TrainingTypeSchema>;
+
+export const TrainingConfigSchema = z.object({
+  durations_min: z.array(z.number().int().positive()).min(1),
+  types: z.array(TrainingTypeSchema).min(1),
+  xp_per_min: z.number().positive(),
+  xp_level_base: z.number().positive(),
+  xp_level_growth: z.number().gt(1),
+  stat_chance_base: z.number().min(0).max(1),
+  stat_chance_per_hour: z.number().min(0),
+  stat_chance_max: z.number().max(1),
+  stat_gain_per_hour: z.number().positive(),
+  great_chance: z.number().min(0).max(1),
+  fail_chance: z.number().min(0).max(1),
+  stat_bonus_cap_ratio: z.number().positive(),
+  fatigue_per_hour: z.number().min(0),
+  fatigue_min: z.number().min(0),
+});
+
+export const ContractsConfigSchema = z.object({
+  durations_min: z.array(z.number().int().positive()).min(1),
+  offer_ttl_min: z.number().int().positive(),
+  team_max: z.number().int().positive(),
+  reward_coin_seconds_mult: z.number().positive(),
+  reward_protein_seconds_mult: z.number().min(0),
+  ticket_chance_per_hour: z.number().min(0),
+  ticket_chance_max: z.number().max(1),
+  required_power_range: z.tuple([z.number().positive(), z.number().positive()]),
+  chance_base: z.number(),
+  chance_per_ratio: z.number(),
+  ratio_cap: z.number().positive(),
+  stat_bonus_max: z.number().min(0),
+  lck_bonus: z.number().min(0),
+  chance_min: z.number().min(0),
+  chance_max: z.number().max(1),
+  partial_reward: z.number().min(0).max(1),
+  xp_per_min: z.number().min(0),
+  fatigue_per_hour: z.number().min(0),
+  fatigue_min: z.number().min(0),
+});
+
+export const PRESTIGE_EFFECTS = [
+  'cargo_mult',
+  'coins_mult',
+  'protein_mult',
+  'xp_mult',
+  'offline_hours',
+  'training_slots',
+  'contract_slots',
+  'start_coins',
+  'prestige_tickets',
+  'auto_claim',
+  'auto_buildings',
+] as const;
+export type PrestigeEffect = (typeof PRESTIGE_EFFECTS)[number];
+
+export const PrestigeNodeSchema = z.object({
+  id: z.string().regex(/^[a-z_]+$/),
+  name: z.string(),
+  icon: z.string(),
+  description: z.string(),
+  effect: z.enum(PRESTIGE_EFFECTS),
+  value: z.number(),
+  costs: z.array(z.number().int().positive()).min(1),
+});
+export type PrestigeNode = z.infer<typeof PrestigeNodeSchema>;
+
+export const PrestigeConfigSchema = z.object({
+  seals_divisor: z.number().positive(),
+  seals_exponent: z.number().positive(),
+  seal_bonus: z.number().min(0),
+  tree: z.array(PrestigeNodeSchema).min(1),
+});
+
 export const EconomyConfigSchema = z.object({
   version: z.string(),
   rarities: z.array(RarityConfigSchema).length(5),
@@ -231,6 +343,26 @@ export const EconomyConfigSchema = z.object({
   daily: z.object({ tickets: z.number().int(), coins_seconds: z.number(), timezone: z.string() }),
   cargo_milestones: z.array(z.object({ kg: z.number().positive(), tickets: z.number().int().positive() })),
   collection_base_capacity: z.number().int().positive(),
+  gym: z.object({ slots_base: z.number().int().min(0), slots_per_levels: z.number().int().positive(), slots_max: z.number().int().positive() }),
+  dispatch: z.object({
+    active_base: z.number().int().min(0),
+    active_per_levels: z.number().int().positive(),
+    active_max: z.number().int().positive(),
+    board_base: z.number().int().positive(),
+    board_per_levels: z.number().int().positive(),
+    board_max: z.number().int().positive(),
+  }),
+  dormitory: z.object({ max_extra_hours: z.number().min(0) }),
+  fatigue: z.object({
+    max: z.number().positive(),
+    recovery_per_hour: z.number().positive(),
+    canteen_reduction_per_level: z.number().min(0),
+    canteen_reduction_max: z.number().min(0).max(1),
+    penalty_at_max: z.number().min(0).max(1),
+  }),
+  training: TrainingConfigSchema,
+  contracts: ContractsConfigSchema,
+  prestige: PrestigeConfigSchema,
 });
 export type EconomyConfig = z.infer<typeof EconomyConfigSchema>;
 

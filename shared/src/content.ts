@@ -1,16 +1,22 @@
 import { z } from 'zod';
 import archetypesJson from '../../config/archetypes.json';
+import contractsJson from '../../config/contracts.json';
+import flavorM4Json from '../../config/flavor.m4.ru.json';
 import flavorJson from '../../config/flavor.ru.json';
 import namesJson from '../../config/names.json';
 import reserveJson from '../../config/reserve_waifu.json';
 import talentsJson from '../../config/talents.json';
 import {
   ArchetypeSchema,
+  ContractsContentSchema,
+  FlavorM4Schema,
   FlavorSchema,
   NamesSchema,
   ReserveWaifuSchema,
   TalentTemplateSchema,
   type Archetype,
+  type ContractsContent,
+  type FlavorM4,
   type Flavor,
   type FlavorLine,
   type Names,
@@ -25,6 +31,8 @@ export interface Content {
   reserve: ReserveWaifu[];
   names: Names;
   flavor: Flavor;
+  flavorM4: FlavorM4;
+  contracts: ContractsContent;
 }
 
 let cache: Content | null = null;
@@ -36,6 +44,8 @@ export function loadContent(): Content {
     reserve: z.array(ReserveWaifuSchema).parse(reserveJson),
     names: NamesSchema.parse(namesJson),
     flavor: FlavorSchema.parse(flavorJson),
+    flavorM4: FlavorM4Schema.parse(flavorM4Json),
+    contracts: ContractsContentSchema.parse(contractsJson),
   });
 }
 

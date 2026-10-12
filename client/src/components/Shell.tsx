@@ -9,6 +9,9 @@ const NAV: { id: Screen; icon: string; key: TKey }[] = [
   { id: 'buildings', icon: '🏗️', key: 'nav.buildings' },
   { id: 'collection', icon: '👷‍♀️', key: 'nav.collection' },
   { id: 'gacha', icon: '📦', key: 'nav.gacha' },
+  { id: 'training', icon: '🏋️', key: 'nav.training' },
+  { id: 'contracts', icon: '📞', key: 'nav.contracts' },
+  { id: 'prestige', icon: '🔰', key: 'nav.prestige' },
   { id: 'profile', icon: '⚙️', key: 'nav.profile' },
 ];
 const ADMIN_NAV = { id: 'admin' as const, icon: '🤖', key: 'nav.admin' as const };
@@ -67,6 +70,9 @@ export function Shell({ children }: { children: ReactNode }) {
   const tip = text(pickLine(loadContent().flavor.tips, swear, {}, () => roll));
   const badges: Partial<Record<Screen, number>> = {
     warehouse: state?.dailyAvailable ? 1 : 0,
+    training: state ? state.trainings.filter((j) => Date.parse(j.endsAt) <= Date.now()).length : 0,
+    contracts: state ? state.contracts.filter((c) => c.status === 'active' && c.endsAt && Date.parse(c.endsAt) <= Date.now()).length : 0,
+    prestige: state ? state.prestige.sealsOnReset : 0,
     gacha: state ? Math.floor(state.resources.tickets / 10) + (state.banners.some((b) => b.type === 'newbie' && b.active) ? 1 : 0) : 0,
   };
   return (

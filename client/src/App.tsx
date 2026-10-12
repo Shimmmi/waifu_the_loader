@@ -6,9 +6,12 @@ import { Toasts } from './components/ui';
 import { Admin } from './screens/Admin';
 import { Buildings } from './screens/Buildings';
 import { Collection } from './screens/Collection';
+import { Contracts } from './screens/Contracts';
 import { Gacha } from './screens/Gacha';
 import { Login } from './screens/Login';
+import { Prestige } from './screens/Prestige';
 import { Profile } from './screens/Profile';
+import { Training } from './screens/Training';
 import { Warehouse } from './screens/Warehouse';
 import { useStore } from './store';
 
@@ -84,6 +87,9 @@ export function App() {
         {screen === 'buildings' && <Buildings />}
         {screen === 'collection' && <Collection />}
         {screen === 'gacha' && <Gacha />}
+        {screen === 'training' && <Training />}
+        {screen === 'contracts' && <Contracts />}
+        {screen === 'prestige' && <Prestige />}
         {screen === 'profile' && <Profile />}
         {screen === 'admin' && isAdmin && <Admin />}
       </Shell>

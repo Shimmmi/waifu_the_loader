@@ -16,18 +16,18 @@ import { useT, type TKey } from '../i18n';
 import { useStore } from '../store';
 import { Cost, displayName, Modal, rarityName, rarityStyle, Stars } from './ui';
 
+/** Таланты тренировок и контрактов работают вне склада */
 const M4_EFFECTS = new Set(['contract_bonus', 'training_speed']);
 
 function TalentRow({ t: tal, active }: { t: Talent; active: boolean }) {
   const t = useT();
   const text = useText();
-  const inert = M4_EFFECTS.has(tal.effect_type);
+  const on = active || M4_EFFECTS.has(tal.effect_type);
   return (
-    <div className={`talent ${active && !inert ? '' : 'off'}`}>
+    <div className={`talent ${on ? '' : 'off'}`}>
       <b>{text(tal.name)}</b>
       <span className="small">{text(tal.description)}</span>
-      {inert && <div className="small muted">⏳ {t('w.m4')}</div>}
-      {!inert && !active && <div className="small muted">({t('w.inactive')})</div>}
+      {!on && <div className="small muted">({t('w.inactive')})</div>}
     </div>
   );
 }
@@ -95,9 +95,30 @@ export function WaifuDetail({ id, onClose }: { id: string; onClose: () => void }
               <span className="bar">
                 <i style={{ width: `${(w.stats[k] / maxStat) * 100}%` }} />
               </span>
-              <b>{w.stats[k]}</b>
+              <b title={w.statBonus[k] ? t('w.bonusHint', { n: w.statBonus[k] ?? 0 }) : undefined}>
+                {w.stats[k]}
+                {!!w.statBonus[k] && <small className="ok"> +{w.statBonus[k]}</small>}
+              </b>
             </div>
           ))}
+          <div className="statbar">
+            <span>{t('w.fatigue')}</span>
+            <span className="bar fatigue">
+              <i style={{ width: `${Math.min(100, w.fatigue)}%` }} />
+            </span>
+            <b>{w.fatigue}</b>
+          </div>
+          {w.xpNeed > 0 && (
+            <div className="statbar">
+              <span>{t('w.xp')}</span>
+              <span className="bar">
+                <i style={{ width: `${Math.min(100, (w.xp / w.xpNeed) * 100)}%` }} />
+              </span>
+              <b className="small">
+                {w.xp}/{w.xpNeed}
+              </b>
+            </div>
+          )}
 
           <h3 style={{ marginTop: 12 }}>{t('w.talents')}</h3>
           {w.talents.map((tal) => (
@@ -147,7 +168,9 @@ export function WaifuDetail({ id, onClose }: { id: string; onClose: () => void }
           </div>
 
           <div className="row" style={{ marginTop: 12 }}>
-            {w.zone === 'warehouse' ? (
+            {w.zone === 'gym' || w.zone === 'contract' ? (
+              <span className="tag">{t(w.zone === 'gym' ? 'w.busyGym' : 'w.busyContract')}</span>
+            ) : w.zone === 'warehouse' ? (
               <button className="btn" disabled={busy} onClick={() => act(() => api.assign(w.id, null))}>
                 {t('w.fromBrigade')}
               </button>

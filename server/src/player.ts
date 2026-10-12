@@ -1,4 +1,12 @@
 import {
+  addStats,
+  boardSize,
+  cargoForSeals,
+  contractSlots,
+  gymSlots,
+  offlineExtraHours,
+  prestigeMods,
+  sealsFor,
   D,
   DEFAULT_SETTINGS,
   cargoMilestoneRewards,
@@ -11,7 +19,9 @@ import {
   warehouseSlots,
   type BannerDTO,
   type Decimal,
+  type NoticeDTO,
   type OfflineReportDTO,
+  type PrestigeMods,
   type Rates,
   type RatesDTO,
   type Resources,
@@ -20,6 +30,7 @@ import {
   type WaifuView,
 } from '@wl/shared';
 import { sql, type Sql, type Tx } from './db.js';
+import { ensureBoard, loadPrestige, runAutomation } from './management.js';
 import { INSTANCE_SELECT, toWaifuDTO, type InstanceRow } from './pool.js';
 
 const PLAYER_COLS = `user_id, cargo, cargo_total, coins, protein, seals, tickets, tokens, shards, cargo_milestone,
@@ -47,6 +58,7 @@ export interface Player {
   buildings: Record<string, number>;
   brigade: WaifuView[];
   rates: Rates;
+  mods: PrestigeMods;
 }
 
 export function ratesDTO(r: Rates): RatesDTO {
@@ -77,13 +89,14 @@ async function loadBrigade(tx: Sql | Tx, userId: string): Promise<WaifuView[]> {
      WHERE i.user_id = $1 AND i.zone = 'warehouse' ORDER BY i.obtained_at`,
     [userId],
   );
-  return rows.map((r) => ({ id: r.instance_id, archetype: r.archetype, rarity: r.rarity, stats: r.stats, level: r.level, stars: r.stars, talents: r.talents }));
+  return rows.map((r) => ({ id: r.instance_id, archetype: r.archetype, rarity: r.rarity, stats: addStats(r.stats, r.stat_bonus), level: r.level, stars: r.stars, talents: r.talents }));
 }
 
 export interface AdvanceResult {
   player: Player;
   offlineReport?: OfflineReportDTO;
   milestoneTickets?: number;
+  notices?: NoticeDTO[];
 }
 
 /**
@@ -97,10 +110,12 @@ export async function advance(tx: Tx, userId: string, now = new Date()): Promise
   if (!row) throw new Error('player not found');
   const buildings = await loadBuildings(tx, userId);
   const brigade = await loadBrigade(tx, userId);
-  const rates = computeRates(brigade, buildings, cfg);
+  const prestige = await loadPrestige(tx, userId);
+  const mods = prestigeMods(prestige.upgrades, prestige.seals_earned, cfg);
+  const rates = computeRates(brigade, buildings, cfg, mods);
 
   const before: Resources = { cargo: D(row.cargo), cargoTotal: D(row.cargo_total), coins: D(row.coins), protein: D(row.protein) };
-  const s = settle(row.last_tick_at.getTime(), now.getTime(), rates, cfg);
+  const s = settle(row.last_tick_at.getTime(), now.getTime(), rates, cfg, offlineExtraHours(buildings, cfg, mods));
   const res = produce(before, rates, s.effectiveSec);
   const ms = cargoMilestoneRewards(res.cargoTotal, row.cargo_milestone, cfg);
 
@@ -114,8 +129,11 @@ export async function advance(tx: Tx, userId: string, now = new Date()): Promise
   }
 
   const newRow: PlayerRow = { ...row, cargo: dstr(res.cargo), cargo_total: dstr(res.cargoTotal), coins: dstr(res.coins), protein: dstr(res.protein), tickets: row.tickets + ms.tickets, cargo_milestone: ms.newIdx, last_tick_at: tickTo };
-  const out: AdvanceResult = { player: { row: newRow, res, buildings, brigade, rates } };
+  const out: AdvanceResult = { player: { row: newRow, res, buildings, brigade, rates, mods } };
   if (ms.tickets > 0) out.milestoneTickets = ms.tickets;
+  const notices = await runAutomation(tx, out.player, prestige.auto);
+  if (notices.length) out.notices = notices;
+  await ensureBoard(tx, out.player);
   if (s.offlineSec >= cfg.offline.report_min_sec) {
     out.offlineReport = {
       offlineSec: s.offlineSec,
@@ -164,7 +182,7 @@ export function bannerActive(b: { starts_at: string | null; ends_at: string | nu
 /** Полный снимок состояния для клиента; вызывается после коммита, всё пересчитывает из БД. */
 export async function snapshot(
   userId: string,
-  extras: Pick<AdvanceResult, 'offlineReport' | 'milestoneTickets'>,
+  extras: Pick<AdvanceResult, 'offlineReport' | 'milestoneTickets' | 'notices'>,
   configVersion: string,
 ): Promise<StateDTO> {
   const cfg = loadEconomy();
@@ -175,7 +193,23 @@ export async function snapshot(
   const [ps] = await sql.unsafe<PlayerRow[]>(`SELECT ${PLAYER_COLS} FROM player_state WHERE user_id = $1`, [userId]);
   if (!ps) throw new GameError('no_user', 'Нет состояния', 401);
   const buildings = await loadBuildings(sql, userId);
-  const rates = computeRates(await loadBrigade(sql, userId), buildings, cfg);
+  const prestige = await loadPrestige(sql, userId);
+  const mods = prestigeMods(prestige.upgrades, prestige.seals_earned, cfg);
+  const rates = computeRates(await loadBrigade(sql, userId), buildings, cfg, mods);
+  const trainings = await sql<{ id: string; instance_id: string; type: string; duration_min: number; started_at: Date; ends_at: Date }[]>`
+    SELECT id, instance_id, type, duration_min, started_at, ends_at FROM training_jobs WHERE user_id = ${userId} AND status = 'active' ORDER BY ends_at`;
+  const contracts = await sql<
+    {
+      id: string; client_id: string; cargo_id: string; tag: string; stat: string; duration_min: number; required_power: number;
+      reward_coins: string; reward_protein: string; ticket_chance: number; status: 'offer' | 'active'; expires_at: Date;
+      team: string[]; success_chance: number | null; started_at: Date | null; ends_at: Date | null;
+    }[]
+  >`
+    SELECT id, client_id, cargo_id, tag, stat, duration_min, required_power, reward_coins, reward_protein, ticket_chance, status,
+      expires_at, team, success_chance, started_at, ends_at
+    FROM contracts WHERE user_id = ${userId} AND (status = 'active' OR (status = 'offer' AND expires_at > now()))
+    ORDER BY status, created_at`;
+  const nowMs = Date.now();
   const waifu = await sql.unsafe<InstanceRow[]>(
     `SELECT ${INSTANCE_SELECT} FROM waifu_instances i JOIN waifu_pool p ON p.id = i.pool_id WHERE i.user_id = $1 ORDER BY i.obtained_at`,
     [userId],
@@ -210,11 +244,53 @@ export async function snapshot(
     rates: ratesDTO(rates),
     buildings,
     slots: warehouseSlots(buildings.warehouse ?? 1, cfg),
-    waifu: waifu.map(toWaifuDTO),
+    waifu: waifu.map((w) => toWaifuDTO(w, { buildings, nowMs })),
     banners,
     dailyAvailable: ps.last_daily_on !== todayIn(cfg.daily.timezone),
     cargoMilestone: ps.cargo_milestone,
+    limits: {
+      gymSlots: gymSlots(buildings, cfg, mods),
+      contractSlots: contractSlots(buildings, cfg, mods),
+      boardSize: boardSize(buildings, cfg),
+      offlineCapHours: cfg.offline.cap_hours + offlineExtraHours(buildings, cfg, mods),
+    },
+    trainings: trainings.map((t) => ({
+      id: t.id,
+      instanceId: t.instance_id,
+      type: t.type,
+      durationMin: t.duration_min,
+      startedAt: t.started_at.toISOString(),
+      endsAt: t.ends_at.toISOString(),
+    })),
+    contracts: contracts.map((c) => ({
+      id: c.id,
+      clientId: c.client_id,
+      cargoId: c.cargo_id,
+      tag: c.tag,
+      stat: c.stat,
+      durationMin: c.duration_min,
+      requiredPower: c.required_power,
+      rewardCoins: c.reward_coins,
+      rewardProtein: c.reward_protein,
+      ticketChance: c.ticket_chance,
+      status: c.status,
+      expiresAt: c.expires_at.toISOString(),
+      team: c.team,
+      successChance: c.success_chance,
+      startedAt: c.started_at?.toISOString() ?? null,
+      endsAt: c.ends_at?.toISOString() ?? null,
+    })),
+    prestige: {
+      count: prestige.prestiges,
+      sealsEarned: prestige.seals_earned,
+      sealsOnReset: sealsFor(D(ps.cargo), cfg),
+      nextSealCargo: dstr(cargoForSeals(sealsFor(D(ps.cargo), cfg) + 1, cfg)),
+      upgrades: prestige.upgrades,
+      auto: { buildings: !!prestige.auto.buildings },
+      unlocked: { autoClaim: mods.autoClaim, autoBuildings: mods.autoBuildings },
+    },
   };
+  if (extras.notices?.length) dto.notices = extras.notices;
   if (extras.offlineReport) dto.offlineReport = extras.offlineReport;
   if (extras.milestoneTickets) dto.milestoneTickets = extras.milestoneTickets;
   return dto;

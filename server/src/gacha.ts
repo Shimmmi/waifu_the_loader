@@ -17,7 +17,7 @@ import type { Storage } from './storage.js';
 
 interface PullOutcome {
   items: PullItemDTO[];
-  adv: Pick<AdvanceResult, 'offlineReport' | 'milestoneTickets'>;
+  adv: Pick<AdvanceResult, 'offlineReport' | 'milestoneTickets' | 'notices'>;
   replay: boolean;
 }
 
@@ -94,7 +94,7 @@ export async function pull(userId: string, bannerId: string, count: number, requ
     if (adv.player.row.total_pulls === 0) {
       await tx`INSERT INTO analytics_events (user_id, name, props) VALUES (${userId}, 'first_pull', ${tx.json({ bannerId } as never)})`;
     }
-    return { items, adv: { offlineReport: adv.offlineReport, milestoneTickets: adv.milestoneTickets }, replay: false };
+    return { items, adv: { offlineReport: adv.offlineReport, milestoneTickets: adv.milestoneTickets, notices: adv.notices }, replay: false };
   });
 }
 

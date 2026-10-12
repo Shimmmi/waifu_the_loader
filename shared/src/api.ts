@@ -1,6 +1,8 @@
 import type { Banner, Rarity, Stats, SwearLevel, Talent } from './schemas.js';
 import type { PityKind } from './gacha.js';
 import type { Notation } from './bignum.js';
+import type { Rates } from './economy.js';
+import type { StatBonus, TrainingOutcome } from './management.js';
 
 export type Chatter = 'off' | 'rare' | 'normal' | 'often';
 /** Средний интервал между репликами на складе, мс */
@@ -44,7 +46,7 @@ export interface RatesDTO {
   pricePerKg: number;
   critChance: number;
   offlineEfficiency: number;
-  mult: { warehouse: number; talentsCargo: number; talentsCoins: number; crit: number; autopark: number };
+  mult: Rates['mult'];
 }
 
 export interface WaifuDTO {
@@ -63,9 +65,65 @@ export interface WaifuDTO {
   thumbUrl: string;
   level: number;
   stars: number;
-  zone: 'warehouse' | null;
+  zone: WaifuZone;
   obtainedAt: string;
   power: number;
+  /** Базовые статы без бонусов тренировок; stats = baseStats + statBonus */
+  baseStats: Stats;
+  statBonus: StatBonus;
+  xp: number;
+  xpNeed: number;
+  /** Текущая усталость 0..100 */
+  fatigue: number;
+}
+
+export type WaifuZone = 'warehouse' | 'gym' | 'contract' | null;
+
+export interface TrainingJobDTO {
+  id: string;
+  instanceId: string;
+  type: string;
+  durationMin: number;
+  startedAt: string;
+  endsAt: string;
+}
+
+export interface ContractDTO {
+  id: string;
+  clientId: string;
+  cargoId: string;
+  tag: string;
+  stat: string;
+  durationMin: number;
+  requiredPower: number;
+  rewardCoins: string;
+  rewardProtein: string;
+  ticketChance: number;
+  status: 'offer' | 'active';
+  expiresAt: string;
+  team: string[];
+  successChance: number | null;
+  startedAt: string | null;
+  endsAt: string | null;
+}
+
+export interface PrestigeDTO {
+  count: number;
+  sealsEarned: number;
+  sealsOnReset: number;
+  /** Груз забега, нужный для следующей печати */
+  nextSealCargo: string;
+  upgrades: Record<string, number>;
+  auto: { buildings: boolean };
+  unlocked: { autoClaim: boolean; autoBuildings: boolean };
+}
+
+export interface NoticeDTO {
+  kind: 'training' | 'contract' | 'auto_buildings';
+  outcome: TrainingOutcome | 'contract_success' | 'contract_partial' | 'info';
+  waifuIds: string[];
+  text: string;
+  vars: Record<string, string>;
 }
 
 export interface PityDTO {
@@ -104,6 +162,12 @@ export interface StateDTO {
   offlineReport?: OfflineReportDTO;
   /** Билеты, начисленные за вехи груза при этом запросе */
   milestoneTickets?: number;
+  limits: { gymSlots: number; contractSlots: number; boardSize: number; offlineCapHours: number };
+  trainings: TrainingJobDTO[];
+  contracts: ContractDTO[];
+  prestige: PrestigeDTO;
+  /** События автоматики и автозабора с прошлого запроса */
+  notices?: NoticeDTO[];
 }
 
 export interface PullItemDTO {

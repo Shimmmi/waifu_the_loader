@@ -10,6 +10,7 @@ import { loginWithRecovery, logout, readToken, registerGuest, requireUser, rotat
 import { sql } from './db.js';
 import { env } from './env.js';
 import { history, pull } from './gacha.js';
+import * as m4 from './management.js';
 import { GameError, snapshot } from './player.js';
 import { poolStats } from './pool.js';
 import type { Storage } from './storage.js';
@@ -107,6 +108,43 @@ export async function buildApp(opts: { storage: Storage; configVersion: string; 
           const { name } = z.object({ name: z.string().max(80).nullable() }).parse(req.body);
           await actions.rename(req.userId, id, name);
           return state(req.userId);
+        });
+
+        const uuidParam = z.object({ id: z.string().uuid() });
+        game.post('/training/start', async (req) => {
+          const b = z.object({ waifuId: z.string().uuid(), type: z.string().max(32), durationMin: z.number().int().positive() }).parse(req.body);
+          return state(req.userId, await m4.startTraining(req.userId, b.waifuId, b.type, b.durationMin));
+        });
+        game.post('/training/:id/claim', async (req) => {
+          const { id } = uuidParam.parse(req.params);
+          const r = await m4.claimTraining(req.userId, id);
+          return { notice: r.notice, state: await state(req.userId, r) };
+        });
+        game.post('/contracts/:id/start', async (req) => {
+          const { id } = uuidParam.parse(req.params);
+          const { team } = z.object({ team: z.array(z.string().uuid()).min(1).max(5) }).parse(req.body);
+          return state(req.userId, await m4.startContract(req.userId, id, team));
+        });
+        game.post('/contracts/:id/claim', async (req) => {
+          const { id } = uuidParam.parse(req.params);
+          const r = await m4.claimContract(req.userId, id);
+          return { notice: r.notice, state: await state(req.userId, r) };
+        });
+        game.post('/contracts/:id/dismiss', async (req) => {
+          const { id } = uuidParam.parse(req.params);
+          return state(req.userId, await m4.dismissContract(req.userId, id));
+        });
+        game.post('/prestige/end-shift', { config: { rateLimit: { max: 5, timeWindow: '1 minute' } } }, async (req) => {
+          const r = await m4.endShift(req.userId);
+          return { seals: r.seals, tickets: r.tickets, state: await state(req.userId, r) };
+        });
+        game.post('/prestige/upgrade/:id', async (req) => {
+          const { id } = z.object({ id: z.string().max(32) }).parse(req.params);
+          return state(req.userId, await m4.buyUpgrade(req.userId, id));
+        });
+        game.post('/prestige/auto', async (req) => {
+          const patch = z.object({ buildings: z.boolean() }).partial().parse(req.body);
+          return state(req.userId, await m4.setAutomation(req.userId, patch));
         });
 
         game.post('/daily/claim', async (req) => {

@@ -137,7 +137,7 @@ export function Warehouse() {
   const [detail, setDetail] = useState<string | null>(null);
 
   const crew = state.waifu.filter((w) => w.zone === 'warehouse');
-  const bench = state.waifu.filter((w) => w.zone !== 'warehouse').sort((a, b) => b.power - a.power);
+  const bench = state.waifu.filter((w) => !w.zone).sort((a, b) => b.power - a.power);
   const r = state.rates;
 
   const claim = () =>
@@ -196,7 +196,21 @@ export function Warehouse() {
             <span>💥 {t('wh.crit')}</span>
             <span>{(r.critChance * 100).toFixed(1)}%</span>
             <span>🌙 {t('wh.offline')}</span>
-            <span>{Math.round(r.offlineEfficiency * 100)}%</span>
+            <span>
+              {Math.round(r.offlineEfficiency * 100)}% · {state.limits.offlineCapHours} ч
+            </span>
+            {r.mult.merch > 1 && (
+              <>
+                <span>👕 {t('wh.merch')}</span>
+                <span>×{r.mult.merch.toFixed(2)}</span>
+              </>
+            )}
+            {r.mult.prestigeCargo > 1 && (
+              <>
+                <span>🔰 {t('res.seals')}</span>
+                <span>×{r.mult.prestigeCargo.toFixed(2)}</span>
+              </>
+            )}
           </div>
         </div>
         <div className="panel taped">

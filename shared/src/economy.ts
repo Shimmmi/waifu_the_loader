@@ -24,7 +24,14 @@ export interface Rates {
   critChance: number;
   offlineEfficiency: number;
   /** Разбивка множителей для UI */
-  mult: { warehouse: number; talentsCargo: number; talentsCoins: number; crit: number; autopark: number };
+  mult: { warehouse: number; talentsCargo: number; talentsCoins: number; crit: number; autopark: number; merch: number; prestigeCargo: number; prestigeCoins: number };
+}
+
+/** Постоянные множители от печатей и дерева престижа. */
+export interface RateMods {
+  cargoMult: number;
+  coinsMult: number;
+  proteinMult: number;
 }
 
 export interface Resources {
@@ -122,7 +129,7 @@ export function talentActive(t: Talent, brigade: Pick<WaifuView, 'archetype'>[])
 }
 
 // ---------- Расчёт скоростей ----------
-export function computeRates(brigade: WaifuView[], buildings: BuildingLevels, cfg: EconomyConfig): Rates {
+export function computeRates(brigade: WaifuView[], buildings: BuildingLevels, cfg: EconomyConfig, mods: RateMods = { cargoMult: 1, coinsMult: 1, proteinMult: 1 }): Rates {
   const p = cfg.production;
   let globalCargo = 0;
   let globalCoins = 0;
@@ -158,7 +165,7 @@ export function computeRates(brigade: WaifuView[], buildings: BuildingLevels, cf
         case 'offline_bonus':
           offlineTalent += v;
           break;
-        // contract_bonus, training_speed — механики этапа M4
+        // contract_bonus, training_speed — в management.ts
         default:
           break;
       }
@@ -191,12 +198,16 @@ export function computeRates(brigade: WaifuView[], buildings: BuildingLevels, cf
   const autoparkMult = (1 + ap.per_level * apLevel) * milestoneMult(apLevel, cfg);
   const pricePerKg = p.base_price_per_kg * autoparkMult * (1 + cha * p.cha_price_bonus) * (1 + priceTalent);
 
-  const cargoPerSec = D(weighted * p.cargo_per_power * warehouseMult * (1 + globalCargo) * critExpect);
-  const coinsPerSec = cargoPerSec.mul(pricePerKg * (1 + globalCoins));
+  const mc = cfg.buildings.find((x) => x.id === 'merch');
+  const mcLevel = mc ? (buildings.merch ?? mc.start_level) : 0;
+  const merchMult = mc ? (1 + mc.per_level * mcLevel) * (mcLevel > 0 ? milestoneMult(mcLevel, cfg) : 1) : 1;
+
+  const cargoPerSec = D(weighted * p.cargo_per_power * warehouseMult * (1 + globalCargo) * critExpect * mods.cargoMult);
+  const coinsPerSec = cargoPerSec.mul(pricePerKg * (1 + globalCoins) * merchMult * mods.coinsMult);
 
   const cn = buildingConfig(cfg, 'canteen');
   const cnLevel = buildings.canteen ?? cn.start_level;
-  const proteinPerSec = D(cn.per_level * cnLevel * milestoneMult(cnLevel, cfg) * (1 + proteinTalent));
+  const proteinPerSec = D(cn.per_level * cnLevel * milestoneMult(cnLevel, cfg) * (1 + proteinTalent) * mods.proteinMult);
 
   const o = cfg.offline;
   const avgEnd = brigade.length ? end / brigade.length : 0;
@@ -216,6 +227,9 @@ export function computeRates(brigade: WaifuView[], buildings: BuildingLevels, cf
       talentsCoins: 1 + globalCoins,
       crit: critExpect,
       autopark: autoparkMult,
+      merch: merchMult,
+      prestigeCargo: mods.cargoMult,
+      prestigeCoins: mods.coinsMult,
     },
   };
 }
