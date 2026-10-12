@@ -31,7 +31,6 @@ import {
   warehouseSlots,
   type BuildingLevels,
   type PityState,
-  type Rarity,
   type Resources,
   type WaifuView,
 } from '@wl/shared';
