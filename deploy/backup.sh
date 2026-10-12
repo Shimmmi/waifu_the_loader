@@ -2,6 +2,7 @@
 # Ежедневный бэкап (ТЗ 0.2): дамп PostgreSQL + архив портретов, хранится 7 последних копий.
 # Cron (root): 30 4 * * * /opt/Waifu_Loader/deploy/backup.sh >> /var/log/waifu_loader_backup.log 2>&1
 set -euo pipefail
+umask 077
 cd "$(dirname "$0")/.."
 DEST=${BACKUP_DIR:-/var/backups/waifu_loader}
 KEEP=${BACKUP_KEEP:-7}
