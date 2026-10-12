@@ -130,6 +130,7 @@ export async function buildApp(opts: { storage: Storage; configVersion: string; 
               notation: z.enum(['letters', 'scientific']),
               lang: z.enum(['ru', 'en']),
               skipGachaAnim: z.boolean(),
+              chatter: z.enum(['off', 'rare', 'normal', 'often']),
             })
             .partial()
             .parse(req.body);

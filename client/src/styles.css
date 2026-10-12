@@ -274,3 +274,34 @@ table.rates td:not(:first-child), table.rates th:not(:first-child) { text-align:
 .review-card { display: flex; flex-direction: column; gap: 8px; }
 .panel.review-card + .panel.review-card { margin-top: 0; }
 .review-card img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 8px; }
+
+/* Реплика грузчицы: облачко над её иконкой, двигается вместе с ней */
+.scene .worker .bubble {
+  position: absolute; bottom: calc(100% + 30px); left: 50%; transform: translateX(-50%);
+  width: max-content; max-width: 200px; padding: 6px 10px; border-radius: 12px;
+  background: #fff; color: #1b1b1b; font-size: 12px; font-weight: 700; line-height: 1.25; text-align: center;
+  box-shadow: 0 3px 8px rgba(0,0,0,.45); pointer-events: none; z-index: 3;
+  animation: bubble-in 3.2s ease-out forwards;
+}
+.scene .worker .bubble::after {
+  content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+  border: 7px solid transparent; border-top-color: #fff;
+}
+.scene .worker .bubble.crit { background: var(--accent); color: var(--accent-ink); font-size: 13px; }
+.scene .worker .bubble.crit::after { border-top-color: var(--accent); }
+@keyframes bubble-in {
+  0% { opacity: 0; transform: translate(-50%, 6px) scale(.85); }
+  8% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  85% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -6px); }
+}
+.scene .worker .bubble.left { left: 0; transform: none; animation-name: bubble-in-side; }
+.scene .worker .bubble.left::after { left: 26px; }
+.scene .worker .bubble.right { left: auto; right: 0; transform: none; animation-name: bubble-in-side; }
+.scene .worker .bubble.right::after { left: auto; right: 18px; transform: none; }
+@keyframes bubble-in-side {
+  0% { opacity: 0; transform: translateY(6px) scale(.85); }
+  8% { opacity: 1; transform: none; }
+  85% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-6px); }
+}

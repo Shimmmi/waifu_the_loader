@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { archetypeById, D, formatNumber, loadContent, type WaifuDTO } from '@wl/shared';
+import { archetypeById, CHATTER_INTERVAL_MS, D, formatNumber, loadContent, type WaifuDTO } from '@wl/shared';
 import { api } from '../api';
 import { useFlavor, useFmt, useLive } from '../hooks';
 import { useT } from '../i18n';
@@ -20,47 +20,69 @@ export const ARCH_ICON: Record<string, string> = {
   retired_waitress: '🍽️',
 };
 
-interface Popup {
+interface Bubble {
   id: number;
-  x: number;
-  y: number;
+  workerId: string;
   text: string;
   crit: boolean;
+  /** С какой стороны от иконки раскрыть облачко, чтобы оно не обрезалось краем сцены */
+  align: 'left' | 'center' | 'right';
 }
+
+const BUBBLE_MS = 3200;
+/** Условная «ходка» для цифры в реплике: сколько кг одна грузчица приносит примерно за 3 секунды. */
+const TRIP_SEC = 3;
 
 function Scene({ crew }: { crew: WaifuDTO[] }) {
   const state = useStore((s) => s.state)!;
   const notation = useStore((s) => s.settings.notation);
+  const chatter = useStore((s) => s.settings.chatter ?? 'rare');
   const flavor = useFlavor();
   const t = useT();
-  const [popups, setPopups] = useState<Popup[]>([]);
+  const [bubbles, setBubbles] = useState<Bubble[]>([]);
   const idRef = useRef(0);
+  const live = useRef<Bubble[]>([]);
+  const sceneRef = useRef<HTMLDivElement>(null);
+  const workerRefs = useRef(new Map<string, HTMLDivElement>());
+  live.current = bubbles;
   const content = loadContent();
 
   useEffect(() => {
-    if (!crew.length) return;
-    const every = 1800;
-    const h = setInterval(() => {
-      if (document.hidden) return;
-      const w = crew[Math.floor(Math.random() * crew.length)]!;
-      const arch = archetypeById(content, w.archetype);
-      const crit = Math.random() < state.rates.critChance;
-      const kg = D(state.rates.cargoPerSec).mul(every / 1000 / crew.length).mul(crit ? 3 : 1);
-      const kgText = formatNumber(kg, notation);
-      const text = crit
-        ? `💥 КРИТ! +${kgText} ${t('unit.kg')}`
-        : flavor(content.flavor.scene_popups, {
-            kg: kgText,
-            cargo: arch ? arch.cargo[Math.floor(Math.random() * arch.cargo.length)]! : 'коробка',
-            name: displayName(w).split(' ')[0] ?? '',
-          });
-      const id = ++idRef.current;
-      setPopups((p) => [...p.slice(-5), { id, x: 5 + Math.random() * 55, y: 20 + Math.random() * 40, text, crit }]);
-      setTimeout(() => setPopups((p) => p.filter((x) => x.id !== id)), 2700);
-    }, every);
-    return () => clearInterval(h);
+    if (!crew.length || chatter === 'off') return;
+    const base = CHATTER_INTERVAL_MS[chatter];
+    let timer: ReturnType<typeof setTimeout>;
+    const say = () => {
+      if (!document.hidden) {
+        const busy = new Set(live.current.map((b) => b.workerId));
+        const free = crew.filter((w) => !busy.has(w.id));
+        const w = free[Math.floor(Math.random() * free.length)];
+        if (w) {
+          const arch = archetypeById(content, w.archetype);
+          const crit = Math.random() < state.rates.critChance;
+          const kg = D(state.rates.cargoPerSec).mul(TRIP_SEC / crew.length).mul(crit ? 3 : 1);
+          const kgText = formatNumber(kg, notation);
+          const text = crit
+            ? `💥 КРИТ! +${kgText} ${t('unit.kg')}`
+            : flavor(content.flavor.scene_popups, {
+                kg: kgText,
+                cargo: arch ? arch.cargo[Math.floor(Math.random() * arch.cargo.length)]! : 'коробка',
+                name: displayName(w).split(' ')[0] ?? '',
+              });
+          const id = ++idRef.current;
+          const sc = sceneRef.current?.getBoundingClientRect();
+          const el = workerRefs.current.get(w.id)?.getBoundingClientRect();
+          const rel = sc && el ? (el.left + el.width / 2 - sc.left) / sc.width : 0.5;
+          const align = rel < 0.25 ? 'left' : rel > 0.75 ? 'right' : 'center';
+          setBubbles((p) => [...p, { id, workerId: w.id, text, crit, align }]);
+          setTimeout(() => setBubbles((p) => p.filter((x) => x.id !== id)), BUBBLE_MS);
+        }
+      }
+      timer = setTimeout(say, base * (0.6 + Math.random() * 0.8));
+    };
+    timer = setTimeout(say, base * (0.3 + Math.random() * 0.5));
+    return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [crew.map((c) => c.id).join(), state.rates.cargoPerSec, notation]);
+  }, [crew.map((c) => c.id).join(), state.rates.cargoPerSec, notation, chatter]);
 
   const boxes = [
     [6, 8], [16, 8], [46, 8], [72, 8], [84, 8],
@@ -69,7 +91,7 @@ function Scene({ crew }: { crew: WaifuDTO[] }) {
   ];
 
   return (
-    <div className="scene">
+    <div className="scene" ref={sceneRef}>
       {boxes.map(([l, top], i) => (
         <div key={i} className="shelf-box" style={{ left: `${l}%`, top: `${top}%` }} />
       ))}
@@ -77,20 +99,27 @@ function Scene({ crew }: { crew: WaifuDTO[] }) {
       {crew.map((w, i) => (
         <div
           key={w.id}
+          ref={(el) => {
+            if (el) workerRefs.current.set(w.id, el);
+            else workerRefs.current.delete(w.id);
+          }}
           className="worker"
           style={{ ...rarityStyle(w.rarity), animationDuration: `${Math.max(3, 14 - w.stats.spd / 6)}s`, animationDelay: `${-i * 2.3}s`, bottom: 14 + (i % 3) * 8 }}
         >
+          {bubbles
+            .filter((b) => b.workerId === w.id)
+            .slice(-1)
+            .map((b) => (
+              <div key={b.id} className={`bubble ${b.align} ${b.crit ? 'crit' : ''}`}>
+                {b.text}
+              </div>
+            ))}
           <span className="carry">{ARCH_ICON[w.archetype] ?? '📦'}</span>
           <div className="avatar" style={{ backgroundImage: `url(${w.thumbUrl})` }} />
           <div className="label">{displayName(w).split(' ')[0]}</div>
         </div>
       ))}
       {!crew.length && <div className="idle">{t('wh.noBrigade')}</div>}
-      {popups.map((p) => (
-        <div key={p.id} className={`popup ${p.crit ? 'crit' : ''}`} style={{ left: `${p.x}%`, top: `${p.y}%` }}>
-          {p.text}
-        </div>
-      ))}
     </div>
   );
 }

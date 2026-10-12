@@ -2,12 +2,18 @@ import type { Banner, Rarity, Stats, SwearLevel, Talent } from './schemas.js';
 import type { PityKind } from './gacha.js';
 import type { Notation } from './bignum.js';
 
+export type Chatter = 'off' | 'rare' | 'normal' | 'often';
+/** Средний интервал между репликами на складе, мс */
+export const CHATTER_INTERVAL_MS: Record<Exclude<Chatter, 'off'>, number> = { rare: 12_000, normal: 6_000, often: 3_000 };
+
 export interface UserSettings {
   swear: SwearLevel;
   theme: 'dark' | 'light' | 'system';
   notation: Notation;
   lang: 'ru' | 'en';
   skipGachaAnim: boolean;
+  /** Частота реплик грузчиц на складе */
+  chatter: Chatter;
 }
 
 export const DEFAULT_SETTINGS: UserSettings = {
@@ -16,6 +22,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   notation: 'letters',
   lang: 'ru',
   skipGachaAnim: false,
+  chatter: 'rare',
 };
 
 export interface ResourcesDTO {

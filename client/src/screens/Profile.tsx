@@ -105,6 +105,10 @@ export function Profile() {
           <Seg k="notation" options={['letters', 'scientific']} />
         </div>
         <div className="field">
+          <label>{t('p.chatter')}</label>
+          <Seg k="chatter" options={['off', 'rare', 'normal', 'often']} />
+        </div>
+        <div className="field">
           <label>{t('p.lang')}</label>
           <div className="seg">
             {(['ru', 'en'] as const).map((l) => (
