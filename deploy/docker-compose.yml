@@ -1,0 +1,79 @@
+# Запуск: docker compose --env-file .env -f deploy/docker-compose.yml up -d  (из корня репозитория)
+name: waifu_loader
+
+x-app-env: &app-env
+  NODE_ENV: production
+  HOST: 0.0.0.0
+  DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+  REDIS_URL: redis://redis:6379
+  PORTRAITS_DIR: /data/portraits
+  PORTRAITS_PUBLIC_URL: /waifu_loader/portraits
+  BASE_PATH: /waifu_loader
+  PORT: "8040"
+  COOKIE_SECRET: ${COOKIE_SECRET}
+  POOL_TARGET_PER_RARITY: ${POOL_TARGET_PER_RARITY:-300}
+  POOL_BATCH: ${POOL_BATCH:-25}
+  ROUTERAI_BASE_URL: ${ROUTERAI_BASE_URL:-}
+  ROUTERAI_API_KEY: ${ROUTERAI_API_KEY:-}
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5440:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      retries: 20
+    mem_limit: 512m
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "128mb", "--maxmemory-policy", "noeviction"]
+    volumes:
+      - redisdata:/data
+    ports:
+      - "127.0.0.1:6390:6379"
+    mem_limit: 192m
+
+  app:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: waifu_loader:latest
+    restart: unless-stopped
+    environment: *app-env
+    working_dir: /app/server
+    command: ["node", "dist/index.js"]
+    ports:
+      - "127.0.0.1:8040:8040"
+    volumes:
+      - ../data/portraits:/data/portraits
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_started }
+    mem_limit: 512m
+
+  worker:
+    image: waifu_loader:latest
+    restart: unless-stopped
+    environment: *app-env
+    working_dir: /app/workers
+    command: ["node", "dist/index.js"]
+    volumes:
+      - ../data/portraits:/data/portraits
+    depends_on:
+      app: { condition: service_started }
+    mem_limit: 512m
+
+volumes:
+  pgdata:
+  redisdata:
