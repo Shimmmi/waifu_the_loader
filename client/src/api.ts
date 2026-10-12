@@ -57,7 +57,7 @@ export interface AiSettingsVersion {
 export interface AiOverview {
   current: AiSettingsVersion;
   keyConfigured: boolean;
-  spend: { todayRub: number; monthRub: number };
+  spend: { todayRub: number; monthRub: number; resetAt?: string | null };
   pool: { rarity: Rarity; source: 'ai' | 'procedural'; status: string; n: number }[];
   week: {
     calls: { kind: string; calls: number; failed: number; first_try: number; cost: number }[];
@@ -122,6 +122,7 @@ export interface ReviewItem {
 
 export const adminApi = {
   overview: () => req<AiOverview>('GET', '/admin/ai'),
+  resetDaily: () => req<{ spend: AiOverview['spend'] }>('POST', '/admin/ai/reset-daily', {}),
   versions: () => req<{ versions: AiSettingsVersion[] }>('GET', '/admin/ai/versions'),
   save: (settings: AiSettings, comment: string) => req<{ version: number }>('PUT', '/admin/ai/settings', { settings, comment }),
   rollback: (version: number) => req<{ version: number }>('POST', '/admin/ai/rollback', { version }),

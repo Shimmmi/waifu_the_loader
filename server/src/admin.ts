@@ -2,7 +2,7 @@ import { Queue } from 'bullmq';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { AiSettingsSchema, loadContent, RaritySchema } from '@wl/shared';
-import { aiSpend, getAiSettings, listAiSettings, rollbackAiSettings, saveAiSettings } from './ai-store.js';
+import { aiSpend, getAiSettings, listAiSettings, resetDailyBudget, rollbackAiSettings, saveAiSettings } from './ai-store.js';
 import { requireUser } from './auth.js';
 import { sql } from './db.js';
 import { env, QUEUES } from './env.js';
@@ -85,6 +85,11 @@ export async function registerAdmin(api: FastifyInstance, connection: { url: str
         themes,
         archetypes: loadContent().archetypes.map((a) => ({ id: a.id, name: a.name })),
       };
+    });
+
+    admin.post('/admin/ai/reset-daily', async (req) => {
+      await resetDailyBudget(req.userId, 'сброс из админки');
+      return { spend: await aiSpend() };
     });
 
     admin.get('/admin/ai/versions', async () => ({ versions: await listAiSettings() }));

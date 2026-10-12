@@ -60,6 +60,11 @@ function Overview({ o, onReload }: { o: AiOverview; onReload: () => void }) {
   const v = byKind.validation;
   const pool = (r: Rarity, src: 'ai' | 'procedural', status: string) => o.pool.find((p) => p.rarity === r && p.source === src && p.status === status)?.n ?? 0;
   const verdict = (st: string) => o.week.verdicts.find((x) => x.status === st)?.n ?? 0;
+  const onError = useToastError();
+  const resetDaily = async () => {
+    if (!confirm(`Начать считать сегодняшний расход с нуля? Ещё до ${rub(lim.daily_rub)} сегодня. Месячный лимит не меняется.`)) return;
+    await adminApi.resetDaily().then(onReload).catch(onError);
+  };
   return (
     <>
       {!o.keyConfigured && <div className="panel" style={{ borderColor: 'var(--danger)' }}>⚠️ Ключ RouterAI не задан в .env — генерация через ИИ не работает, пул пополняется процедурно.</div>}
@@ -70,7 +75,11 @@ function Overview({ o, onReload }: { o: AiOverview; onReload: () => void }) {
           <Bar label="Месяц" value={o.spend.monthRub} max={lim.monthly_rub} />
           <p className="muted" style={{ fontSize: 13 }}>
             Сутки и месяц — по Москве. При исчерпании лимита воркер останавливает ИИ, игра продолжает выдавать процедурных waifu.
+            {o.spend.resetAt && ` Дневной лимит сброшен в ${dt(o.spend.resetAt)}.`}
           </p>
+          <button className="btn small" onClick={() => void resetDaily()}>
+            Сбросить дневной лимит
+          </button>
         </div>
         <div className="panel">
           <h3>За 7 дней</h3>

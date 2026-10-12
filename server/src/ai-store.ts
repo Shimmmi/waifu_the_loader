@@ -62,17 +62,31 @@ export async function rollbackAiSettings(version: number, userId: string | null)
 export interface AiSpend {
   todayRub: number;
   monthRub: number;
+  /** Время ручного сброса дневного лимита сегодня */
+  resetAt?: string | null;
 }
 
 /** Сутки и месяц считаются по Москве, как ежедневная награда. */
 export async function aiSpend(): Promise<AiSpend> {
-  const [r] = await sql<{ today: string; month: string }[]>`
+  const [r] = await sql<{ today: string; month: string; reset_at: Date | null }[]>`
+    WITH b AS (
+      SELECT (date_trunc('day', now() AT TIME ZONE 'Europe/Moscow') AT TIME ZONE 'Europe/Moscow') AS day_start,
+             (date_trunc('month', now() AT TIME ZONE 'Europe/Moscow') AT TIME ZONE 'Europe/Moscow') AS month_start
+    ), rs AS (
+      SELECT max(created_at) AS reset_at FROM ai_budget_resets, b WHERE created_at >= b.day_start
+    )
     SELECT
-      coalesce(sum(cost_rub) FILTER (WHERE created_at >= (date_trunc('day', now() AT TIME ZONE 'Europe/Moscow') AT TIME ZONE 'Europe/Moscow')), 0) AS today,
-      coalesce(sum(cost_rub) FILTER (WHERE created_at >= (date_trunc('month', now() AT TIME ZONE 'Europe/Moscow') AT TIME ZONE 'Europe/Moscow')), 0) AS month
-    FROM ai_generation_log
-    WHERE created_at >= now() - interval '32 days'`;
-  return { todayRub: Number(r?.today ?? 0), monthRub: Number(r?.month ?? 0) };
+      coalesce(sum(cost_rub) FILTER (WHERE created_at >= greatest(b.day_start, coalesce(rs.reset_at, b.day_start))), 0) AS today,
+      coalesce(sum(cost_rub) FILTER (WHERE created_at >= b.month_start), 0) AS month,
+      rs.reset_at
+    FROM b, rs LEFT JOIN ai_generation_log l ON l.created_at >= now() - interval '32 days'
+    GROUP BY rs.reset_at`;
+  return { todayRub: Number(r?.today ?? 0), monthRub: Number(r?.month ?? 0), resetAt: r?.reset_at?.toISOString() ?? null };
+}
+
+/** Сегодняшний расход начинает считаться заново; месячный не меняется. */
+export async function resetDailyBudget(userId: string | null, comment = ''): Promise<void> {
+  await sql`INSERT INTO ai_budget_resets (created_by, comment) VALUES (${userId}, ${comment})`;
 }
 
 export class BudgetExceededError extends Error {
