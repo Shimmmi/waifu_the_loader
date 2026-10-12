@@ -8,6 +8,7 @@ import type { Content } from './content.js';
 import { talentFromTemplate } from './procedural.js';
 import { RaritySchema, STATS, type Archetype, type EconomyConfig, type Rarity, type Stats, type WaifuProfile } from './schemas.js';
 import { DEFAULT_POSES, DEFAULT_SHOTS, DEFAULT_THEMES, ThemeSchema, type Look } from './looks.js';
+import { isAiRarity } from './stock.js';
 import { findForbidden, validateProfile } from './validate.js';
 
 // ---------- Настройки (таблица ai_settings, версии и откат) ----------
@@ -51,8 +52,8 @@ export const AiSettingsSchema = z.object({
     monthly_rub: z.number().min(0),
   }),
   pool: z.object({
-    /** Редкости, которые генерирует ИИ; остальные — процедурно. */
-    ai_rarities: z.array(RaritySchema),
+    /** Редкости, которые генерирует ИИ. N и R всегда со стоковых портретов — их сюда не кладём. */
+    ai_rarities: z.array(RaritySchema).transform((xs) => xs.filter(isAiRarity)),
     /** Сколько ИИ-waifu держать готовыми на каждую ИИ-редкость. */
     ai_target: z.number().int().min(0).max(1000),
     /** Сколько ИИ-waifu делать за один прогон воркера. */
@@ -85,7 +86,7 @@ export const DEFAULT_AI_SETTINGS: AiSettings = {
     ].join('\n'),
   },
   image: {
-    model: 'x-ai/grok-imagine-image-2.0',
+    model: 'google/gemini-nano-banana-2.1',
     fallback: 'bytedance-seed/seedream-5-0-flash',
     timeout_sec: 180,
     aspect_ratio: '3:4',

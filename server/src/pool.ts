@@ -6,6 +6,7 @@ import {
   xpNeed,
   loadContent,
   loadEconomy,
+  pickStock,
   validateProfile,
   waifuPower,
   type BuildingLevels,
@@ -104,12 +105,42 @@ export async function insertPoolRow(
   return row;
 }
 
+/** Копирует стоковые портреты (20 на редкость) в Storage, если их ещё нет. */
+export async function seedStock(storage: Storage, stockDir: string): Promise<number> {
+  const { readdir, readFile } = await import('node:fs/promises');
+  const { join } = await import('node:path');
+  let n = 0;
+  let rarities: string[] = [];
+  try {
+    rarities = await readdir(stockDir);
+  } catch {
+    return 0;
+  }
+  for (const rarity of rarities) {
+    let files: string[] = [];
+    try {
+      files = await readdir(join(stockDir, rarity));
+    } catch {
+      continue;
+    }
+    for (const file of files) {
+      if (!file.endsWith('.webp')) continue;
+      const key = `stock/${rarity}/${file}`;
+      if (await storage.exists(key)) continue;
+      await storage.put(key, await readFile(join(stockDir, rarity, file)), 'image/webp');
+      n++;
+    }
+  }
+  return n;
+}
+
 /** Кладёт 10 заготовленных вручную waifu в пул (один раз) и копирует базовые портреты в Storage. */
 export async function seedReserve(storage: Storage, assetsDir: string): Promise<number> {
   const { readFile } = await import('node:fs/promises');
   const { resolve } = await import('node:path');
   const content = loadContent();
   const cfg = loadEconomy();
+  await seedStock(storage, resolve(assetsDir, '..', 'stock'));
   for (const a of content.archetypes) {
     for (const [key, file] of [
       [basePortraitKey(a.id), `${a.id}.webp`],
@@ -163,9 +194,10 @@ export async function pickFromPool(tx: Tx, rarity: Rarity, archetype: string | n
     const seed = cryptoSeed();
     const p = generateProceduralProfile({ rarity, archetype: archetype ?? undefined, seed }, content, cfg);
     if (validateProfile(p, cfg).length) continue;
+    const stock = pickStock(rarity, p.archetype, seed);
     return insertPoolRow(tx, p, {
-      portraitUrl: storage.publicUrl(basePortraitKey(p.archetype)),
-      thumbUrl: storage.publicUrl(baseThumbKey(p.archetype)),
+      portraitUrl: storage.publicUrl(stock.portrait),
+      thumbUrl: storage.publicUrl(stock.thumb),
       seed,
       source: 'fallback',
     });

@@ -11,3 +11,4 @@ export * from './api.js';
 export * from './ai.js';
 export * from './looks.js';
 export * from './management.js';
+export * from './stock.js';

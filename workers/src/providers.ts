@@ -1,5 +1,5 @@
 import sharp from 'sharp';
-import { generateProceduralProfile, mulberry32, type Content, type EconomyConfig, type Rarity, type WaifuProfile } from '@wl/shared';
+import { generateProceduralProfile, mulberry32, pickStock, type Content, type EconomyConfig, type Rarity, type WaifuProfile } from '@wl/shared';
 
 /** ТЗ 10.2: абстракция провайдеров. RouterAiProvider (M3) реализует оба интерфейса. */
 export interface TextProvider {
@@ -11,6 +11,8 @@ export interface ImageResult {
   image: Buffer;
   thumb: Buffer;
   contentType: string;
+  /** Если задан — файл уже лежит в Storage, refill не копирует его заново. */
+  reuse?: { portrait: string; thumb: string };
 }
 
 export interface ImageProvider {
@@ -31,24 +33,29 @@ export class ProceduralTextProvider implements TextProvider {
 }
 
 /**
- * Временный ImageProvider до M3: берёт базовый портрет архетипа и делает вариацию
- * (сдвиг оттенка, насыщенность, зеркало), затем постобработка — WebP + миниатюра.
+ * Готовые портреты: 20 штук на редкость (2 на архетип). Для N/R — основной источник,
+ * для SR/SSR/UR — запас, когда нет бюджета RouterAI. Зеркало по seed, без перекраски.
  */
-export class VariantImageProvider implements ImageProvider {
-  readonly name = 'variant-image';
-  constructor(private readonly loadBase: (archetype: string) => Promise<Buffer | null>) {}
+export class StockImageProvider implements ImageProvider {
+  readonly name = 'stock-image';
+  constructor(private readonly load: (key: string) => Promise<Buffer | null>) {}
 
   async generatePortrait(req: { profile: WaifuProfile; seed: number }): Promise<ImageResult> {
-    const base = await this.loadBase(req.profile.archetype);
-    if (!base) throw new Error(`no base portrait for ${req.profile.archetype}`);
-    const rnd = mulberry32(req.seed ^ 0x9e3779b9);
-    const hue = Math.floor(rnd() * 360);
-    const saturation = 0.85 + rnd() * 0.35;
-    const brightness = 0.95 + rnd() * 0.1;
-    let img = sharp(base).modulate({ hue, saturation, brightness });
-    if (rnd() < 0.5) img = img.flop();
-    const full = await img.resize(768, 1024, { fit: 'cover' }).webp({ quality: 80 }).toBuffer();
-    const thumb = await sharp(full).resize(240, 320, { fit: 'cover' }).webp({ quality: 72 }).toBuffer();
-    return { image: full, thumb, contentType: 'image/webp' };
+    const stock = pickStock(req.profile.rarity, req.profile.archetype, req.seed);
+    const stockP = await this.load(stock.portrait);
+    const stockT = await this.load(stock.thumb);
+    const portrait = stockP ?? (await this.load(`base/${req.profile.archetype}.webp`));
+    const thumb = stockT ?? (await this.load(`base/${req.profile.archetype}_thumb.webp`));
+    if (!portrait || !thumb) throw new Error(`no stock portrait for ${req.profile.rarity}/${req.profile.archetype}`);
+    const reuse = stockP && stockT ? { portrait: stock.portrait, thumb: stock.thumb } : undefined;
+    if (mulberry32(req.seed ^ 0x9e3779b9)() >= 0.5) return { image: portrait, thumb, contentType: 'image/webp', reuse };
+    return {
+      image: await sharp(portrait).flop().webp({ quality: 80 }).toBuffer(),
+      thumb: await sharp(thumb).flop().webp({ quality: 72 }).toBuffer(),
+      contentType: 'image/webp',
+    };
   }
 }
+
+/** @deprecated используйте StockImageProvider */
+export const VariantImageProvider = StockImageProvider;

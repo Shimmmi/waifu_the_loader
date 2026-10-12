@@ -49,9 +49,12 @@ export async function refillPool(opts: {
             continue;
           }
           const img = await opts.image.generatePortrait({ profile, seed });
-          const key = `gen/${rarity}/${seed}`;
-          const portraitUrl = await opts.storage.put(`${key}.webp`, img.image, img.contentType);
-          const thumbUrl = await opts.storage.put(`${key}_thumb.webp`, img.thumb, img.contentType);
+          const portraitUrl = img.reuse
+            ? opts.storage.publicUrl(img.reuse.portrait)
+            : await opts.storage.put(`gen/${rarity}/${seed}.webp`, img.image, img.contentType);
+          const thumbUrl = img.reuse
+            ? opts.storage.publicUrl(img.reuse.thumb)
+            : await opts.storage.put(`gen/${rarity}/${seed}_thumb.webp`, img.thumb, img.contentType);
           await insertPoolRow(sql, profile, { portraitUrl, thumbUrl, seed, source: 'procedural' });
           created[rarity]++;
           log(`+${rarity} ${profile.name} (${Date.now() - t0} ms)`);

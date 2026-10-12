@@ -376,20 +376,24 @@ function Settings({ current, onSaved }: { current: AiSettingsVersion; onSaved: (
             {num(['pool', 'procedural_reserve'])}
           </Field>
         </div>
-        <Field label="Редкости, которые рисует ИИ">
+        <Field label="Редкости, которые рисует ИИ" hint="N и R всегда со стоковых портретов — RouterAI на них не тратим">
           <div className="row">
-            {RARITIES.map((r) => (
-              <label key={r} className="row" style={{ gap: 4 }}>
-                <input
-                  type="checkbox"
-                  checked={draft.pool.ai_rarities.includes(r)}
-                  onChange={(e) =>
-                    set(['pool', 'ai_rarities'], e.target.checked ? RARITIES.filter((x) => x === r || draft.pool.ai_rarities.includes(x)) : draft.pool.ai_rarities.filter((x) => x !== r))
-                  }
-                />
-                {r}
-              </label>
-            ))}
+            {RARITIES.map((r) => {
+              const locked = r === 'N' || r === 'R';
+              return (
+                <label key={r} className="row" style={{ gap: 4 }}>
+                  <input
+                    type="checkbox"
+                    disabled={locked}
+                    checked={locked ? false : draft.pool.ai_rarities.includes(r)}
+                    onChange={(e) =>
+                      set(['pool', 'ai_rarities'], e.target.checked ? RARITIES.filter((x) => x === r || draft.pool.ai_rarities.includes(x)) : draft.pool.ai_rarities.filter((x) => x !== r))
+                    }
+                  />
+                  {r}
+                </label>
+              );
+            })}
           </div>
         </Field>
       </div>
@@ -600,7 +604,7 @@ function TestRun({ archetypes, onDone }: { archetypes: AiOverview['archetypes'];
         </p>
         <div className="row">
           <select className="input" style={{ width: 'auto' }} value={rarity} onChange={(e) => setRarity(e.target.value as Rarity)}>
-            {RARITIES.map((r) => (
+            {RARITIES.filter((r) => r !== 'N' && r !== 'R').map((r) => (
               <option key={r}>{r}</option>
             ))}
           </select>

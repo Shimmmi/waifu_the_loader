@@ -32,7 +32,7 @@ export async function refillAi(opts: { settings: AiSettings; routerai: RouterAiC
 
   let failedInRow = 0;
   for (let i = 0; i < s.pool.ai_batch; i++) {
-    const rarity = [...s.pool.ai_rarities]
+    const rarity = [...s.pool.ai_rarities.filter((r) => r !== 'N' && r !== 'R')]
       .map((r) => ({ r, deficit: s.pool.ai_target - (ready.get(r) ?? 0) }))
       .filter((x) => x.deficit > 0)
       .sort((a, b) => b.deficit - a.deficit)[0]?.r;
