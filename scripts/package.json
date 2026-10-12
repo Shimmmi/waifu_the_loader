@@ -1,0 +1,15 @@
+{
+  "name": "@wl/scripts",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate": "tsx validate-content.ts",
+    "gacha": "tsx sim-gacha.ts",
+    "progress": "tsx sim-progress.ts",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@wl/shared": "*"
+  }
+}
