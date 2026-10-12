@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { D, DEFAULT_SETTINGS, type Decimal, type OfflineReportDTO, type StateDTO, type UserSettings } from '@wl/shared';
 import { api, ApiError } from './api';
 
-export type Screen = 'warehouse' | 'buildings' | 'collection' | 'gacha' | 'profile';
+export type Screen = 'warehouse' | 'buildings' | 'collection' | 'gacha' | 'profile' | 'admin';
 
 export interface Toast {
   id: number;

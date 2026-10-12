@@ -5,6 +5,7 @@ import { Redis } from 'ioredis';
 import { z } from 'zod';
 import type { PullResponseDTO } from '@wl/shared';
 import * as actions from './actions.js';
+import { registerAdmin } from './admin.js';
 import { loginWithRecovery, logout, readToken, registerGuest, requireUser, rotateRecovery, setSessionCookie, SESSION_COOKIE } from './auth.js';
 import { sql } from './db.js';
 import { env } from './env.js';
@@ -148,6 +149,8 @@ export async function buildApp(opts: { storage: Storage; configVersion: string; 
           return { ok: true };
         });
       });
+
+      await registerAdmin(api, { url: env.redisUrl });
     },
     { prefix: `${env.basePath}/api` },
   );

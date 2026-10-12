@@ -11,6 +11,7 @@ const NAV: { id: Screen; icon: string; key: TKey }[] = [
   { id: 'gacha', icon: '📦', key: 'nav.gacha' },
   { id: 'profile', icon: '⚙️', key: 'nav.profile' },
 ];
+const ADMIN_NAV = { id: 'admin' as const, icon: '🤖', key: 'nav.admin' as const };
 
 function ResourceBar() {
   const state = useStore((s) => s.state);
@@ -75,7 +76,7 @@ export function Shell({ children }: { children: ReactNode }) {
         <ResourceBar />
       </header>
       <nav className="sidenav">
-        {NAV.map((n) => (
+        {(state?.user.isAdmin ? [...NAV, ADMIN_NAV] : NAV).map((n) => (
           <button key={n.id} className={`navbtn ${screen === n.id ? 'active' : ''}`} onClick={() => setScreen(n.id)}>
             <span className="ico">{n.icon}</span>
             <span>{t(n.key)}</span>

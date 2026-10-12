@@ -3,6 +3,7 @@ import { api } from './api';
 import { OfflineModal, RecoveryModal } from './components/Modals';
 import { Shell } from './components/Shell';
 import { Toasts } from './components/ui';
+import { Admin } from './screens/Admin';
 import { Buildings } from './screens/Buildings';
 import { Collection } from './screens/Collection';
 import { Gacha } from './screens/Gacha';
@@ -59,6 +60,7 @@ export function App() {
   const auth = useStore((s) => s.auth);
   const screen = useStore((s) => s.screen);
   const load = useStore((s) => s.load);
+  const isAdmin = useStore((s) => s.state?.user.isAdmin ?? false);
   useTheme();
   useHeartbeat(auth === 'in');
 
@@ -83,6 +85,7 @@ export function App() {
         {screen === 'collection' && <Collection />}
         {screen === 'gacha' && <Gacha />}
         {screen === 'profile' && <Profile />}
+        {screen === 'admin' && isAdmin && <Admin />}
       </Shell>
       <OfflineModal />
       <RecoveryModal />

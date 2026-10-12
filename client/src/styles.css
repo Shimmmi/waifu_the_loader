@@ -255,3 +255,22 @@ table.rates td:not(:first-child), table.rates th:not(:first-child) { text-align:
 .field { margin: 10px 0; }
 .field label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
 .code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 20px; letter-spacing: 1px; padding: 12px; background: var(--bg2); border: 2px dashed var(--accent); border-radius: 8px; text-align: center; user-select: all; word-break: break-all; }
+
+/* ---------- ИИ-цех (админка) ---------- */
+.tbl { width: 100%; border-collapse: collapse; font-size: 14px; }
+.tbl th, .tbl td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.tbl th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .5px; }
+.afield { display: flex; flex-direction: column; gap: 4px; margin: 8px 0; }
+.afield > span { font-size: 13px; color: var(--muted); }
+.afield textarea { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px; resize: vertical; }
+.grid4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0 14px; }
+.grid2 .afield { margin: 8px 0; }
+.sticky-actions { position: sticky; bottom: 8px; z-index: 5; }
+.pre { white-space: pre-wrap; word-break: break-word; font-size: 12px; background: var(--bg2); padding: 8px; border-radius: 6px; max-height: 320px; overflow: auto; }
+.test-result { display: grid; grid-template-columns: minmax(200px, 320px) 1fr; gap: 16px; margin-top: 12px; }
+.test-result img { width: 100%; border-radius: 10px; border: 1px solid var(--line); }
+@media (max-width: 700px) { .test-result { grid-template-columns: 1fr; } }
+.review-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.review-card { display: flex; flex-direction: column; gap: 8px; }
+.panel.review-card + .panel.review-card { margin-top: 0; }
+.review-card img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 8px; }

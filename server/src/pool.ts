@@ -132,11 +132,11 @@ export async function pickFromPool(tx: Tx, rarity: Rarity, archetype: string | n
     ? await tx<PoolRow[]>`
         SELECT id, rarity, archetype, name, age, bio, quote, appearance, stats, talents, portrait_url, thumb_url
         FROM waifu_pool WHERE status = 'ready' AND rarity = ${rarity} AND archetype = ${archetype}
-        ORDER BY random() LIMIT 1 FOR UPDATE SKIP LOCKED`
+        ORDER BY (source = 'ai') DESC, random() LIMIT 1 FOR UPDATE SKIP LOCKED`
     : await tx<PoolRow[]>`
         SELECT id, rarity, archetype, name, age, bio, quote, appearance, stats, talents, portrait_url, thumb_url
         FROM waifu_pool WHERE status = 'ready' AND rarity = ${rarity}
-        ORDER BY random() LIMIT 1 FOR UPDATE SKIP LOCKED`;
+        ORDER BY (source = 'ai') DESC, random() LIMIT 1 FOR UPDATE SKIP LOCKED`;
   if (rows[0]) return rows[0];
 
   const cfg = loadEconomy();

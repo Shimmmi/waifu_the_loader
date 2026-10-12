@@ -4,7 +4,7 @@
  */
 import { rarityConfig } from './config.js';
 import { fill, type Content } from './content.js';
-import { STATS, type EconomyConfig, type Rarity, type Stats, type Talent, type WaifuProfile } from './schemas.js';
+import { STATS, type EconomyConfig, type Rarity, type Stats, type Talent, type TalentTemplate, type WaifuProfile } from './schemas.js';
 
 export function mulberry32(seed: number): () => number {
   let a = seed >>> 0;
@@ -62,18 +62,23 @@ export function rollTalents(content: Content, archetype: string, rarity: Rarity,
     const t = pick(src, rnd);
     if (used.has(t.id)) continue;
     used.add(t.id);
-    const value = Math.round(t.base_value * rc.talent_scale * 1000) / 1000;
-    out.push({
-      id: t.id,
-      name: t.name,
-      description: scaleTalentDescription(t.description, t.base_value, value),
-      effect_type: t.effect_type,
-      target: t.target,
-      value,
-      condition: t.condition,
-    });
+    out.push(talentFromTemplate(t, rarity, cfg));
   }
   return out;
+}
+
+/** Значение таланта всегда считает сервер: base_value × talent_scale редкости. */
+export function talentFromTemplate(t: TalentTemplate, rarity: Rarity, cfg: EconomyConfig): Talent {
+  const value = Math.round(t.base_value * rarityConfig(cfg, rarity).talent_scale * 1000) / 1000;
+  return {
+    id: t.id,
+    name: t.name,
+    description: scaleTalentDescription(t.description, t.base_value, value),
+    effect_type: t.effect_type,
+    target: t.target,
+    value,
+    condition: t.condition,
+  };
 }
 
 const AGE_BANDS: [RegExp, [number, number]][] = [

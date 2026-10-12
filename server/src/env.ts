@@ -36,4 +36,10 @@ export const env = {
   production: process.env.NODE_ENV === 'production',
   poolTarget: Number(process.env.POOL_TARGET_PER_RARITY ?? 300),
   poolBatch: Number(process.env.POOL_BATCH ?? 25),
+  routerai: {
+    baseUrl: (process.env.ROUTERAI_BASE_URL || 'https://routerai.ru/api/v1').replace(/\/$/, ''),
+    apiKey: process.env.ROUTERAI_API_KEY ?? '',
+  },
 };
+
+export const QUEUES = { pool: 'waifu-pool', ai: 'waifu-ai', aiTest: 'waifu-ai-test' } as const;

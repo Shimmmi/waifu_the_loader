@@ -1,4 +1,4 @@
-import type { GachaHistoryItemDTO, PullResponseDTO, StateDTO, UserSettings } from '@wl/shared';
+import type { AiSettings, GachaHistoryItemDTO, PullResponseDTO, Rarity, StateDTO, UserSettings } from '@wl/shared';
 
 const BASE = `${import.meta.env.BASE_URL}api`;
 
@@ -44,4 +44,89 @@ export const api = {
   nickname: (nickname: string) => req<{ ok: true }>('POST', '/profile/nickname', { nickname }),
   newRecovery: () => req<{ recoveryCode: string }>('POST', '/profile/recovery', {}),
   track: (name: string, props: Record<string, unknown> = {}) => req<{ ok: true }>('POST', '/analytics', { name, props }).catch(() => undefined),
+};
+
+// ---------- админка ИИ (ТЗ 10.3) ----------
+export interface AiSettingsVersion {
+  version: number;
+  settings: AiSettings;
+  comment: string;
+  createdAt: string;
+  createdBy: string | null;
+}
+export interface AiOverview {
+  current: AiSettingsVersion;
+  keyConfigured: boolean;
+  spend: { todayRub: number; monthRub: number };
+  pool: { rarity: Rarity; source: 'ai' | 'procedural'; status: string; n: number }[];
+  week: {
+    calls: { kind: string; calls: number; failed: number; first_try: number; cost: number }[];
+    verdicts: { status: string; n: number }[];
+  };
+  archetypes: { id: string; name: string }[];
+}
+export interface ModelInfo {
+  id: string;
+  name: string;
+  input: string[];
+  output: string[];
+  pricing: Record<string, string>;
+}
+export interface AiTestResult {
+  ok: boolean;
+  stage: string;
+  error?: string;
+  profile?: { name: string; age: number; rarity: Rarity; archetype: string; bio: string; quote: string; appearance: string; stats: Record<string, number>; talents: { name: string; description: string }[] };
+  imagePrompt?: string;
+  portraitUrl?: string;
+  verdict?: string;
+  reasons?: string[];
+  moderation?: unknown;
+  costRub: number;
+  durationMs: number;
+  models: { text?: string; image?: string; moderation?: string };
+  attempts?: number;
+  validationErrors?: string[];
+}
+export interface AiLogItem {
+  id: string;
+  kind: string;
+  purpose: string;
+  model: string;
+  ok: boolean;
+  error: string | null;
+  prompt_tokens: number | null;
+  completion_tokens: number | null;
+  cost_rub: number;
+  duration_ms: number;
+  rarity: Rarity | null;
+  attempts: number | null;
+  created_at: string;
+}
+export interface ReviewItem {
+  id: string;
+  rarity: Rarity;
+  archetype: string;
+  name: string;
+  age: number;
+  bio: string;
+  quote: string;
+  portrait_url: string;
+  image_prompt: string | null;
+  moderation: { verdict?: string; reasons?: string[]; estimated_min_age?: number; notes?: string } | null;
+  gen_cost_rub: number | null;
+  created_at: string;
+}
+
+export const adminApi = {
+  overview: () => req<AiOverview>('GET', '/admin/ai'),
+  versions: () => req<{ versions: AiSettingsVersion[] }>('GET', '/admin/ai/versions'),
+  save: (settings: AiSettings, comment: string) => req<{ version: number }>('PUT', '/admin/ai/settings', { settings, comment }),
+  rollback: (version: number) => req<{ version: number }>('POST', '/admin/ai/rollback', { version }),
+  models: () => req<{ models: ModelInfo[] }>('GET', '/admin/ai/models'),
+  log: (limit = 100) => req<{ items: AiLogItem[] }>('GET', `/admin/ai/log?limit=${limit}`),
+  test: (rarity: Rarity, archetype?: string) => req<{ jobId: string }>('POST', '/admin/ai/test', { rarity, archetype }),
+  testStatus: (id: string) => req<{ state: string; result: AiTestResult | null; error: string | null }>('GET', `/admin/ai/test/${id}`),
+  review: (status: 'review' | 'rejected') => req<{ items: ReviewItem[] }>('GET', `/admin/review?status=${status}`),
+  decide: (id: string, action: 'approve' | 'reject') => req<{ ok: true }>('POST', `/admin/review/${id}`, { action }),
 };

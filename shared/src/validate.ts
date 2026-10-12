@@ -5,7 +5,7 @@ import { STATS, WaifuProfileSchema, type EconomyConfig, type WaifuProfile } from
 const word = (alts: string): RegExp => new RegExp(`(?<!\\p{L})(${alts})(?!\\p{L})`, 'iu');
 const FORBIDDEN: RegExp[] = [
   word('лоли|loli|shota|шота'),
-  word('школьниц\\p{L}*|подрост\\p{L}*|несовершеннолет\\p{L}*|ребён\\p{L}*|ребен\\p{L}*|малолет\\p{L}*|child|kid|teen\\p{L}*|underage|minor'),
+  word('школьниц\\p{L}*|подрост\\p{L}*|несовершеннолет\\p{L}*|ребён\\p{L}*|ребен\\p{L}*|малолет\\p{L}*|девочк\\p{L}*|child\\p{L}*|kids?|teen\\p{L}*|underage|minor|schoolgirls?|school uniform|young girl|little girl|baby face|chibi'),
   word('секс\\p{L}*|эрот\\p{L}*|голая|голой|обнаж\\p{L}*|порн\\p{L}*|nsfw|nude|naked|sexy|sexual|lewd'),
   word('хач\\p{L}*|чурк\\p{L}*|жид\\p{L}*|ниггер\\p{L}*|nigg\\p{L}*|пидор\\p{L}*|пидар\\p{L}*|faggot'),
 ];
