@@ -15,6 +15,7 @@ import {
   type UserSettings,
 } from '@wl/shared';
 import { sql, type Tx } from './db.js';
+import { warehouseTaken } from './management.js';
 import { advance, GameError, spend, todayIn, type AdvanceResult } from './player.js';
 
 type Extras = Pick<AdvanceResult, 'offlineReport' | 'milestoneTickets' | 'notices'>;
@@ -115,10 +116,9 @@ export async function assign(userId: string, waifuId: string, zone: 'warehouse' 
       await tx`UPDATE waifu_instances SET zone = NULL WHERE user_id = ${userId} AND zone = 'clerk' AND id <> ${waifuId}`;
     }
     if (zone === 'warehouse' && w.zone !== 'warehouse') {
-      const [{ n } = { n: 0 }] = await tx<{ n: number }[]>`
-        SELECT count(*)::int AS n FROM waifu_instances WHERE user_id = ${userId} AND zone = 'warehouse'`;
       const slots = warehouseSlots(adv.player.buildings.warehouse ?? 1, cfg);
-      if (n >= slots) throw new GameError('no_slots', `В бригаде максимум ${slots} мест. Улучшай Склад`);
+      const n = await warehouseTaken(tx, userId);
+      if (n >= slots) throw new GameError('no_slots', `В бригаде максимум ${slots} мест. Место тех, кто в зале или на заказе, занято до их возвращения`);
     }
     await tx`UPDATE waifu_instances SET zone = ${zone} WHERE id = ${waifuId}`;
     return extras(adv);

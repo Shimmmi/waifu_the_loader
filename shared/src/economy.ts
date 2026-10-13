@@ -277,6 +277,26 @@ export function settle(lastTickMs: number, nowMs: number, rates: Pick<Rates, 'of
   };
 }
 
+/**
+ * Эффективные секунды куска [fromMs, toMs) внутри окна [windowStartMs, …).
+ * Сумма кусков равна settle(windowStart, end).effectiveSec.
+ */
+export function effectiveSecondsBetween(
+  windowStartMs: number,
+  fromMs: number,
+  toMs: number,
+  rates: Pick<Rates, 'offlineEfficiency'>,
+  cfg: EconomyConfig,
+  extraCapHours = 0,
+): number {
+  if (toMs <= fromMs || toMs <= windowStartMs) return 0;
+  const from = Math.max(fromMs, windowStartMs);
+  const graceEnd = windowStartMs + cfg.offline.online_grace_sec * 1000;
+  const capEnd = graceEnd + (cfg.offline.cap_hours + extraCapHours) * 3600 * 1000;
+  const span = (a: number, b: number) => Math.max(0, Math.min(toMs, b) - Math.max(from, a)) / 1000;
+  return span(windowStartMs, graceEnd) + span(graceEnd, capEnd) * rates.offlineEfficiency;
+}
+
 export function produce(res: Resources, rates: Rates, effectiveSec: number): Resources {
   const cargo = rates.cargoPerSec.mul(effectiveSec);
   return {

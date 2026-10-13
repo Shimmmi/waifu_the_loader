@@ -192,6 +192,7 @@ export function Warehouse() {
   const [detail, setDetail] = useState<string | null>(null);
 
   const crew = state.waifu.filter((w) => w.zone === 'warehouse');
+  const away = state.waifu.filter((w) => w.homeZone === 'warehouse');
   const bench = state.waifu.filter((w) => !w.zone).sort((a, b) => b.power - a.power);
   const r = state.rates;
 
@@ -270,7 +271,7 @@ export function Warehouse() {
         </div>
         <div className="panel taped">
           <h3>
-            {t('wh.brigade')} ({crew.length}/{state.slots})
+            {t('wh.brigade')} ({crew.length + away.length}/{state.slots})
           </h3>
           <div className="slots">
             {crew.map((w) => (
@@ -287,7 +288,17 @@ export function Warehouse() {
                 </span>
               </button>
             ))}
-            {Array.from({ length: Math.max(0, state.slots - crew.length) }, (_, i) => (
+            {away.map((w) => (
+              <button key={w.id} className="slot filled" style={{ ...rarityStyle(w.rarity), opacity: 0.55 }} onClick={() => setDetail(w.id)}>
+                <span className="thumb" style={{ backgroundImage: `url(${w.thumbUrl})` }} />
+                <span>
+                  <b className="small">{displayName(w)}</b>
+                  <br />
+                  <span className="small muted">{w.zone === 'gym' ? '🏋️' : '📞'} {t('wh.away')}</span>
+                </span>
+              </button>
+            ))}
+            {Array.from({ length: Math.max(0, state.slots - crew.length - away.length) }, (_, i) => (
               <button key={i} className="slot" onClick={() => setPicker(true)} disabled={!bench.length}>
                 <span className="muted small">
                   ➕ {bench.length ? t('wh.add') : t('wh.empty')}

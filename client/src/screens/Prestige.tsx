@@ -98,7 +98,7 @@ export function Prestige() {
         <div className="row">
           <span>{t('pr.autoClaim')}</span>
           <span className="spacer" />
-          <span className={`tag ${mods.autoClaim ? 'ok' : ''}`}>{mods.autoClaim ? t('pr.on') : t('pr.locked')}</span>
+          <span className="tag ok">{t('pr.on')}</span>
         </div>
         <div className="row" style={{ marginTop: 8 }}>
           <span>{t('pr.autoBuildings')}</span>

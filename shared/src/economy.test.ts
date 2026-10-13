@@ -9,6 +9,7 @@ import {
   cargoMilestoneRewards,
   clerkCargoMult,
   computeRates,
+  effectiveSecondsBetween,
   levelCap,
   milestoneCount,
   produce,
@@ -154,6 +155,13 @@ describe('офлайн-прогресс', () => {
   });
   it('время назад не даёт отрицательного прогресса', () => {
     expect(settle(10_000, 0, rates, cfg).effectiveSec).toBe(0);
+  });
+  it('куски одного окна дают те же эффективные секунды, что один расчёт', () => {
+    const end = 48 * 3600_000;
+    const whole = settle(0, end, rates, cfg).effectiveSec;
+    const mid = 3600_000;
+    expect(effectiveSecondsBetween(0, 0, end, rates, cfg)).toBeCloseTo(whole, 6);
+    expect(effectiveSecondsBetween(0, 0, mid, rates, cfg) + effectiveSecondsBetween(0, mid, end, rates, cfg)).toBeCloseTo(whole, 6);
   });
   it('разбиение на тики даёт тот же результат, что один большой тик (онлайн)', () => {
     const start = { cargo: D(0), cargoTotal: D(0), coins: D(0), protein: D(0) };

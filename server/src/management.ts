@@ -82,13 +82,30 @@ const view = (r: InstanceRow): WaifuView => ({
 const STAT_RU: Record<StatKey, string> = { str: 'Сила', end: 'Выносливость', spd: 'Скорость', cha: 'Обаяние', lck: 'Удача' };
 const displayName = (r: Pick<InstanceRow, 'custom_name' | 'name'>) => r.custom_name ?? r.name;
 
-/** Вернуть waifu с работы: на склад, если была там и есть место, иначе на скамейку. */
+/** Сколько складских мест уже занято: кто на смене и чьё место держится, пока она в зале или на заказе. */
+export async function warehouseTaken(tx: Tx, userId: string): Promise<number> {
+  const [{ n } = { n: 0 }] = await tx<{ n: number }[]>`
+    SELECT (
+      (SELECT count(*) FROM waifu_instances WHERE user_id = ${userId} AND zone = 'warehouse')
+      + (SELECT count(*) FROM training_jobs WHERE user_id = ${userId} AND status = 'active' AND result->>'prevZone' = 'warehouse')
+      + (SELECT count(*) FROM contracts c
+          CROSS JOIN LATERAL jsonb_each_text(COALESCE(c.result->'prevZones', '{}'::jsonb)) z
+          WHERE c.user_id = ${userId} AND c.status = 'active' AND z.value = 'warehouse')
+    )::int AS n`;
+  return n;
+}
+
+/** Вернуть waifu на место, с которого её отправили. Складское место за ней держали, скамейка — если его уже нет. */
 async function returnToZone(tx: Tx, p: Player, id: string, prevZone: string | null): Promise<void> {
   let zone: string | null = null;
   if (prevZone === 'warehouse') {
     const [{ n } = { n: 0 }] = await tx<{ n: number }[]>`
       SELECT count(*)::int AS n FROM waifu_instances WHERE user_id = ${p.row.user_id} AND zone = 'warehouse'`;
     if (n < warehouseSlots(p.buildings.warehouse ?? 1, loadEconomy())) zone = 'warehouse';
+  } else if (prevZone === 'clerk') {
+    const [{ n } = { n: 0 }] = await tx<{ n: number }[]>`
+      SELECT count(*)::int AS n FROM waifu_instances WHERE user_id = ${p.row.user_id} AND zone = 'clerk' AND id <> ${id}`;
+    if (n < 1) zone = 'clerk';
   }
   await tx`UPDATE waifu_instances SET zone = ${zone} WHERE id = ${id} AND zone IN ('gym', 'contract')`;
 }
@@ -168,15 +185,15 @@ async function finishTraining(tx: Tx, p: Player, job: TrainingJobRow): Promise<N
 export async function claimTraining(userId: string, jobId: string): Promise<Extras & { notice: NoticeDTO }> {
   if (!UUID.test(jobId)) throw new GameError('no_job', 'Нет такой тренировки', 404);
   return sql.begin(async (tx) => {
+    const [peek] = await tx<{ instance_id: string; ends_at: Date; status: string }[]>`
+      SELECT instance_id, ends_at, status FROM training_jobs WHERE id = ${jobId} AND user_id = ${userId}`;
+    if (!peek || peek.status !== 'active') throw new GameError('no_job', 'Тренировка уже забрана', 404);
+    if (peek.ends_at.getTime() > Date.now()) throw new GameError('not_ready', 'Ещё тренируется');
     const adv = await advance(tx, userId);
-    const [job] = await tx<TrainingJobRow[]>`
-      SELECT id, instance_id, type, duration_min, ends_at, result FROM training_jobs
-      WHERE id = ${jobId} AND user_id = ${userId} AND status = 'active' FOR UPDATE`;
-    if (!job) throw new GameError('no_job', 'Тренировка уже забрана', 404);
-    if (job.ends_at.getTime() > Date.now()) throw new GameError('not_ready', 'Ещё тренируется');
-    const notice = await finishTraining(tx, adv.player, job);
+    const notice = adv.notices?.find((n) => n.kind === 'training' && n.waifuIds.includes(peek.instance_id));
     if (!notice) throw new GameError('no_job', 'Тренировка уже забрана', 404);
-    return { ...extras(adv), notice };
+    const rest = adv.notices?.filter((n) => n !== notice);
+    return { ...extras(adv), notices: rest?.length ? rest : undefined, notice };
   });
 }
 
@@ -326,13 +343,16 @@ async function finishContract(tx: Tx, p: Player, c: ContractRow): Promise<Notice
 export async function claimContract(userId: string, contractId: string): Promise<Extras & { notice: NoticeDTO }> {
   if (!UUID.test(contractId)) throw new GameError('no_contract', 'Нет такого заказа', 404);
   return sql.begin(async (tx) => {
+    const [peek] = await tx<{ team: string[]; ends_at: Date | null; status: string }[]>`
+      SELECT team, ends_at, status FROM contracts WHERE id = ${contractId} AND user_id = ${userId}`;
+    if (!peek || peek.status !== 'active') throw new GameError('no_contract', 'Заказ уже закрыт', 404);
+    if (!peek.ends_at || peek.ends_at.getTime() > Date.now()) throw new GameError('not_ready', 'Ещё везут');
     const adv = await advance(tx, userId);
-    const [c] = await tx<ContractRow[]>`SELECT * FROM contracts WHERE id = ${contractId} AND user_id = ${userId} AND status = 'active' FOR UPDATE`;
-    if (!c) throw new GameError('no_contract', 'Заказ уже закрыт', 404);
-    if (!c.ends_at || c.ends_at.getTime() > Date.now()) throw new GameError('not_ready', 'Ещё везут');
-    const notice = await finishContract(tx, adv.player, c);
+    const team = new Set(peek.team);
+    const notice = adv.notices?.find((n) => n.kind === 'contract' && n.waifuIds.length === team.size && n.waifuIds.every((id) => team.has(id)));
     if (!notice) throw new GameError('no_contract', 'Заказ уже закрыт', 404);
-    return { ...extras(adv), notice };
+    const rest = adv.notices?.filter((n) => n !== notice);
+    return { ...extras(adv), notices: rest?.length ? rest : undefined, notice };
   });
 }
 
@@ -348,25 +368,40 @@ export async function dismissContract(userId: string, contractId: string): Promi
   });
 }
 
+/** Закрыть тренировки и заказы, срок которых вышел к until, и вернуть грузчиц на место. */
+export async function claimDueWork(tx: Tx, p: Player, until: Date): Promise<NoticeDTO[]> {
+  const notices: NoticeDTO[] = [];
+  const jobs = await tx<TrainingJobRow[]>`
+    SELECT id, instance_id, type, duration_min, ends_at, result FROM training_jobs
+    WHERE user_id = ${p.row.user_id} AND status = 'active' AND ends_at <= ${until} ORDER BY ends_at FOR UPDATE SKIP LOCKED`;
+  for (const j of jobs) {
+    const n = await finishTraining(tx, p, j);
+    if (n) notices.push(n);
+  }
+  const cs = await tx<ContractRow[]>`
+    SELECT * FROM contracts WHERE user_id = ${p.row.user_id} AND status = 'active' AND ends_at <= ${until} ORDER BY ends_at FOR UPDATE SKIP LOCKED`;
+  for (const c of cs) {
+    const n = await finishContract(tx, p, c);
+    if (n) notices.push(n);
+  }
+  return notices;
+}
+
+/** Моменты внутри окна, когда кто-то должен вернуться в бригаду. */
+export async function returnInstants(tx: Tx, userId: string, after: Date, before: Date): Promise<Date[]> {
+  const rows = await tx<{ ends_at: Date }[]>`
+    SELECT ends_at FROM training_jobs
+    WHERE user_id = ${userId} AND status = 'active' AND ends_at > ${after} AND ends_at < ${before}
+    UNION ALL
+    SELECT ends_at FROM contracts
+    WHERE user_id = ${userId} AND status = 'active' AND ends_at > ${after} AND ends_at < ${before}`;
+  return rows.map((r) => r.ends_at);
+}
+
 // ---------- Автоматика (вызывается из advance) ----------
 export async function runAutomation(tx: Tx, p: Player, auto: PrestigeRow['auto']): Promise<NoticeDTO[]> {
   const cfg = loadEconomy();
-  const notices: NoticeDTO[] = [];
-  if (p.mods.autoClaim) {
-    const jobs = await tx<TrainingJobRow[]>`
-      SELECT id, instance_id, type, duration_min, ends_at, result FROM training_jobs
-      WHERE user_id = ${p.row.user_id} AND status = 'active' AND ends_at <= now() ORDER BY ends_at FOR UPDATE SKIP LOCKED`;
-    for (const j of jobs) {
-      const n = await finishTraining(tx, p, j);
-      if (n) notices.push(n);
-    }
-    const cs = await tx<ContractRow[]>`
-      SELECT * FROM contracts WHERE user_id = ${p.row.user_id} AND status = 'active' AND ends_at <= now() ORDER BY ends_at FOR UPDATE SKIP LOCKED`;
-    for (const c of cs) {
-      const n = await finishContract(tx, p, c);
-      if (n) notices.push(n);
-    }
-  }
+  const notices: NoticeDTO[] = [...(await claimDueWork(tx, p, new Date()))];
   if (p.mods.autoBuildings && auto.buildings) {
     const budget = p.res.coins.mul(0.5);
     let spent = D(0);

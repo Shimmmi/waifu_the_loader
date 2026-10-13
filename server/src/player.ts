@@ -14,6 +14,7 @@ import {
   dstr,
   loadEconomy,
   loadGacha,
+  effectiveSecondsBetween,
   produce,
   settle,
   warehouseSlots,
@@ -30,7 +31,7 @@ import {
   type WaifuView,
 } from '@wl/shared';
 import { sql, type Sql, type Tx } from './db.js';
-import { ensureBoard, loadPrestige, runAutomation } from './management.js';
+import { claimDueWork, ensureBoard, loadPrestige, returnInstants, runAutomation } from './management.js';
 import { metaSnapshot } from './meta.js';
 import { INSTANCE_SELECT, toWaifuDTO, type InstanceRow } from './pool.js';
 
@@ -121,15 +122,49 @@ export async function advance(tx: Tx, userId: string, now = new Date()): Promise
   const [row] = await tx.unsafe<PlayerRow[]>(`SELECT ${PLAYER_COLS} FROM player_state WHERE user_id = $1 FOR UPDATE`, [userId]);
   if (!row) throw new Error('player not found');
   const buildings = await loadBuildings(tx, userId);
-  const brigade = await loadBrigade(tx, userId);
-  const clerk = await loadClerk(tx, userId);
+  let brigade = await loadBrigade(tx, userId);
+  let clerk = await loadClerk(tx, userId);
   const prestige = await loadPrestige(tx, userId);
   const mods = prestigeMods(prestige.upgrades, prestige.seals_earned, cfg);
-  const rates = computeRates(brigade, buildings, cfg, mods, clerk?.stats.cha ?? null);
+  let rates = computeRates(brigade, buildings, cfg, mods, clerk?.stats.cha ?? null);
+  const extraCap = offlineExtraHours(buildings, cfg, mods);
 
   const before: Resources = { cargo: D(row.cargo), cargoTotal: D(row.cargo_total), coins: D(row.coins), protein: D(row.protein) };
-  const s = settle(row.last_tick_at.getTime(), now.getTime(), rates, cfg, offlineExtraHours(buildings, cfg, mods));
-  const res = produce(before, rates, s.effectiveSec);
+  const windowStart = row.last_tick_at.getTime();
+  const nowMs = now.getTime();
+  const player: Player = { row, res: before, buildings, brigade, rates, mods };
+  const workNotices: NoticeDTO[] = [];
+
+  // Кто должна была вернуться ещё до этого окна — на месте с первой секунды.
+  if (nowMs > windowStart) {
+    workNotices.push(...(await claimDueWork(tx, player, row.last_tick_at)));
+    if (workNotices.length) {
+      brigade = await loadBrigade(tx, userId);
+      clerk = await loadClerk(tx, userId);
+      rates = computeRates(brigade, buildings, cfg, mods, clerk?.stats.cha ?? null);
+      player.brigade = brigade;
+      player.rates = rates;
+    }
+  }
+
+  const cuts = [...new Set((await returnInstants(tx, userId, row.last_tick_at, now)).map((d) => d.getTime()))].sort((a, b) => a - b);
+  cuts.push(nowMs);
+  let cursor = windowStart;
+  for (const cut of cuts) {
+    player.res = produce(player.res, rates, effectiveSecondsBetween(windowStart, cursor, cut, rates, cfg, extraCap));
+    cursor = cut;
+    if (cut < nowMs) {
+      const back = await claimDueWork(tx, player, new Date(cut));
+      workNotices.push(...back);
+      brigade = await loadBrigade(tx, userId);
+      clerk = await loadClerk(tx, userId);
+      rates = computeRates(brigade, buildings, cfg, mods, clerk?.stats.cha ?? null);
+      player.brigade = brigade;
+      player.rates = rates;
+    }
+  }
+  const res = player.res;
+  const s = settle(windowStart, nowMs, rates, cfg, extraCap);
   const ms = cargoMilestoneRewards(res.cargoTotal, row.cargo_milestone, cfg);
 
   const tickTo = now.getTime() > row.last_tick_at.getTime() ? now : row.last_tick_at;
@@ -142,9 +177,13 @@ export async function advance(tx: Tx, userId: string, now = new Date()): Promise
   }
 
   const newRow: PlayerRow = { ...row, cargo: dstr(res.cargo), cargo_total: dstr(res.cargoTotal), coins: dstr(res.coins), protein: dstr(res.protein), tickets: row.tickets + ms.tickets, cargo_milestone: ms.newIdx, last_tick_at: tickTo };
-  const out: AdvanceResult = { player: { row: newRow, res, buildings, brigade, rates, mods } };
+  player.row = newRow;
+  player.res = res;
+  player.brigade = brigade;
+  player.rates = rates;
+  const out: AdvanceResult = { player };
   if (ms.tickets > 0) out.milestoneTickets = ms.tickets;
-  const notices = await runAutomation(tx, out.player, prestige.auto);
+  const notices = [...workNotices, ...(await runAutomation(tx, player, prestige.auto))];
   const { settleMeta } = await import('./meta.js');
   const metaNotices = await settleMeta(tx, userId, res.cargoTotal.sub(before.cargoTotal), now);
   const all = [...notices, ...metaNotices];
@@ -226,6 +265,15 @@ export async function snapshot(
     FROM contracts WHERE user_id = ${userId} AND (status = 'active' OR (status = 'offer' AND expires_at > now()))
     ORDER BY status, created_at`;
   const nowMs = Date.now();
+  const homes = new Map<string, 'warehouse' | 'clerk'>();
+  const trainingHomes = await sql<{ instance_id: string; home: string | null }[]>`
+    SELECT instance_id, result->>'prevZone' AS home FROM training_jobs WHERE user_id = ${userId} AND status = 'active'`;
+  for (const t of trainingHomes) if (t.home === 'warehouse' || t.home === 'clerk') homes.set(t.instance_id, t.home);
+  const contractHomes = await sql<{ homes: Record<string, string> | null }[]>`
+    SELECT result->'prevZones' AS homes FROM contracts WHERE user_id = ${userId} AND status = 'active'`;
+  for (const c of contractHomes) {
+    for (const [id, home] of Object.entries(c.homes ?? {})) if (home === 'warehouse' || home === 'clerk') homes.set(id, home);
+  }
   const waifu = await sql.unsafe<InstanceRow[]>(
     `SELECT ${INSTANCE_SELECT} FROM waifu_instances i JOIN waifu_pool p ON p.id = i.pool_id WHERE i.user_id = $1 ORDER BY i.obtained_at`,
     [userId],
@@ -260,7 +308,7 @@ export async function snapshot(
     rates: ratesDTO(rates),
     buildings,
     slots: warehouseSlots(buildings.warehouse ?? 1, cfg),
-    waifu: waifu.map((w) => toWaifuDTO(w, { buildings, nowMs })),
+    waifu: waifu.map((w) => ({ ...toWaifuDTO(w, { buildings, nowMs }), homeZone: homes.get(w.instance_id) ?? null })),
     banners,
     dailyAvailable: ps.last_daily_on !== todayIn(cfg.daily.timezone),
     cargoMilestone: ps.cargo_milestone,

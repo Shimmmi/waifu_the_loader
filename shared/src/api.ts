@@ -69,6 +69,8 @@ export interface WaifuDTO {
   level: number;
   stars: number;
   zone: WaifuZone;
+  /** Куда вернётся сама, если сейчас в зале или на заказе и место за ней держат. */
+  homeZone?: WaifuZone;
   obtainedAt: string;
   power: number;
   /** Базовые статы без бонусов тренировок; stats = baseStats + statBonus */
