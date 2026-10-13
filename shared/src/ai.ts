@@ -7,7 +7,7 @@ import { rarityConfig } from './config.js';
 import type { Content } from './content.js';
 import { talentFromTemplate } from './procedural.js';
 import { RaritySchema, STATS, type Archetype, type EconomyConfig, type Rarity, type Stats, type WaifuProfile } from './schemas.js';
-import { DEFAULT_POSES, DEFAULT_SHOTS, DEFAULT_THEMES, ThemeSchema, type Look } from './looks.js';
+import { CARRY_BAN, DEFAULT_POSES, DEFAULT_SHOTS, DEFAULT_THEMES, ThemeSchema, type Look } from './looks.js';
 import { isAiRarity } from './stock.js';
 import { findForbidden, validateProfile } from './validate.js';
 
@@ -75,12 +75,11 @@ export const DEFAULT_AI_SETTINGS: AiSettings = {
     swear: true,
     lang: 'ru',
     system_prompt: [
-      'Ты — сценарист юмористической браузерной игры 18+ «Грузчицы Inc.» про аниме-девушек из бригады грузчиц, которые где угодно — на складе, пляже, в офисе, на фестивале, в фэнтези-мире — с серьёзным лицом таскают холодильники, рояли и сейфы.',
+      'Ты — сценарист юмористической браузерной игры 18+ «Грузчицы Inc.» про аниме-девушек из бригады грузчиц. На портрете она либо на смене (склад, доставка, погрузка, разгрузка, переезд), либо на отдыхе (пляж, зал, хобби). Других профессий у неё нет: не повар, не офис, не музыкант.',
       'Ты пишешь карточки персонажей: короткие, смешные, с бытовым абсурдом и чёрным юмором. Что она грузчица, должно быть понятно из ситуации и груза, а не из униформы.',
       'Жёсткие правила:',
       '- Каждый персонаж — взрослая женщина от 21 года. Никаких упоминаний детства в настоящем, школы, школьной формы, подросткового возраста.',
-      '- Контент SFW: без эротики, флирта с телом, обнажёнки и сексуальных намёков. Купальник на пляже — просто одежда, без акцента на теле.',
-      '- Без реальных людей, знаменитостей, брендов и чужих персонажей.',
+      '- Без реальных людей, знаменитостей и чужих персонажей. Из фирм допустимы только Ozon, Wildberries и Яндекс Маркет, и только если они указаны в ситуации.',
       '- Без оскорблений по расе, национальности, религии, полу, ориентации.',
       '- Отвечаешь строго одним JSON-объектом без пояснений и без markdown.',
     ].join('\n'),
@@ -94,8 +93,7 @@ export const DEFAULT_AI_SETTINGS: AiSettings = {
     seed: 0,
     style_prompt:
       'Modern TV anime style, like a frame from a seasonal anime series. Simple cel shading with one shadow tone, clean bold outlines, flat bright colors, expressive anime eyes. Simplified background with few details, soft even lighting. Vertical character card art.',
-    negative_prompt:
-      'child, kid, teen, teenager, loli, schoolgirl, school uniform, childlike face, baby face, petite childlike body, chibi, nudity, see-through clothing, lingerie, cleavage focus, sexualized pose, hyper-detailed realistic rendering, text, letters, watermark, logo, brand names, real person likeness',
+    negative_prompt: 'unused, the image prompt does not append an avoid line',
     rarity_modifiers: {
       N: 'Plain everyday look, simple composition.',
       R: 'Subtle cool blue rim light.',
@@ -113,8 +111,9 @@ export const DEFAULT_AI_SETTINGS: AiSettings = {
     fallback: 'google/gemini-3.8-flash',
     timeout_sec: 60,
     prompt: [
-      'You are a strict content moderator for an 18+ SFW game. All characters must be clearly adult women (21+) with mature adult faces and adult body proportions, no sexualization.',
-      'Allowed: any normal clothing, including modest swimwear (swimsuit, bikini with shorts or sarong) in a beach or pool setting.',
+      'You are a content moderator for an 18+ game. All characters must be clearly adult women (21+) with mature adult faces and adult body proportions.',
+      'Allowed: any normal clothing, including swimwear on a beach.',
+      'Allowed brands, and only these: Ozon (blue, white word OZON), Wildberries (purple-pink, white letters wb), Yandex Market (red, yellow angular M) on a box, vest or delivery van. For those three, brand_or_ip is false and text_or_watermark is false.',
       '"nsfw" is true for nudity, see-through clothing, lingerie, sexual poses or a camera focus on breasts, buttocks or crotch.',
       'Check the attached image and the character text. Answer with ONE JSON object only:',
       '{"adult_appearance": boolean, "estimated_min_age": integer, "childlike_features": boolean, "nsfw": boolean, "real_person_or_celebrity": boolean, "brand_or_ip": boolean, "discrimination": boolean, "text_or_watermark": boolean, "notes": "short reason"}',
@@ -163,11 +162,17 @@ export function profileUserPrompt(req: ProfileRequest, content: Content, cfg: Ec
     `Создай персонажа. Редкость: ${req.rarity} («${rc.name}»). Чем выше редкость, тем эпичнее и абсурднее легенда.`,
     `Архетип: ${a.name}. ${a.description} Тон: ${a.tone}.`,
     `Типичный груз архетипа: ${a.cargo.slice(0, 6).join('; ')}.`,
-    `Характерные черты архетипа (причёску и цвет волос можно варьировать, фирменную деталь сохрани): ${a.traits}`,
+    `Характер архетипа — только про поведение, не про внешность: ${a.tone}. Черты «${a.traits}» можно проигнорировать: лицо, причёска и одежда каждый раз другие.`,
     ...(req.look
       ? [
           `Ситуация: ${req.look.story}. В bio обыграй её и груз (${req.look.cargo}) — название груза пиши по-русски, без английских слов.`,
           `Одежда в этой карточке (англ., для портрета): ${req.look.outfit}.`,
+          req.look.kind === 'rest'
+            ? 'Это выходной. Она не на второй работе: не повар, не офисный сотрудник, не музыкант.'
+            : 'Это смена грузчицы: склад, доставка, погрузка, разгрузка или переезд.',
+          ...(req.look.brandName
+            ? [`На кадре есть марка ${req.look.brandName}. В bio можно назвать её один раз. Другие фирмы не упоминай.`]
+            : []),
         ]
       : []),
     swear,
@@ -178,7 +183,7 @@ export function profileUserPrompt(req: ProfileRequest, content: Content, cfg: Ec
     `stats: положительные целые str, end, spd, cha, lck, каждое от 1 до ${cap}, сумма строго ${rc.stat_budget} (например ${exampleStats(rc.stat_budget)}). Распредели под характер архетипа.`,
     `talent_ids: ровно ${rc.talent_count} разных id из списка (подходящих по смыслу):`,
     ...talents.map((t) => `- ${t.id}: ${t.name} — ${t.description}`),
-    'image_prompt: на английском, 35–80 слов, только сама героиня: "adult woman in her <twenties|thirties|forties>", взрослые черты лица, причёска и цвет волос, телосложение, выражение лица, одежда из ситуации со своими деталями, фирменная деталь архетипа. Фон, свет и позу не описывай — их добавит сервер. Без имён, без цифр возраста, без текста на картинке.',
+    'image_prompt: на английском, 35–80 слов. Начни с "adult woman". Лицо, причёска, цвет волос и телосложение — новые, не копируй архетип. Одежда из ситуации: либо одежда грузчицы на смене, либо одежда выходного. Не повар, не офис, не сцена, не фэнтези. Груз только в руках или стоит рядом на полу или на тележке. Запрещено: на спине, на плече, на голове, пристёгнут лямками к телу. Фон и свет не описывай. Без имён и без цифр возраста.',
     'appearance: 1–2 предложения для игрока о внешности и одежде, взрослые черты.',
     `Seed для разнообразия: ${req.seed}.`,
     'Формат ответа — только JSON: {"name": "...", "age": 0, "bio": "...", "quote": "...", "appearance": "...", "image_prompt": "...", "stats": {"str": 0, "end": 0, "spd": 0, "cha": 0, "lck": 0}, "talent_ids": ["..."]}',
@@ -271,6 +276,8 @@ export function buildAiProfile(
   if (ai.age < 21 || ai.age > 60) errors.push(`возраст ${ai.age} вне 21–60`);
   if (takenNames.has(ai.name.trim().toLowerCase())) errors.push(`имя «${ai.name}» уже занято`);
   if (!/\badult\b/i.test(ai.image_prompt)) errors.push('image_prompt без указания adult');
+  const bodyCarry = ai.image_prompt.match(/on her back|on (?:her|one) shoulders?|strapped to|shouldering|на спине|на плече|пристёгнут\p{L}*/iu);
+  if (bodyCarry) errors.push(`груз на теле в image_prompt: «${bodyCarry[0]}»`);
   const badPrompt = findForbidden(ai.image_prompt);
   if (badPrompt) errors.push(`запрещённое в image_prompt: «${badPrompt}»`);
   if (errors.length || !st) return { ok: false, errors };
@@ -295,14 +302,19 @@ export function buildAiProfile(
 
 // ---------- Портрет ----------
 
-export const ADULT_CLAUSE =
-  'The character is an adult woman, 21 or older, with a mature adult face and adult body proportions. SFW: no nudity, non-sexualized pose.';
+export const ADULT_CLAUSE = 'The character is an adult woman, 21 or older, with a mature adult face and adult body proportions.';
 
 export function imagePrompt(characterPrompt: string, rarity: Rarity, s: AiSettings, look?: Look): string {
   const scene = look
-    ? `Scene: ${look.scene}, ${look.lighting}. Composition: ${look.shot}, she is ${look.pose}; the cargo is ${look.cargo}.`
-    : '';
-  return [s.image.style_prompt, s.image.rarity_modifiers[rarity] ?? '', scene, `Character: ${characterPrompt}`, ADULT_CLAUSE, `Avoid: ${s.image.negative_prompt}.`]
+    ? [
+        `Scene: ${look.scene}, ${look.lighting}.`,
+        `Composition: ${look.shot}.`,
+        `Look this time: ${look.hair}, ${look.face}, ${look.build} build, ${look.expression} expression, wearing ${look.outfit}.`,
+        `Pose: ${look.pose}. Cargo: ${look.cargo}. ${look.placement}`,
+        CARRY_BAN,
+      ].join(' ')
+    : CARRY_BAN;
+  return [s.image.style_prompt, s.image.rarity_modifiers[rarity] ?? '', scene, look?.brand ?? '', `Character: ${characterPrompt}`, ADULT_CLAUSE]
     .filter(Boolean)
     .join('\n');
 }

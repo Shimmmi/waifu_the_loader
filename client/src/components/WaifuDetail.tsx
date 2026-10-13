@@ -220,7 +220,6 @@ export function WaifuDetail({ id, onClose }: { id: string; onClose: () => void }
               </button>
             )}
           </div>
-          <p className="small muted">{text(w.appearance)}</p>
         </div>
       </div>
     </Modal>

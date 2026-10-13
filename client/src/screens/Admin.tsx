@@ -227,14 +227,25 @@ function Settings({ current, onSaved }: { current: AiSettingsVersion; onSaved: (
     adminApi.models().then((r) => setModels(r.models)).catch(onError);
   }, [current, onError]);
 
-  const lists = useMemo(
-    () => ({
-      text: models.filter((m) => m.output.includes('text') && !m.output.includes('image')),
-      image: models.filter((m) => m.output.includes('image')),
+  const lists = useMemo(() => {
+    const pin = (list: ModelInfo[], ids: string[], output: string[]) => {
+      const pinned = ids.map((id) => list.find((m) => m.id === id) ?? { id, name: id, input: ['text'], output, pricing: {} });
+      return [...pinned, ...list.filter((m) => !ids.includes(m.id))];
+    };
+    return {
+      text: pin(
+        models.filter((m) => m.output.includes('text') && !m.output.includes('image')),
+        ['openai/gpt-6.1-sol', '~google/gemini-flash-latest'],
+        ['text'],
+      ),
+      image: pin(
+        models.filter((m) => m.output.includes('image')),
+        ['openai/gpt-image-2.5-sunburst', 'x-ai/grok-imagine-image-2.0'],
+        ['image'],
+      ),
       vision: models.filter((m) => m.input.includes('image') && m.output.includes('text')),
-    }),
-    [models],
-  );
+    };
+  }, [models]);
   const dirty = JSON.stringify(draft) !== JSON.stringify(current.settings);
 
   const set = ([block, key]: Path, value: unknown) =>

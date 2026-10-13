@@ -10,7 +10,7 @@
       "cha": 2,
       "lck": 4
     },
-    "look": "Adult woman in her thirties with a calm square jaw, tired adult eyes and broad shoulders, yellow hard hat, thick work gloves and crossed lifting straps, quietly shouldering a bulky refrigerator, dusty canvas coveralls, fully clothed, SFW.",
+    "look": "Adult woman in her thirties with a calm square jaw, tired adult eyes and broad shoulders, yellow hard hat, thick work gloves and crossed lifting straps, one hand on a bulky refrigerator standing on the floor beside her, dusty canvas coveralls.",
     "traits": "calm square jaw, tired gentle eyes, broad strong shoulders, short practical hair, quiet unbothered expression; signature: effortlessly carries absurdly heavy appliances without breaking a sweat",
     "tone": "Тихая, упрямая, холодильник говорит за неё",
     "bio_templates": [
@@ -73,7 +73,7 @@
       "витринный холод «Ледник двора»",
       "компрессор в мешке, ещё тёплый от злости"
     ],
-    "look_ru": "Спокойное квадратное лицо, усталые взрослые глаза, широкие плечи. Жёлтая каска, толстые перчатки, лямки крест-накрест, пыльная брезентовая роба. Молча несёт на плече громоздкий холодильник."
+    "look_ru": "Спокойное квадратное лицо, усталые взрослые глаза, широкие плечи. Жёлтая каска, толстые перчатки, лямки крест-накрест, пыльная брезентовая роба. Молча стоит рядом с громоздким холодильником, рука на дверце."
   },
   {
     "id": "gymnast_rigger",
@@ -86,7 +86,7 @@
       "cha": 2,
       "lck": 3
     },
-    "look": "Adult woman in her late twenties with a defined adult face, strong jaw and tied-back hair, climbing harness over a warehouse jumpsuit, work gloves, balancing on a loading ramp while rigging an upright piano with straps, hard hat clipped to her belt, fully clothed, SFW.",
+    "look": "Adult woman in her late twenties with a defined adult face, strong jaw and tied-back hair, climbing harness over a warehouse jumpsuit, work gloves, balancing on a loading ramp while rigging an upright piano with straps, hard hat clipped to her belt.",
     "traits": "defined athletic face, strong jaw, hair tied back in a tight ponytail, lean acrobatic build, confident balance; signature: coiled rope or climbing carabiners somewhere on her outfit",
     "tone": "Ловкая, язвительная, узлы быстрее моргания",
     "bio_templates": [
@@ -162,7 +162,7 @@
       "cha": 3,
       "lck": 4
     },
-    "look": "Adult woman around forty with heavy-lidded adult eyes, a soft tired face and strong forearms, hard hat askew, work gloves, dozing against an upright piano she is still strapped to, canvas coveralls and a wide lifting belt, fully clothed, SFW.",
+    "look": "Adult woman around forty with heavy-lidded adult eyes, a soft tired face and strong forearms, hard hat askew, work gloves, standing beside an upright piano with one hand on it, canvas coveralls and a wide lifting belt.",
     "traits": "heavy-lidded sleepy eyes, soft tired face, messy long hair, strong forearms, yawning or dozing; signature: a piano-key motif and a sleep mask pushed up on her forehead",
     "tone": "Сонная, добрая, довозит даже во сне",
     "bio_templates": [
@@ -225,7 +225,7 @@
       "пианино, которое кусается за пальцы",
       "крышка от рояля, притворившаяся щитом"
     ],
-    "look_ru": "Тяжёлые веки, мягкое усталое лицо, крепкие предплечья. Каска съехала набок, перчатки, широкий атлетический пояс. Дремлет, прислонившись к пианино, к которому всё ещё пристёгнута."
+    "look_ru": "Тяжёлые веки, мягкое усталое лицо, крепкие предплечья. Каска съехала набок, перчатки, широкий атлетический пояс. Стоит рядом с пианино, одна рука на крышке, глаза полузакрыты."
   },
   {
     "id": "shout_commander",
@@ -238,7 +238,7 @@
       "cha": 10,
       "lck": 2
     },
-    "look": "Adult woman in her early forties with a stern weathered face, strong jaw and loud open mouth, orange hard hat, whistle on a cord, work gloves, pointing at a crew while hoisting a safe, high-visibility vest over canvas coveralls, fully clothed, SFW.",
+    "look": "Adult woman in her early forties with a stern weathered face, strong jaw and loud open mouth, orange hard hat, whistle on a cord, work gloves, pointing at a crew, one hand on a safe standing beside her, high-visibility vest over canvas coveralls.",
     "traits": "stern weathered face, strong jaw, loud open mouth mid-shout, commanding posture; signature: a whistle on a cord around her neck, pointing at someone",
     "tone": "Громкая, командная, орёт — и стены помогают",
     "bio_templates": [
@@ -301,7 +301,7 @@
       "шкаф-стенка, обидевшая весь подъезд",
       "два мешка цемента и чья-то гордость"
     ],
-    "look_ru": "Строгое обветренное лицо, тяжёлый подбородок, рот открыт на полкрика. Оранжевая каска, свисток на шнурке, сигнальный жилет поверх робы. Поднимает сейф и одновременно тычет пальцем в бригаду."
+    "look_ru": "Строгое обветренное лицо, тяжёлый подбородок, рот открыт на полкрика. Оранжевая каска, свисток на шнурке, сигнальный жилет поверх робы. Рядом стоит сейф, одна рука на нём, другой тычет в бригаду."
   },
   {
     "id": "dreamy_courier",
@@ -314,7 +314,7 @@
       "cha": 4,
       "lck": 9
     },
-    "look": "Adult woman in her early twenties with a faraway adult expression, defined cheekbones and windblown hair, messenger satchel over a warehouse jumpsuit, work gloves, jogging with a taped cardboard box, hard hat hanging from her belt, fully clothed, SFW.",
+    "look": "Adult woman in her early twenties with a faraway adult expression, defined cheekbones and windblown hair, messenger satchel over a warehouse jumpsuit, work gloves, jogging with a taped cardboard box, hard hat hanging from her belt.",
     "traits": "faraway dreamy expression, defined cheekbones, windblown hair, slim runner build; signature: a messenger satchel across her chest",
     "tone": "Рассеянная, светлая, адрес помнит примерно",
     "bio_templates": [
@@ -390,7 +390,7 @@
       "cha": 10,
       "lck": 9
     },
-    "look": "Adult woman in her mid-thirties with sharp adult features, glasses and a precise mouth, clipboard and pencil, seated on a battered forklift in a hard hat and high-visibility vest, work gloves tucked into her belt, canvas coveralls, fully clothed, SFW.",
+    "look": "Adult woman in her mid-thirties with sharp adult features, glasses and a precise mouth, clipboard and pencil, seated on a battered forklift in a hard hat and high-visibility vest, work gloves tucked into her belt, canvas coveralls.",
     "traits": "sharp precise features, rectangular glasses, neat hair, tight focused mouth; signature: a clipboard and a pencil behind her ear",
     "tone": "Точная, язвительная, всё в таблице, даже спина",
     "bio_templates": [
@@ -466,7 +466,7 @@
       "cha": 2,
       "lck": 8
     },
-    "look": "Adult woman in her late twenties with pale adult features, dark lipstick, a serious mature face and black hair pinned up, black work coveralls, hard hat with a small plain ribbon, packing a wooden crate in black tape and thick gloves with funeral solemnity, fully clothed, SFW.",
+    "look": "Adult woman in her late twenties with pale adult features, dark lipstick, a serious mature face and black hair pinned up, black work coveralls, hard hat with a small plain ribbon, packing a wooden crate in black tape and thick gloves with funeral solemnity.",
     "traits": "pale skin, dark lipstick, dark eyeliner, long straight black hair with blunt bangs, serious deadpan mature face; signature: silver choker and an all-black color palette in any outfit",
     "tone": "Мрачная, церемонная, коробка — гроб с адресом",
     "bio_templates": [
@@ -542,7 +542,7 @@
       "cha": 9,
       "lck": 2
     },
-    "look": "Adult woman in her late thirties with a thoughtful adult face, strong jaw and muscular shoulders, lifting straps and work gloves, mid-squat under a loaded wooden crate, hard hat, heavy canvas coveralls, fully clothed, SFW.",
+    "look": "Adult woman in her late thirties with a thoughtful adult face, strong jaw and muscular shoulders, lifting straps and work gloves, crouching beside a wooden crate she just set on the ground, hard hat, heavy canvas coveralls.",
     "traits": "thoughtful calm face, strong jaw, muscular shoulders and arms, hair in a bun; signature: lifting straps on her wrists and a philosophy book tucked somewhere",
     "tone": "Спокойная, начитанная, стоицизм между подходами",
     "bio_templates": [
@@ -605,7 +605,7 @@
       "шкаф, полный чужих непрочитанных книг",
       "диван, который тоже устал от бытия"
     ],
-    "look_ru": "Задумчивое лицо, сильная челюсть, мощные плечи. Лямки для тяги, перчатки, каска, плотная брезентовая роба. Застыла в приседе под гружёным деревянным ящиком."
+    "look_ru": "Задумчивое лицо, сильная челюсть, мощные плечи. Лямки для тяги, перчатки, каска, плотная брезентовая роба. Присела рядом с деревянным ящиком, который только что поставила на пол."
   },
   {
     "id": "tape_maniac",
@@ -618,7 +618,7 @@
       "cha": 2,
       "lck": 9
     },
-    "look": "Adult woman in her early thirties with an intense adult grin, tape stuck in her hair and a sharp mature face, work gloves, hard hat, wrapping an entire refrigerator in clear packing tape, pockets full of tape rolls, warehouse coveralls, fully clothed, SFW.",
+    "look": "Adult woman in her early thirties with an intense adult grin, tape stuck in her hair and a sharp mature face, work gloves, hard hat, wrapping an entire refrigerator in clear packing tape, pockets full of tape rolls, warehouse coveralls.",
     "traits": "intense manic grin, wide eyes, strips of tape stuck in her hair, sharp mature face; signature: rolls of packing tape worn like bracelets",
     "tone": "Одержимая, быстрая, скотч решает любые споры",
     "bio_templates": [
@@ -694,7 +694,7 @@
       "cha": 9,
       "lck": 3
     },
-    "look": "Adult woman in her early forties with a practiced adult smile, defined cheekbones and strong forearms, balancing a small refrigerator on a serving tray, work apron over canvas coveralls, hard hat, lifting straps, fully clothed, SFW.",
+    "look": "Adult woman in her early forties with a practiced adult smile, defined cheekbones and strong forearms, balancing a small refrigerator on a serving tray, work apron over canvas coveralls, hard hat, lifting straps.",
     "traits": "practiced professional smile, defined cheekbones, strong forearms, neat updo; signature: balances her cargo on a round serving tray like a plate",
     "tone": "Вежливая, быстрая, холодильник как заказ на вынос",
     "bio_templates": [

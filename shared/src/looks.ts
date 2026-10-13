@@ -20,6 +20,8 @@ export const ThemeSchema = z.object({
   lighting: z.array(z.string().min(3)).min(1),
   /** Подсказка сценаристу, почему героиня сегодня здесь (рус.) */
   story_ru: z.string().min(10),
+  /** work — смена грузчицы, rest — выходной. Других профессий нет. */
+  kind: z.enum(['work', 'rest']).default('work'),
 });
 export type Theme = z.infer<typeof ThemeSchema>;
 
@@ -27,8 +29,9 @@ export const DEFAULT_THEMES: Theme[] = [
   {
     id: 'warehouse',
     name: 'Склад',
-    weight: 3,
+    weight: 1.4,
     min_rarity: 'N',
+    kind: 'work',
     scene: 'busy warehouse with stacked cardboard boxes, pallets and yellow-black hazard stripes',
     outfits: [
       'canvas work coveralls, work gloves and a yellow hard hat',
@@ -41,10 +44,63 @@ export const DEFAULT_THEMES: Theme[] = [
     story_ru: 'обычная смена на складе «Грузчицы Inc.»',
   },
   {
+    id: 'delivery',
+    name: 'Доставка',
+    weight: 1.3,
+    min_rarity: 'N',
+    kind: 'work',
+    scene: 'residential courtyard with a parked delivery van, mailboxes and apartment doors',
+    outfits: [
+      'courier jacket, cargo pants and a cap',
+      'hoodie under a high-visibility vest, sneakers and a scanner on the belt',
+      'windbreaker, jeans and work gloves',
+    ],
+    cargo: ['a stack of sealed parcel boxes', 'a large taped delivery box', 'two bulky parcels on a hand truck', 'a refrigerator still in delivery wrap'],
+    lighting: ['daylight in the courtyard', 'overcast afternoon light'],
+    story_ru: 'смена на доставке: адрес найден, груз ещё у машины',
+  },
+  {
+    id: 'loading',
+    name: 'Погрузка',
+    weight: 1.1,
+    min_rarity: 'N',
+    kind: 'work',
+    scene: 'warehouse loading dock, open truck rear and a metal ramp',
+    outfits: ['canvas coveralls and work gloves', 'high-visibility vest over a t-shirt, cargo pants and boots'],
+    cargo: ['a pallet of boxes at the truck ramp', 'a washing machine on a dolly', 'a stack of crates halfway onto the truck'],
+    lighting: ['daylight at the open dock', 'cool fluorescent light inside the truck'],
+    story_ru: 'погрузка фуры: груз едет к рампе, а не в зал',
+  },
+  {
+    id: 'unloading',
+    name: 'Разгрузка',
+    weight: 1.1,
+    min_rarity: 'N',
+    kind: 'work',
+    scene: 'open box truck at a curb, tailgate down, boxes already on the pavement',
+    outfits: ['work jacket, gloves and sturdy boots', 'sleeveless hoodie, cargo pants and a high-visibility vest'],
+    cargo: ['boxes coming off the truck onto the pavement', 'a sofa just set down by the curb', 'a wardrobe standing next to the open truck'],
+    lighting: ['morning street light', 'late afternoon sun'],
+    story_ru: 'разгрузка у подъезда, лифт снова не работает',
+  },
+  {
+    id: 'apartment',
+    name: 'Переезд',
+    weight: 1.2,
+    min_rarity: 'N',
+    kind: 'work',
+    scene: 'narrow stairwell of an old apartment building with plants on windowsills',
+    outfits: ['hoodie, sweatpants and work gloves', 'flannel shirt, jeans and a cap', 't-shirt, cargo pants and sneakers'],
+    cargo: ['a sofa', 'a wardrobe', 'a bathtub', 'a stack of moving boxes taller than her'],
+    lighting: ['warm afternoon light', 'dim stairwell light'],
+    story_ru: 'квартирный переезд, пятый этаж без лифта',
+  },
+  {
     id: 'beach',
     name: 'Пляж',
-    weight: 1.5,
+    weight: 1.4,
     min_rarity: 'N',
+    kind: 'rest',
     scene: 'sunny sandy beach with turquoise sea, palm trees and beach umbrellas',
     outfits: [
       'sporty two-piece swimsuit with board shorts',
@@ -52,130 +108,142 @@ export const DEFAULT_THEMES: Theme[] = [
       'rash guard top and swim shorts, sunglasses on her head',
       'bikini top with a sarong tied around the waist, straw hat',
     ],
-    cargo: ['a jet ski', 'a full-size vending machine', 'a giant beach cooler', 'a stack of sun loungers', 'a lifeguard tower'],
+    cargo: ['a giant beach cooler', 'a surfboard', 'a stack of sun loungers', 'an inflatable boat'],
     lighting: ['bright midday sun', 'golden sunset light'],
-    story_ru: 'бригада на летнем выезде: пляжному кафе срочно понадобился переезд',
-  },
-  {
-    id: 'office',
-    name: 'Офис',
-    weight: 1,
-    min_rarity: 'N',
-    scene: 'modern open-plan office with desks, monitors and potted plants',
-    outfits: ['business suit with a pencil skirt and rolled-up sleeves', 'white blouse, loosened tie and slacks', 'smart cardigan and trousers, lanyard badge'],
-    cargo: ['a huge office copier', 'a server rack', 'a water cooler with spare bottles', 'a filing cabinet full of papers'],
-    lighting: ['soft office light', 'late evening light through glass walls'],
-    story_ru: 'офис переезжает на другой этаж, а лифт, как всегда, сломан',
-  },
-  {
-    id: 'kitchen',
-    name: 'Кухня ресторана',
-    weight: 1,
-    min_rarity: 'N',
-    scene: 'steamy restaurant kitchen with steel counters and hanging pans',
-    outfits: ['white chef jacket and chef hat', 'black kitchen apron over a t-shirt, bandana'],
-    cargo: ['a giant cauldron of soup', 'a commercial oven', 'a tower of crates of vegetables', 'a whole industrial fridge'],
-    lighting: ['warm kitchen light with steam'],
-    story_ru: 'ресторану к банкету нужно перетащить кухню целиком',
-  },
-  {
-    id: 'festival',
-    name: 'Летний фестиваль',
-    weight: 1,
-    min_rarity: 'R',
-    scene: 'Japanese summer festival street with paper lanterns and food stalls',
-    outfits: ['colorful yukata with an obi sash', 'festival happi coat over a t-shirt and shorts, headband'],
-    cargo: ['a portable mikoshi shrine', 'a giant taiko drum', 'an entire food stall', 'a huge paper lantern'],
-    lighting: ['warm lantern light at dusk', 'fireworks in the night sky'],
-    story_ru: 'на фестивале некому нести святилище-микоси, и бригаду позвали на подмогу',
-  },
-  {
-    id: 'stage',
-    name: 'Сцена',
-    weight: 1,
-    min_rarity: 'R',
-    scene: 'concert stage with spotlights and a cheering silhouette crowd',
-    outfits: ['sparkly stage idol outfit with a jacket and long skirt', 'rock band outfit: leather jacket, band t-shirt, ripped jeans'],
-    cargo: ['a stack of giant speakers', 'a full drum kit', 'a grand piano', 'a lighting truss'],
-    lighting: ['colorful stage spotlights', 'backlight with haze'],
-    story_ru: 'звёздный концерт, а техники не приехали — монтаж сцены на бригаде',
-  },
-  {
-    id: 'conservatory',
-    name: 'Консерватория',
-    weight: 1,
-    min_rarity: 'R',
-    scene: 'grand marble staircase of a music conservatory with tall arched windows',
-    outfits: ['elegant black concert dress', 'university music student look: knit sweater, long skirt, sheet music folder', 'music teacher look: blazer, blouse and trousers'],
-    cargo: ['a grand piano', 'an upright piano', 'a pipe organ section', 'a double bass case and a harp'],
-    lighting: ['soft daylight through arched windows', 'warm evening light'],
-    story_ru: 'консерватория меняет зал, и рояль по лестнице поднимают руками',
+    story_ru: 'выходной на пляже, смена осталась на складе',
   },
   {
     id: 'gym',
     name: 'Спортзал',
+    weight: 1.2,
+    min_rarity: 'N',
+    kind: 'rest',
+    scene: 'gym with weight racks, rubber floor and plain walls',
+    outfits: ['sports top, track jacket tied at the waist and leggings', 'loose tank top, shorts and wrist wraps'],
+    cargo: ['her gym bag and a stack of iron plates', 'a treadmill she just stepped off', 'a punching bag standing beside her'],
+    lighting: ['bright gym lights', 'sunlight through big windows'],
+    story_ru: 'выходной в зале, без склада и без смены',
+  },
+  {
+    id: 'park',
+    name: 'Парк',
     weight: 1,
     min_rarity: 'N',
-    scene: 'gym with weight racks, rubber floor and motivational posters without text',
-    outfits: ['sports top, track jacket tied at the waist and leggings', 'loose tank top, shorts and wrist wraps'],
-    cargo: ['an entire squat rack', 'a treadmill', 'a stack of iron plates', 'a sumo-sized punching bag'],
-    lighting: ['bright gym lights', 'sunlight through big windows'],
-    story_ru: 'зал переезжает, и бригада решила совместить работу с тренировкой',
+    kind: 'rest',
+    scene: 'city park with trees, a bench and a path',
+    outfits: ['sundress and sneakers', 't-shirt, shorts and a cap', 'light cardigan, jeans and canvas shoes'],
+    cargo: ['a bicycle beside the bench', 'a picnic basket', 'a folded blanket and a thermos'],
+    lighting: ['dappled daylight', 'late afternoon sun'],
+    story_ru: 'выходной в парке, телефон со складом на беззвучном',
+  },
+  {
+    id: 'hobby',
+    name: 'Хобби',
+    weight: 1,
+    min_rarity: 'N',
+    kind: 'rest',
+    scene: 'small apartment room with a desk, houseplants and a window',
+    outfits: ['oversized sweater and jeans', 'paint-stained t-shirt and shorts', 'hoodie and sweatpants'],
+    cargo: ['a stack of finished canvases', 'a row of potted plants', 'a camera bag and a tripod'],
+    lighting: ['soft window light', 'warm lamp light'],
+    story_ru: 'вечер дома за хобби, ящики сегодня не её забота',
   },
   {
     id: 'winter',
-    name: 'Зимний город',
-    weight: 1,
+    name: 'Зимняя прогулка',
+    weight: 0.9,
     min_rarity: 'N',
-    scene: 'snowy city street with soft falling snow and warm shop windows',
+    kind: 'rest',
+    scene: 'snowy park path with soft falling snow and warm street lamps',
     outfits: ['puffer jacket, scarf and knit beanie', 'long wool coat, earmuffs and mittens'],
-    cargo: ['a decorated Christmas tree with its stand', 'a sled loaded with gift boxes', 'a vending machine with hot drinks', 'a giant snowman'],
+    cargo: ['a pair of skis', 'a sled', 'a thermos and a pair of ice skates'],
     lighting: ['blue winter dusk with warm street lamps', 'soft overcast snow light'],
-    story_ru: 'зимний аврал: все переезжают перед праздниками',
-  },
-  {
-    id: 'apartment',
-    name: 'Переезд',
-    weight: 1.5,
-    min_rarity: 'N',
-    scene: 'narrow stairwell of an old apartment building with plants on windowsills',
-    outfits: ['oversized hoodie, sweatpants and sneakers', 'flannel shirt, jeans and a cap', 'cozy sweater, jeans and work gloves'],
-    cargo: ['a sofa', 'a wardrobe', 'a bathtub', 'a stack of moving boxes taller than her'],
-    lighting: ['warm afternoon light', 'dim stairwell light'],
-    story_ru: 'квартирный переезд, пятый этаж без лифта',
-  },
-  {
-    id: 'fantasy',
-    name: 'Фэнтези',
-    weight: 1,
-    min_rarity: 'SSR',
-    scene: 'fantasy castle courtyard with banners, stone walls and a distant dragon',
-    outfits: ['knight armor with a cape', 'adventurer leather armor with a hooded cloak', 'elegant mage robes'],
-    cargo: ['an overflowing treasure chest', 'a sleeping dragon egg the size of a car', 'a castle gate', 'a giant magic crystal'],
-    lighting: ['epic golden sunlight', 'magical glowing light'],
-    story_ru: 'заказ из параллельного мира: королевству нужна бригада, которая поднимет что угодно',
-  },
-  {
-    id: 'space',
-    name: 'Космос',
-    weight: 0.7,
-    min_rarity: 'UR',
-    scene: 'futuristic space station cargo bay with a view of a planet through a huge window',
-    outfits: ['sleek sci-fi spacesuit without helmet', 'cyberpunk jacket with glowing trims'],
-    cargo: ['a satellite', 'a spaceship engine', 'a glowing cargo container'],
-    lighting: ['neon sci-fi light', 'planet glow through the window'],
-    story_ru: 'межпланетная доставка: на орбите тоже кто-то должен таскать',
+    story_ru: 'выходной на зимней прогулке',
   },
 ];
 
+/** Узнаваемые марки доставки. Попадают только на рабочие кадры и не на каждый. */
+export const WORK_BRANDS = [
+  {
+    id: 'ozon',
+    name: 'Ozon',
+    marks: [
+      'Her work vest has a bright blue rounded-square patch with the white word OZON.',
+      'The cardboard boxes beside her are bright blue with the white word OZON.',
+      'A blue delivery van behind her shows the white word OZON on the side.',
+    ],
+  },
+  {
+    id: 'wildberries',
+    name: 'Wildberries',
+    marks: [
+      'Her work vest has a purple-to-pink rounded-square patch with the white letters wb.',
+      'The parcels beside her are purple-pink with the white letters wb.',
+      'A purple delivery van behind her shows the white letters wb.',
+    ],
+  },
+  {
+    id: 'yandex_market',
+    name: 'Яндекс Маркет',
+    marks: [
+      'Her work vest has a red rounded-square patch with a bold yellow angular M.',
+      'The boxes beside her are red with a bold yellow angular M.',
+      'A red delivery van behind her shows a bold yellow angular M on the side.',
+    ],
+  },
+] as const;
+
+/** Доля рабочих кадров с маркой. Остальные рабочие кадры без фирмы. */
+export const WORK_BRAND_CHANCE = 0.5;
+
+/** Груз только в руках или рядом. Не на спине, плечах и голове. */
+export const CARGO_PLACEMENTS = [
+  'She holds the cargo with both hands in front of her, at waist height.',
+  'The cargo stands on the ground beside her; one hand rests on it.',
+  'She walks next to the cargo, pulling it on a small dolly.',
+  'She grips a side handle; the cargo is next to her, not on her body.',
+  'The cargo sits on a low cart beside her, and she pushes the handle.',
+  'She has just set the cargo down and stands next to it.',
+] as const;
+
+export const CARRY_BAN =
+  'The cargo is in her hands or on the ground beside her. Do not place it on her back, shoulders, head, or strap it to her body.';
+
+export const HAIR = [
+  'short black bob',
+  'long wavy chestnut hair',
+  'messy auburn ponytail',
+  'silver-streaked dark hair in a loose bun',
+  'curly honey-blonde hair',
+  'straight ash-brown hair past the shoulders',
+  'pixie cut, dark plum',
+  'thick braid over one shoulder, black hair',
+  'windblown sandy hair',
+  'neat low bun, jet black',
+];
+
+export const FACES = [
+  'soft round face, calm eyes',
+  'sharp cheekbones, narrow eyes',
+  'broad face, kind tired eyes',
+  'heart-shaped face, bright eyes',
+  'strong jaw, thoughtful eyes',
+  'oval face, slight smile',
+  'angular face, focused look',
+  'warm face, raised eyebrow',
+];
+
+export const BUILDS = ['lean', 'athletic', 'broad-shouldered', 'sturdy', 'tall and lanky', 'compact and strong'];
+
+export const EXPRESSIONS = ['focused', 'amused', 'deadpan', 'slightly annoyed', 'quietly proud', 'mid-laugh', 'concentrating', 'unbothered'];
+
 export const DEFAULT_POSES = [
-  'carrying the cargo on one shoulder with a calm face',
-  'lifting the cargo overhead with both arms',
-  'hauling the cargo on her back with straps',
-  'dragging the cargo with a rope',
-  'pushing the cargo on a hand truck',
-  'taking a break sitting on top of the cargo',
-  'balancing the cargo on one hand',
+  'standing beside the cargo with one hand on it',
+  'holding the cargo in both hands',
+  'pushing a dolly that carries the cargo',
+  'walking next to the cargo, a hand on its handle',
+  'crouching beside the cargo she just set down',
+  'pulling a low cart with the cargo on it',
 ];
 
 export const DEFAULT_SHOTS = ['full-body shot', 'full-body shot, slightly low angle', 'three-quarter view from the knees up', 'dynamic full-body shot, slight dutch angle'];
@@ -190,6 +258,16 @@ export interface Look {
   pose: string;
   shot: string;
   story: string;
+  /** Случайные черты, чтобы архетип не штамповал одно лицо */
+  hair: string;
+  face: string;
+  build: string;
+  expression: string;
+  placement: string;
+  kind: 'work' | 'rest';
+  /** Пусто, если марки на кадре нет. */
+  brand: string;
+  brandName: string;
 }
 
 const rank = (r: Rarity) => RARITIES.indexOf(r);
@@ -223,7 +301,9 @@ export function pickLook(
       break;
     }
   }
-  const pick = <T>(xs: T[]): T => xs[Math.floor(rnd() * xs.length)]!;
+  const pick = <T>(xs: readonly T[]): T => xs[Math.floor(rnd() * xs.length)]!;
+  const branded = theme.kind === 'work' && rnd() < WORK_BRAND_CHANCE;
+  const brand = branded ? pick(WORK_BRANDS) : null;
   return {
     theme: theme.id,
     themeName: theme.name,
@@ -234,5 +314,13 @@ export function pickLook(
     pose: pick(opts.poses.length ? opts.poses : DEFAULT_POSES),
     shot: pick(opts.shots.length ? opts.shots : DEFAULT_SHOTS),
     story: theme.story_ru,
+    hair: pick(HAIR),
+    face: pick(FACES),
+    build: pick(BUILDS),
+    expression: pick(EXPRESSIONS),
+    placement: pick(CARGO_PLACEMENTS),
+    kind: theme.kind,
+    brand: brand ? pick(brand.marks) : '',
+    brandName: brand?.name ?? '',
   };
 }

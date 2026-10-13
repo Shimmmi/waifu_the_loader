@@ -15,14 +15,28 @@ describe('Образы ИИ-портретов', () => {
     }
   });
 
-  it('детерминирован по seed и учитывает минимальную редкость', () => {
-    expect(pickLook(opts, 'SR', 123)).toEqual(pickLook(opts, 'SR', 123));
-    for (let seed = 0; seed < 500; seed++) {
-      expect(['fantasy', 'space']).not.toContain(pickLook(opts, 'SR', seed).theme);
-      expect(pickLook(opts, 'SSR', seed).theme).not.toBe('space');
+  it('только смена грузчицы или отдых, без фэнтези и чужих профессий', () => {
+    const banned = ['fantasy', 'space', 'office', 'kitchen', 'stage', 'conservatory', 'festival'];
+    expect(DEFAULT_THEMES.map((t) => t.id).some((id) => banned.includes(id))).toBe(false);
+    for (const t of DEFAULT_THEMES) {
+      expect(t.kind === 'work' || t.kind === 'rest').toBe(true);
+      const blob = [t.scene, ...t.outfits, ...t.cargo, t.story_ru].join(' ');
+      expect(blob).not.toMatch(/dragon|crystal|mage|chef|office|piano|concert|idol/i);
     }
-    const ur = new Set(Array.from({ length: 500 }, (_, i) => pickLook(opts, 'UR', i).theme));
-    expect(ur.has('space')).toBe(true);
+    expect(pickLook(opts, 'UR', 123)).toEqual(pickLook(opts, 'UR', 123));
+    let work = 0;
+    let branded = 0;
+    for (let seed = 0; seed < 2000; seed++) {
+      const look = pickLook(opts, 'N', seed);
+      expect(banned).not.toContain(look.theme);
+      if (look.kind === 'rest') expect(look.brand).toBe('');
+      else {
+        work++;
+        if (look.brand) branded++;
+      }
+    }
+    expect(branded / work).toBeGreaterThan(0.35);
+    expect(branded / work).toBeLessThan(0.65);
   });
 
   it('без истории доли тем близки к весам, а перекос в пуле выравнивается', () => {
@@ -53,7 +67,12 @@ describe('Образы ИИ-портретов', () => {
     const ip = imagePrompt('adult woman in her thirties', 'SSR', DEFAULT_AI_SETTINGS, look);
     expect(ip).toContain(look.scene);
     expect(ip).toContain(look.cargo);
+    expect(ip).toContain('Do not place it on her back');
+    expect(ip).not.toMatch(/on her back with straps|on one shoulder/);
     expect(ip).not.toMatch(/work clothes/);
+    expect(ip).not.toMatch(/Avoid:/);
+    expect(ip).not.toMatch(/\bSFW\b/);
     expect(ip).toMatch(/Modern TV anime style/);
+    if (look.brand) expect(ip).toContain(look.brand);
   });
 });

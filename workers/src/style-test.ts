@@ -25,13 +25,12 @@ const STYLES: Record<string, string> = {
 
 const CHARS: Record<string, string> = {
   goth:
-    'Adult woman in her late twenties, pale skin, long straight black hair with blunt bangs, dark eyeliner, black hoodie and black jeans, silver choker, calm deadpan expression, carrying a large black wardrobe on her back with straps through a night city street.',
+    'Adult woman in her late twenties, pale skin, long straight black hair with blunt bangs, dark eyeliner, black hoodie and black jeans, silver choker, calm deadpan expression. A large black wardrobe stands on the ground beside her, one hand on it. She is not carrying it.',
   beach:
-    'Adult woman around thirty, tanned athletic build, short messy orange hair, big confident grin, sporty two-piece swimsuit with board shorts, sunglasses pushed up on her head, carrying a full-size red vending machine on one shoulder along a sunny beach.',
+    'Adult woman around thirty, tanned athletic build, short messy orange hair, big confident grin, sporty two-piece swimsuit with board shorts, sunglasses pushed up on her head. A full-size red vending machine stands on the sand beside her, one hand on it. She is not lifting it.',
 };
 
-const ADULT = 'The character is an adult woman, 21 or older, with a mature adult face and adult body proportions. SFW, non-sexualized pose.';
-const NEG = 'child, kid, teen, loli, schoolgirl, childlike face, baby face, chibi, nudity, lingerie, sexualized pose, text, letters, watermark, logo, real person likeness';
+const ADULT = 'The character is an adult woman, 21 or older, with a mature adult face and adult body proportions.';
 
 const model = process.argv[2] ?? DEFAULT_AI_SETTINGS.image.model;
 const out = resolve(process.cwd(), '..', 'data', 'ai-test', 'styles');
@@ -42,7 +41,7 @@ let total = 0;
 
 for (const [sid, style] of Object.entries(STYLES)) {
   for (const [cid, ch] of Object.entries(CHARS)) {
-    const prompt = `${style}\nVertical full-body character card art.\nCharacter: ${ch}\n${ADULT}\nAvoid: ${NEG}.`;
+    const prompt = `${style}\nVertical full-body character card art.\nCharacter: ${ch}\n${ADULT}`;
     const t0 = Date.now();
     try {
       const r = await client.image(model, prompt, { aspectRatio: '3:4', seed: 4242, timeoutSec: 180 });
