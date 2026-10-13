@@ -1,7 +1,7 @@
 import { Queue } from 'bullmq';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { z } from 'zod';
-import { AiSettingsSchema, loadContent, RaritySchema } from '@wl/shared';
+import { AiSettingsSchema, loadContent, RaritySchema, WaifuProfileSchema } from '@wl/shared';
 import { aiSpend, getAiSettings, listAiSettings, resetDailyBudget, rollbackAiSettings, saveAiSettings } from './ai-store.js';
 import { requireUser } from './auth.js';
 import { sql } from './db.js';
@@ -134,6 +134,52 @@ export async function registerAdmin(api: FastifyInstance, connection: { url: str
       if (!job) throw new GameError('not_found', 'Задача не найдена', 404);
       const state = await job.getState();
       return { state, result: job.returnvalue ?? null, error: job.failedReason ?? null };
+    });
+
+    admin.post('/admin/ai/test/:id/pool', async (req) => {
+      const { id } = z.object({ id: z.string().max(40) }).parse(req.params);
+      const job = await testQueue.getJob(id);
+      if (!job) throw new GameError('not_found', 'Задача не найдена', 404);
+      if ((await job.getState()) !== 'completed') throw new GameError('not_ready', 'Тест ещё не готов', 409);
+      const parsed = z
+        .object({
+          ok: z.literal(true),
+          profile: WaifuProfileSchema,
+          portraitUrl: z.string().min(1),
+          thumbUrl: z.string().min(1),
+          imagePrompt: z.string().nullish(),
+          verdict: z.string().nullish(),
+          reasons: z.array(z.string()).nullish(),
+          moderation: z.unknown().nullish(),
+          costRub: z.number(),
+          look: z.unknown().nullish(),
+          models: z.record(z.string(), z.string().optional()).nullish(),
+          seed: z.number().int().positive().nullish(),
+        })
+        .safeParse(job.returnvalue);
+      if (!parsed.success) throw new GameError('bad_test', 'В этой задаче нет готовой карточки', 400);
+      const r = parsed.data;
+      const [existing] = await sql<{ id: string }[]>`
+        SELECT id FROM waifu_pool WHERE portrait_url = ${r.portraitUrl} AND source = 'ai' LIMIT 1`;
+      if (existing) return { poolId: existing.id };
+      const fromUrl = r.portraitUrl.match(/(\d+)\.webp/)?.[1];
+      const seed = r.seed ?? (fromUrl ? Number(fromUrl) : Date.now() % 1_000_000_000);
+      const pr = r.profile;
+      const moderation = {
+        ...(r.moderation && typeof r.moderation === 'object' ? r.moderation : {}),
+        verdict: r.verdict ?? 'ready',
+        reasons: r.reasons ?? [],
+        accepted_from_test: true,
+      };
+      const [row] = await sql<{ id: string }[]>`
+        INSERT INTO waifu_pool (rarity, archetype, name, age, bio, quote, appearance, stats, talents, portrait_url, thumb_url, seed, source, status,
+                                image_prompt, moderation, gen_cost_rub, gen_meta)
+        VALUES (${pr.rarity}, ${pr.archetype}, ${pr.name}, ${pr.age}, ${pr.bio}, ${pr.quote}, ${pr.appearance},
+                ${sql.json(pr.stats as never)}, ${sql.json(pr.talents as never)}, ${r.portraitUrl}, ${r.thumbUrl}, ${seed}, 'ai', 'ready',
+                ${r.imagePrompt ?? null}, ${sql.json(moderation as never)}, ${r.costRub},
+                ${sql.json({ from_test: true, look: r.look ?? null, models: r.models ?? null } as never)})
+        RETURNING id`;
+      return { poolId: row!.id };
     });
 
     admin.get('/admin/review', async (req) => {

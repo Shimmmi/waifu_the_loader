@@ -44,7 +44,10 @@ export const AiSettingsSchema = z.object({
     shots: z.array(z.string().min(5)).min(1),
   }),
   moderation: ModelBlock.extend({
+    /** Vision-проверка каждой картинки. */
     enabled: z.boolean(),
+    /** Если автомодерация выключена: true — карточки ждут ручную проверку, false — сразу в пул. */
+    manual: z.boolean().default(true),
     prompt: z.string().min(20),
   }),
   limits: z.object({
@@ -107,6 +110,7 @@ export const DEFAULT_AI_SETTINGS: AiSettings = {
   },
   moderation: {
     enabled: true,
+    manual: true,
     model: 'google/gemini-3.5-flash-lite',
     fallback: 'google/gemini-3.8-flash',
     timeout_sec: 60,
@@ -334,6 +338,13 @@ export const ModerationSchema = z.object({
 });
 export type Moderation = z.infer<typeof ModerationSchema>;
 export type ModerationVerdict = 'ready' | 'review' | 'rejected';
+
+/** Что делать, когда vision-проверку не вызываем. */
+export function skippedModeration(manual: boolean): { verdict: ModerationVerdict; reasons: string[] } {
+  return manual
+    ? { verdict: 'review', reasons: ['автомодерация выключена'] }
+    : { verdict: 'ready', reasons: ['модерация отключена'] };
+}
 
 /** Детские черты, NSFW и дискриминация — сразу в брак; всё сомнительное — на ручную проверку (ТЗ 10.1 п.4). */
 export function moderationVerdict(m: Moderation): { verdict: ModerationVerdict; reasons: string[] } {

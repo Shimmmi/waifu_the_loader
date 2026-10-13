@@ -397,12 +397,30 @@ function Settings({ current, onSaved }: { current: AiSettingsVersion; onSaved: (
       <Looks draft={draft} onChange={(image) => setDraft((d) => ({ ...d, image }))} />
 
       <div className="panel">
-        <h3>Автомодерация</h3>
-        <label className="row" style={{ marginBottom: 8 }}>
-          <input type="checkbox" checked={draft.moderation.enabled} onChange={(e) => set(['moderation', 'enabled'], e.target.checked)} />
-          Проверять каждую картинку vision-моделью
-          <span className="muted">— без проверки все ИИ-waifu уходят в ручную модерацию</span>
-        </label>
+        <h3>Модерация</h3>
+        <Field
+          label="Режим"
+          hint={
+            draft.moderation.enabled
+              ? 'Vision-модель проверяет каждую картинку. Сомнительные остаются на ручной проверке, явный брак отбрасывается.'
+              : draft.moderation.manual
+                ? 'Vision не вызывается. Все новые ИИ-карточки ждут ручную проверку.'
+                : 'Проверки нет. Все новые ИИ-карточки сразу попадают в пул.'
+          }
+        >
+          <select
+            className="input"
+            value={draft.moderation.enabled ? 'auto' : draft.moderation.manual ? 'manual' : 'off'}
+            onChange={(e) => {
+              const mode = e.target.value;
+              setDraft((d) => ({ ...d, moderation: { ...d.moderation, enabled: mode === 'auto', manual: mode !== 'off' } }));
+            }}
+          >
+            <option value="auto">Автомодерация включена</option>
+            <option value="manual">Автомодерация выключена, ручная включена</option>
+            <option value="off">Автомодерация и ручная выключены</option>
+          </select>
+        </Field>
         {modelPair('moderation', lists.vision)}
         <Field label="Промпт модерации">{area(['moderation', 'prompt'], 6)}</Field>
       </div>
@@ -601,8 +619,12 @@ function TestRun({ archetypes, onDone }: { archetypes: AiOverview['archetypes'];
   const [archetype, setArchetype] = useState('');
   const [state, setState] = useState<string | null>(null);
   const [result, setResult] = useState<AiTestResult | null>(null);
+  const [jobId, setJobId] = useState<string | null>(null);
+  const [pooled, setPooled] = useState(false);
+  const [pooling, setPooling] = useState(false);
   const [started, setStarted] = useState(0);
   const [now, setNow] = useState(Date.now());
+  const toast = useStore((s) => s.toast);
   const onError = useToastError();
 
   useEffect(() => {
@@ -613,10 +635,12 @@ function TestRun({ archetypes, onDone }: { archetypes: AiOverview['archetypes'];
 
   const run = async () => {
     setResult(null);
+    setPooled(false);
     setState('waiting');
     setStarted(Date.now());
     try {
       const { jobId } = await adminApi.test(rarity, archetype || undefined);
+      setJobId(jobId);
       for (;;) {
         await new Promise((r) => setTimeout(r, 2500));
         const s = await adminApi.testStatus(jobId);
@@ -636,13 +660,27 @@ function TestRun({ archetypes, onDone }: { archetypes: AiOverview['archetypes'];
       onError(e);
     }
   };
+  const accept = async () => {
+    if (!jobId || pooling || pooled) return;
+    setPooling(true);
+    try {
+      await adminApi.acceptTest(jobId);
+      setPooled(true);
+      toast('Карточка в пуле', 'success');
+      onDone();
+    } catch (e) {
+      onError(e);
+    } finally {
+      setPooling(false);
+    }
+  };
   const running = !!state && state !== 'completed' && state !== 'failed';
 
   return (
     <>
       <div className="panel">
         <p className="muted" style={{ marginTop: 0 }}>
-          Одна пробная waifu текущими сохранёнными настройками: профиль → портрет → модерация. В пул не попадает. Стоит около 5 ₽ и идёт в общий лимит.
+          Одна пробная waifu текущими сохранёнными настройками: профиль → портрет → модерация. В пул попадает только по кнопке после результата. Стоит около 5 ₽ и идёт в общий лимит.
         </p>
         <div className="row">
           <select className="input" style={{ width: 'auto' }} value={rarity} onChange={(e) => setRarity(e.target.value as Rarity)}>
@@ -663,12 +701,12 @@ function TestRun({ archetypes, onDone }: { archetypes: AiOverview['archetypes'];
           </button>
         </div>
       </div>
-      {result && <TestResultView r={result} />}
+      {result && <TestResultView r={result} pooled={pooled} pooling={pooling} onPool={result.ok && result.portraitUrl ? accept : undefined} />}
     </>
   );
 }
 
-function TestResultView({ r }: { r: AiTestResult }) {
+function TestResultView({ r, pooled, pooling, onPool }: { r: AiTestResult; pooled?: boolean; pooling?: boolean; onPool?: () => void }) {
   const p = r.profile;
   return (
     <div className="panel">
@@ -676,6 +714,11 @@ function TestResultView({ r }: { r: AiTestResult }) {
         <h3 style={{ margin: 0 }}>
           {r.ok ? (r.verdict === 'ready' ? '✅ Готово' : r.verdict === 'review' ? '🕵️ На ручную проверку' : '⛔ Отклонено модерацией') : `❌ Ошибка на этапе «${r.stage}»`}
         </h3>
+        {onPool && (
+          <button className="btn primary" disabled={pooling || pooled} onClick={onPool}>
+            {pooled ? 'В пуле' : pooling ? 'Кладём…' : 'В пул'}
+          </button>
+        )}
         <span className="muted">
           {(r.durationMs / 1000).toFixed(1)} с · {rub(r.costRub)}
           {r.attempts ? ` · попыток текста: ${r.attempts}` : ''}

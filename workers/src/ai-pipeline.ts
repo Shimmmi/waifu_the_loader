@@ -25,6 +25,7 @@ export interface AiWaifuResult {
   validationErrors?: string[];
   budgetExceeded?: boolean;
   look?: Look;
+  seed?: number;
 }
 
 /** Постобработка (ТЗ 10.1 п.5): обрезка до 3:4, WebP 768×1024 и миниатюра 240×320. */
@@ -70,7 +71,7 @@ export async function generateAiWaifu(opts: {
   const t0 = Date.now();
   const seed = cryptoSeed();
   const ctx: GenContext = { purpose: opts.purpose, rarity: opts.rarity, logIds: [], log: opts.log };
-  const res: AiWaifuResult = { ok: false, stage: 'profile', costRub: 0, durationMs: 0, models: {} };
+  const res: AiWaifuResult = { ok: false, stage: 'profile', costRub: 0, durationMs: 0, models: {}, seed };
   const archetype = opts.archetype ?? (await leastUsedArchetype(opts.content, opts.rarity));
   const s = opts.provider.settings.image;
   const look = pickLook({ themes: s.themes, poses: s.poses, shots: s.shots }, opts.rarity, seed, await themeUsage(opts.rarity));

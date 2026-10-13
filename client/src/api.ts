@@ -145,6 +145,7 @@ export const adminApi = {
   log: (limit = 100) => req<{ items: AiLogItem[] }>('GET', `/admin/ai/log?limit=${limit}`),
   test: (rarity: Rarity, archetype?: string) => req<{ jobId: string }>('POST', '/admin/ai/test', { rarity, archetype }),
   testStatus: (id: string) => req<{ state: string; result: AiTestResult | null; error: string | null }>('GET', `/admin/ai/test/${id}`),
+  acceptTest: (id: string) => req<{ poolId: string }>('POST', `/admin/ai/test/${id}/pool`, {}),
   review: (status: 'review' | 'rejected') => req<{ items: ReviewItem[] }>('GET', `/admin/review?status=${status}`),
   decide: (id: string, action: 'approve' | 'reject') => req<{ ok: true }>('POST', `/admin/review/${id}`, { action }),
 };

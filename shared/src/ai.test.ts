@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ageMismatches, buildAiProfile, extractJson, imagePrompt, DEFAULT_AI_SETTINGS, moderationVerdict, profileUserPrompt, repairStats, type Moderation } from './ai.js';
+import { ageMismatches, buildAiProfile, extractJson, imagePrompt, DEFAULT_AI_SETTINGS, moderationVerdict, profileUserPrompt, repairStats, skippedModeration, type Moderation } from './ai.js';
 import { loadEconomy, rarityConfig } from './config.js';
 import { loadContent } from './content.js';
 
@@ -109,5 +109,10 @@ describe('ИИ: решение модерации', () => {
     expect(moderationVerdict({ ...ok, estimated_min_age: 19 }).verdict).toBe('review');
     expect(moderationVerdict({ ...ok, text_or_watermark: true }).verdict).toBe('review');
     expect(moderationVerdict({ ...ok, adult_appearance: false }).verdict).toBe('review');
+  });
+
+  it('без автомодерации ручная проверка оставляет карточку на review, а полное отключение сразу пускает в пул', () => {
+    expect(skippedModeration(true)).toEqual({ verdict: 'review', reasons: ['автомодерация выключена'] });
+    expect(skippedModeration(false)).toEqual({ verdict: 'ready', reasons: ['модерация отключена'] });
   });
 });

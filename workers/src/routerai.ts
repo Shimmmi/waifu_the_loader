@@ -9,6 +9,7 @@ import {
   ModerationSchema,
   moderationText,
   moderationVerdict,
+  skippedModeration,
   profileUserPrompt,
   type AiSettings,
   type Archetype,
@@ -282,7 +283,7 @@ export class RouterAiProvider {
     ctx: GenContext,
   ): Promise<{ verdict: ModerationVerdict; reasons: string[]; result: Moderation | null; costRub: number; model: string }> {
     const s = this.settings.moderation;
-    if (!s.enabled) return { verdict: 'review', reasons: ['автомодерация выключена'], result: null, costRub: 0, model: '' };
+    if (!s.enabled) return { ...skippedModeration(s.manual), result: null, costRub: 0, model: '' };
     const dataUrl = `data:image/webp;base64,${image.toString('base64')}`;
     const r = await this.withFallback('moderation', s, ctx, (model) =>
       this.client.chat(
