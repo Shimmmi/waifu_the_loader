@@ -123,7 +123,7 @@ export const DEFAULT_AI_SETTINGS: AiSettings = {
     ].join('\n'),
   },
   limits: { daily_rub: 100, monthly_rub: 1500 },
-  pool: { ai_rarities: ['SR', 'SSR', 'UR'], ai_target: 40, ai_batch: 4, procedural_reserve: 40 },
+  pool: { ai_rarities: [], ai_target: 40, ai_batch: 4, procedural_reserve: 40 },
 };
 
 // ---------- Генерация профиля ----------

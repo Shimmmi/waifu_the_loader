@@ -33,8 +33,7 @@ export class ProceduralTextProvider implements TextProvider {
 }
 
 /**
- * Готовые портреты: 20 штук на редкость (2 на архетип). Для N/R — основной источник,
- * для SR/SSR/UR — запас, когда нет бюджета RouterAI. Зеркало по seed, без перекраски.
+ * Готовые портреты: 10 на N/R/SR и 5 на SSR/UR. RouterAI для пула по умолчанию не вызывается.
  */
 export class StockImageProvider implements ImageProvider {
   readonly name = 'stock-image';

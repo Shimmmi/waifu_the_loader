@@ -1,25 +1,25 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_AI_SETTINGS } from './ai.js';
-import { AI_POOL_RARITIES, isAiRarity, pickStock, pickStockVariant, STOCK_VARIANTS, stockPortraitKey } from './stock.js';
+import { AI_POOL_RARITIES, isAiRarity, pickStock, STOCK_SIZE, stockArchetype, stockPortraitKey } from './stock.js';
 
 describe('стоковые портреты', () => {
-  it('N и R не входят в ИИ-редкости', () => {
+  it('пул по умолчанию не заказывает картинки у RouterAI', () => {
     expect(AI_POOL_RARITIES).toEqual(['SR', 'SSR', 'UR']);
     expect(isAiRarity('N')).toBe(false);
-    expect(isAiRarity('R')).toBe(false);
-    expect(isAiRarity('SSR')).toBe(true);
-    expect(DEFAULT_AI_SETTINGS.pool.ai_rarities).toEqual(['SR', 'SSR', 'UR']);
+    expect(isAiRarity('SR')).toBe(true);
+    expect(DEFAULT_AI_SETTINGS.pool.ai_rarities).toEqual([]);
     expect(DEFAULT_AI_SETTINGS.image.model).toBe('google/gemini-nano-banana-2.1');
   });
 
-  it('вариант детерминирован по seed', () => {
-    expect(pickStockVariant(7)).toBe(pickStockVariant(7));
-    expect(pickStockVariant(0)).toBeGreaterThanOrEqual(0);
-    expect(pickStockVariant(0)).toBeLessThan(STOCK_VARIANTS);
-    const a = pickStock('N', 'fridge_quiet', 42);
-    const b = pickStock('N', 'fridge_quiet', 42);
+  it('N/R/SR — свой кадр на архетип, SSR/UR — пять кадров на всех', () => {
+    expect(STOCK_SIZE).toEqual({ N: 10, R: 10, SR: 10, SSR: 5, UR: 5 });
+    expect(stockArchetype('N', 'goth_packer')).toBe('goth_packer');
+    expect(stockArchetype('SSR', 'fridge_quiet')).toBe('fridge_quiet');
+    expect(stockArchetype('UR', 'forklift_accountant')).toBe('fridge_quiet');
+    const a = pickStock('SR', 'sleepy_piano', 42);
+    const b = pickStock('SR', 'sleepy_piano', 99);
     expect(a).toEqual(b);
-    expect(a.portrait).toBe(stockPortraitKey('N', 'fridge_quiet', a.variant));
+    expect(a.portrait).toBe(stockPortraitKey('SR', 'sleepy_piano', 0));
     expect(a.thumb).toContain('_thumb.webp');
   });
 });
