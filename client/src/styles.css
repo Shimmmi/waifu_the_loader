@@ -115,6 +115,13 @@ main { padding: 16px; max-width: 1200px; width: 100%; }
 
 .input { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg2); }
 .input:focus { outline: 2px solid var(--accent); border-color: transparent; }
+.model-pick { position: relative; }
+.model-pick-btn { display: flex; justify-content: space-between; gap: 8px; align-items: center; text-align: left; cursor: pointer; font: inherit; color: inherit; }
+.model-pick-menu { position: absolute; z-index: 30; left: 0; right: 0; top: calc(100% + 4px); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px; display: flex; flex-direction: column; gap: 4px; max-height: 320px; overflow: auto; box-shadow: var(--shadow); }
+.model-pick-menu > button { text-align: left; background: transparent; border: 0; border-radius: 6px; padding: 6px 8px; cursor: pointer; color: inherit; }
+.model-pick-menu > button.on, .model-pick-menu > button:hover { background: var(--panel2); }
+.model-pick-menu b { display: block; font-size: 13px; word-break: break-all; }
+.model-pick-menu small { color: var(--muted); }
 .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
 .seg button { border: 0; background: transparent; padding: 7px 11px; cursor: pointer; font-size: 13px; }
 .seg button.on { background: var(--accent); color: var(--accent-ink); font-weight: 700; }

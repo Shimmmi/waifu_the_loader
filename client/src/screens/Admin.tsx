@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { RARITIES, ThemeSchema, type AiSettings, type Rarity } from '@wl/shared';
 import { adminApi, ApiError, type AiLogItem, type AiOverview, type AiSettingsVersion, type AiTestResult, type ModelInfo, type ReviewItem } from '../api';
 import { rarityStyle } from '../components/ui';
@@ -212,6 +212,44 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
   );
 }
 
+function ModelPick({ value, options, onChange }: { value: string; options: ModelInfo[]; onChange: (id: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const [q, setQ] = useState('');
+  const root = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: MouseEvent) => {
+      if (!root.current?.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
+  }, [open]);
+  const query = q.trim().toLowerCase();
+  const matched = query ? options.filter((m) => m.id.toLowerCase().includes(query) || m.name.toLowerCase().includes(query)) : options;
+  const shown = matched.slice(0, query ? 40 : 8);
+  return (
+    <div className="model-pick" ref={root}>
+      <button type="button" className="input model-pick-btn" onClick={() => { setOpen((v) => !v); setQ(''); }}>
+        <span>{value || '—'}</span>
+        <span aria-hidden="true">▾</span>
+      </button>
+      {open && (
+        <div className="model-pick-menu">
+          <input className="input" autoFocus placeholder="Найти модель" value={q} onChange={(e) => setQ(e.target.value)} />
+          {shown.map((m) => (
+            <button type="button" key={m.id} className={m.id === value ? 'on' : ''} onClick={() => { onChange(m.id); setOpen(false); }}>
+              <b>{m.id}</b>
+              {m.name !== m.id && <small>{m.name}</small>}
+            </button>
+          ))}
+          {shown.length === 0 && <small className="muted">Ничего не найдено</small>}
+          {!query && options.length > shown.length && <small className="muted">Остальные модели — через поиск</small>}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Settings({ current, onSaved }: { current: AiSettingsVersion; onSaved: () => void }) {
   const [draft, setDraft] = useState<AiSettings>(current.settings);
   const [comment, setComment] = useState('');
@@ -258,24 +296,13 @@ function Settings({ current, onSaved }: { current: AiSettingsVersion; onSaved: (
     <input className="input" type="number" step={step} value={str(p)(draft)} onChange={(e) => set(p, Number(e.target.value))} />
   );
   const area = (p: Path, rows = 5) => <textarea className="input" rows={rows} value={str(p)(draft)} onChange={(e) => set(p, e.target.value)} />;
-  const datalist = (p: Path, list: ModelInfo[]) => (
-    <datalist id={`ml-${p.join('-')}`}>
-      {list.map((m) => (
-        <option key={m.id} value={m.id}>
-          {m.name}
-        </option>
-      ))}
-    </datalist>
-  );
   const modelPair = (block: 'text' | 'image' | 'moderation', list: ModelInfo[]) => (
     <div className="grid2">
       <Field label="Модель">
-        {text([block, 'model'], list)}
-        {datalist([block, 'model'], list)}
+        <ModelPick value={str([block, 'model'])(draft)} options={list} onChange={(id) => set([block, 'model'], id)} />
       </Field>
       <Field label="Резервная модель" hint="Используется при ошибке или таймауте основной">
-        {text([block, 'fallback'], list)}
-        {datalist([block, 'fallback'], list)}
+        <ModelPick value={str([block, 'fallback'])(draft)} options={list} onChange={(id) => set([block, 'fallback'], id)} />
       </Field>
     </div>
   );
