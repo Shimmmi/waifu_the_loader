@@ -216,6 +216,7 @@ export async function buildApp(opts: { storage: Storage; configVersion: string; 
               lang: z.enum(['ru', 'en']),
               skipGachaAnim: z.boolean(),
               chatter: z.enum(['off', 'rare', 'normal', 'often']),
+              sound: z.boolean(),
             })
             .partial()
             .parse(req.body);

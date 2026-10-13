@@ -120,6 +120,10 @@ export function Profile() {
           </div>
         </div>
         <label className="check field">
+          <input type="checkbox" checked={settings.sound !== false} onChange={(e) => void patch({ sound: e.target.checked })} />
+          <span>{t('p.sound')}</span>
+        </label>
+        <label className="check field">
           <input type="checkbox" checked={settings.skipGachaAnim} onChange={(e) => void patch({ skipGachaAnim: e.target.checked })} />
           <span>{t('p.skipAnim')}</span>
         </label>

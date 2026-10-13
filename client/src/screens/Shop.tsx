@@ -3,12 +3,12 @@ import { api } from '../api';
 import { useT } from '../i18n';
 import { useStore } from '../store';
 
-const KIND: Record<CosmeticDef['kind'], string> = {
-  frame: 'Рамка',
-  warehouse: 'Склад',
-  summon: 'Призыв',
-  card: 'Карточка',
-  title: 'Титул',
+const KIND: Record<CosmeticDef['kind'], 'sh.kind.frame' | 'sh.kind.warehouse' | 'sh.kind.summon' | 'sh.kind.card' | 'sh.kind.title'> = {
+  frame: 'sh.kind.frame',
+  warehouse: 'sh.kind.warehouse',
+  summon: 'sh.kind.summon',
+  card: 'sh.kind.card',
+  title: 'sh.kind.title',
 };
 
 export function Shop() {
@@ -26,7 +26,7 @@ export function Shop() {
 
   return (
     <div>
-      <p className="muted">Жетоны: {state.resources.tokens}. Монеты и билеты на мерч не меняются.</p>
+      <p className="muted">{t('sh.blurb', { n: state.resources.tokens })}</p>
       <div className="tree">
         {meta.cosmetics.map((item) => {
           const have = owned.has(item.id);
@@ -34,7 +34,7 @@ export function Shop() {
           return (
             <div key={item.id} className={`node ${have ? 'maxed' : ''}`}>
               <b>{item.name}</b>
-              <span className="small muted">{KIND[item.kind]} · {item.description}</span>
+              <span className="small muted">{t(KIND[item.kind])} · {item.description}</span>
               {have ? (
                 <button className="btn small" disabled={busy} onClick={() => act(() => api.equipCosmetic(item.kind, equipped(item) ? null : item.id))}>
                   {equipped(item) ? t('sh.off') : t('sh.equip')}

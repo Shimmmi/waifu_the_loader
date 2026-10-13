@@ -29,7 +29,7 @@ export function Events() {
               return (
                 <div className="row" key={i} style={{ marginTop: 8 }}>
                   <span>
-                    {ms.score} · {ms.tokens ? `+${ms.tokens} жетонов` : ''} {ms.tickets ? `+${ms.tickets} билетов` : ''} {ms.cosmetic ? '· косметика' : ''}
+                    {ms.score} · {ms.tokens ? t('ev.tokens', { n: ms.tokens }) : ''} {ms.tickets ? t('ev.tickets', { n: ms.tickets }) : ''} {ms.cosmetic ? `· ${t('ev.cosmetic')}` : ''}
                   </span>
                   <span className="spacer" />
                   {got ? <span className="tag">{t('ac.done')}</span> : (
@@ -77,11 +77,11 @@ export function Events() {
             <b>{b.rank}.</b>
             <span>{b.nickname}</span>
             <span className="spacer" />
-            <span>{fmt(b.cargo)} кг</span>
+            <span>{fmt(b.cargo)} {t('ev.kg')}</span>
           </div>
         ))}
         <p className="small muted">
-          {t('ev.you')}: {prog.myRank ? `#${prog.myRank}` : '—'} · {fmt(D(prog.myCargo))} кг
+          {t('ev.you')}: {prog.myRank ? `#${prog.myRank}` : '—'} · {fmt(D(prog.myCargo))} {t('ev.kg')}
         </p>
       </div>
     </div>

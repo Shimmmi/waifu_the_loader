@@ -21,13 +21,24 @@ import { useStore } from './store';
 
 const HEARTBEAT_MS = 20_000;
 
+function Fanfare() {
+  const on = useStore((s) => s.fanfare);
+  if (!on) return null;
+  return <div className="fanfare" aria-hidden>🏅</div>;
+}
+
 function useTheme() {
   const theme = useStore((s) => s.settings.theme);
+  const lang = useStore((s) => s.settings.lang);
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
   useEffect(() => {
     const mq = window.matchMedia('(prefers-color-scheme: light)');
     const set = () => {
       const t = theme === 'system' ? (mq.matches ? 'light' : 'dark') : theme;
       document.documentElement.dataset.theme = t;
+      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', t === 'light' ? '#f4efe4' : '#17150f');
     };
     set();
     mq.addEventListener('change', set);
@@ -101,6 +112,7 @@ export function App() {
         {screen === 'admin' && isAdmin && <Admin />}
       </Shell>
       <MiniEvent />
+      <Fanfare />
       <OfflineModal />
       <RecoveryModal />
       <Toasts />

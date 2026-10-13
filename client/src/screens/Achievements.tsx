@@ -4,7 +4,7 @@ import { useFmt } from '../hooks';
 import { useT } from '../i18n';
 import { useStore } from '../store';
 
-const TIER = { bronze: 'бронза', silver: 'серебро', gold: 'золото' };
+const TIER = { bronze: 'ac.bronze', silver: 'ac.silver', gold: 'ac.gold' } as const;
 
 export function Achievements() {
   const state = useStore((s) => s.state)!;
@@ -46,7 +46,7 @@ export function Achievements() {
                 <>
                   <div className="pips">
                     {a.tiers.map((tier) => (
-                      <i key={tier.id} className={claimed.has(tierKey(a.id, tier.id)) ? 'on' : ''} title={TIER[tier.id]} />
+                      <i key={tier.id} className={claimed.has(tierKey(a.id, tier.id)) ? 'on' : ''} title={t(TIER[tier.id])} />
                     ))}
                   </div>
                   <div className="progress">

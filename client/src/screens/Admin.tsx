@@ -143,6 +143,10 @@ function Overview({ o, onReload }: { o: AiOverview; onReload: () => void }) {
         <p className="muted" style={{ fontSize: 13 }}>
           ИИ: {s.enabled ? 'включён' : 'выключен'} · редкости {s.pool.ai_rarities.join(', ') || '—'} · цель {s.pool.ai_target} на редкость · версия настроек v{o.current.version}
         </p>
+        <p className="small">
+          Воронка:{' '}
+          {['registration', 'first_pull', 'first_prestige', 'first_achievement'].map((name) => `${name} ${o.funnel?.find((f) => f.name === name)?.n ?? 0}`).join(' · ')}
+        </p>
         <table className="tbl">
           <thead>
             <tr>

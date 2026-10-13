@@ -14,6 +14,7 @@ import {
   type Rarity,
 } from '@wl/shared';
 import { api } from '../api';
+import { playCue } from '../sound';
 import { useFlavor, useText } from '../hooks';
 import { ruPlural, useT } from '../i18n';
 import { useStore } from '../store';
@@ -26,6 +27,8 @@ function PullStage({ items, onClose }: { items: PullItemDTO[]; onClose: () => vo
   const text = useText();
   const flavor = useFlavor();
   const skipAnim = useStore((s) => s.settings.skipGachaAnim);
+  const sound = useStore((s) => s.settings.sound);
+  const lang = useStore((s) => s.settings.lang);
   const best = items.reduce<Rarity>((m, i) => (rarityIndex(i.rarity) > rarityIndex(m) ? i.rarity : m), 'N');
   const epic = best === 'SSR' || best === 'UR';
   const [phase, setPhase] = useState<'box' | 'open' | 'done'>(skipAnim ? 'done' : 'box');
@@ -36,6 +39,11 @@ function PullStage({ items, onClose }: { items: PullItemDTO[]; onClose: () => vo
     return flavor(content.flavor.gacha_reveal[best] ?? [], { name: top ? displayName(top.waifu) : '' });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items]);
+
+  useEffect(() => {
+    if (sound) playCue(epic ? 'rare' : 'tick');
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- один раз на вскрытие
+  }, []);
 
   useEffect(() => {
     if (phase === 'box') {
@@ -55,7 +63,7 @@ function PullStage({ items, onClose }: { items: PullItemDTO[]; onClose: () => vo
           <div className={`pull-box ${phase === 'open' ? 'open' : ''}`} style={{ ['--glow' as string]: GLOW[best] }}>
             📦
           </div>
-          <div className="pull-caption">{epic ? '…коробка подозрительно тяжёлая…' : 'Вскрываем коробку…'}</div>
+          <div className="pull-caption">{epic ? t('g.heavy') : t('g.opening')}</div>
           <button className="btn" style={{ marginTop: 16 }} onClick={() => setPhase('done')}>
             {t('g.skip')} ⏭
           </button>
@@ -71,7 +79,14 @@ function PullStage({ items, onClose }: { items: PullItemDTO[]; onClose: () => vo
                   badge={
                     <>
                       {!i.duplicate && <span className="newtag">{t('g.new')}</span>}
-                      {i.duplicate && <span className="dupe">{t('g.duplicate', { n: i.shards, shardWord: ruPlural(i.shards, 'осколок', 'осколка', 'осколков') })}</span>}
+                      {i.duplicate && (
+                        <span className="dupe">
+                          {t('g.duplicate', {
+                            n: i.shards,
+                            shardWord: lang === 'en' ? t(i.shards === 1 ? 'g.shardOne' : 'g.shardMany') : ruPlural(i.shards, t('g.shardOne'), t('g.shardFew'), t('g.shardMany')),
+                          })}
+                        </span>
+                      )}
                     </>
                   }
                 />

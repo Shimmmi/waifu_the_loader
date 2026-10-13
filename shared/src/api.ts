@@ -16,6 +16,8 @@ export interface UserSettings {
   skipGachaAnim: boolean;
   /** Частота реплик грузчиц на складе */
   chatter: Chatter;
+  /** Короткие звуки интерфейса */
+  sound: boolean;
 }
 
 export const DEFAULT_SETTINGS: UserSettings = {
@@ -25,6 +27,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   lang: 'ru',
   skipGachaAnim: false,
   chatter: 'rare',
+  sound: true,
 };
 
 export interface ResourcesDTO {

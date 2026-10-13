@@ -440,6 +440,7 @@ export async function endShift(userId: string): Promise<Extras & { seals: number
       UPDATE player_state SET cargo = '0', coins = ${dstr(coins)}, protein = '0', seals = ${dstr(spendable)}, tickets = tickets + ${tickets}
       WHERE user_id = ${userId}`;
     await tx`INSERT INTO currency_ledger (user_id, currency, delta, reason, ref) VALUES (${userId}, 'seals', ${String(seals)}, 'prestige', ${String(pr.prestiges + 1)})`;
+    if (pr.prestiges === 0) await tx`INSERT INTO analytics_events (user_id, name) VALUES (${userId}, 'first_prestige')`;
     if (tickets) await tx`INSERT INTO currency_ledger (user_id, currency, delta, reason, ref) VALUES (${userId}, 'tickets', ${String(tickets)}, 'prestige', ${String(pr.prestiges + 1)})`;
     return { offlineReport: adv.offlineReport, milestoneTickets: adv.milestoneTickets, seals, tickets };
   });

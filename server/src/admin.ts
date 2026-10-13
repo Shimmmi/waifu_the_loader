@@ -56,7 +56,7 @@ export async function registerAdmin(api: FastifyInstance, connection: { url: str
     admin.addHook('preHandler', requireAdmin);
 
     admin.get('/admin/ai', async () => {
-      const [current, spend, pool, calls, verdicts, themes] = await Promise.all([
+      const [current, spend, pool, calls, verdicts, themes, funnel] = await Promise.all([
         getAiSettings(),
         aiSpend(),
         sql<{ rarity: string; source: string; status: string; n: number }[]>`
@@ -75,6 +75,9 @@ export async function registerAdmin(api: FastifyInstance, connection: { url: str
                  count(*) FILTER (WHERE status = 'review')::int AS review,
                  count(*) FILTER (WHERE status = 'rejected')::int AS rejected
           FROM waifu_pool WHERE source = 'ai' AND gen_meta->'look' IS NOT NULL GROUP BY 1 ORDER BY 2 DESC`,
+        sql<{ name: string; n: number }[]>`
+          SELECT name, count(DISTINCT user_id)::int AS n FROM analytics_events
+          WHERE name IN ('registration', 'first_pull', 'first_prestige', 'first_achievement') GROUP BY 1`,
       ]);
       return {
         current,
@@ -83,6 +86,7 @@ export async function registerAdmin(api: FastifyInstance, connection: { url: str
         pool,
         week: { calls, verdicts },
         themes,
+        funnel,
         archetypes: loadContent().archetypes.map((a) => ({ id: a.id, name: a.name })),
       };
     });

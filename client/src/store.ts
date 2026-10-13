@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { censor, D, DEFAULT_SETTINGS, loadContent, pickLine, type Decimal, type NoticeDTO, type OfflineReportDTO, type StateDTO, type UserSettings } from '@wl/shared';
 import { api, ApiError } from './api';
+import { playCue } from './sound';
 
 export type Screen = 'warehouse' | 'buildings' | 'collection' | 'gacha' | 'training' | 'contracts' | 'prestige' | 'events' | 'achievements' | 'shop' | 'profile' | 'admin';
 
@@ -28,6 +29,8 @@ interface Store {
   recoveryCode: string | null;
   busy: boolean;
   settings: UserSettings;
+  /** Вспышка золотого достижения */
+  fanfare: boolean;
 
   setScreen(s: Screen): void;
   toast(text: string, kind?: Toast['kind']): void;
@@ -56,6 +59,7 @@ export const useStore = create<Store>((set, get) => ({
   recoveryCode: null,
   busy: false,
   settings: DEFAULT_SETTINGS,
+  fanfare: false,
 
   setScreen: (screen) => set({ screen }),
   toast: (text, kind = 'info') => {
@@ -81,6 +85,12 @@ export const useStore = create<Store>((set, get) => ({
     const swear = get().settings.swear;
     const line = lines ? pickLine(lines, swear, n.vars) : '';
     const text = line ? `${n.text}\n«${line}»` : n.text;
+    const gold = n.kind === 'achievement' && n.text.includes('(gold)');
+    if (get().settings.sound !== false) playCue(gold ? 'rare' : n.outcome === 'fail' ? 'fail' : 'win');
+    if (gold) {
+      set({ fanfare: true });
+      setTimeout(() => set({ fanfare: false }), 1600);
+    }
     get().toast(swear === 0 ? censor(text) : text, n.outcome === 'fail' || n.outcome === 'contract_partial' ? 'info' : 'success');
   },
 

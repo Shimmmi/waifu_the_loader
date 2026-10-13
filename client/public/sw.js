@@ -1,6 +1,6 @@
 // Минимальный service worker: офлайн-оболочка и кэш портретов. API никогда не кэшируется.
-const SHELL = 'wl-shell-v1';
-const IMG = 'wl-img-v1';
+const SHELL = 'wl-shell-v2';
+const IMG = 'wl-img-v2';
 const BASE = '/waifu_loader/';
 
 self.addEventListener('install', (e) => {

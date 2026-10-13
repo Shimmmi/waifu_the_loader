@@ -78,6 +78,7 @@ export interface AiOverview {
     verdicts: { status: string; n: number }[];
   };
   themes: { theme: string; ok: number; review: number; rejected: number }[];
+  funnel?: { name: string; n: number }[];
   archetypes: { id: string; name: string }[];
 }
 export interface ModelInfo {
