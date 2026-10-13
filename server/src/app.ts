@@ -101,7 +101,7 @@ export async function buildApp(opts: { storage: Storage; configVersion: string; 
         });
         game.post('/waifu/:id/assign', async (req) => {
           const { id } = waifuId.parse(req.params);
-          const { zone } = z.object({ zone: z.enum(['warehouse']).nullable() }).parse(req.body);
+          const { zone } = z.object({ zone: z.enum(['warehouse', 'clerk']).nullable() }).parse(req.body);
           return state(req.userId, await actions.assign(req.userId, id, zone));
         });
         game.post('/waifu/:id/rename', async (req) => {

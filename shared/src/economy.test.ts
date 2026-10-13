@@ -7,6 +7,7 @@ import {
   buildingCost,
   buildingMaxAffordable,
   cargoMilestoneRewards,
+  clerkCargoMult,
   computeRates,
   levelCap,
   milestoneCount,
@@ -91,6 +92,16 @@ describe('прокачка waifu', () => {
 });
 
 describe('computeRates', () => {
+  it('кладовщик добавляет 5–12% к грузу и не трогает протеин', () => {
+    expect(clerkCargoMult(null)).toBe(1);
+    expect(clerkCargoMult(0)).toBeCloseTo(1.05);
+    expect(clerkCargoMult(800)).toBeCloseTo(1.12);
+    const base = computeRates([waifu()], { warehouse: 1, canteen: 2 }, cfg);
+    const withClerk = computeRates([waifu()], { warehouse: 1, canteen: 2 }, cfg, undefined, 0);
+    expect(withClerk.cargoPerSec.toNumber() / base.cargoPerSec.toNumber()).toBeCloseTo(1.05, 6);
+    expect(withClerk.proteinPerSec.toNumber()).toBeCloseTo(base.proteinPerSec.toNumber(), 6);
+    expect(withClerk.mult.clerk).toBeCloseTo(1.05);
+  });
   it('пустая бригада — ноль груза', () => {
     const r = computeRates([], { warehouse: 1, canteen: 1, autopark: 0 }, cfg);
     expect(r.cargoPerSec.toNumber()).toBe(0);

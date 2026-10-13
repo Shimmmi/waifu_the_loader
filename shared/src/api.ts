@@ -80,7 +80,7 @@ export interface WaifuDTO {
   fatigue: number;
 }
 
-export type WaifuZone = 'warehouse' | 'gym' | 'contract' | null;
+export type WaifuZone = 'warehouse' | 'gym' | 'contract' | 'clerk' | null;
 
 export interface TrainingJobDTO {
   id: string;

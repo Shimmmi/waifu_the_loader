@@ -7,19 +7,6 @@ import { useStore } from '../store';
 import { displayName, Modal, rarityStyle, WaifuCard } from '../components/ui';
 import { WaifuDetail } from '../components/WaifuDetail';
 
-export const ARCH_ICON: Record<string, string> = {
-  fridge_quiet: '🧊',
-  gymnast_rigger: '🪢',
-  sleepy_piano: '🎹',
-  shout_commander: '📣',
-  dreamy_courier: '📦',
-  forklift_accountant: '🧾',
-  goth_packer: '⚰️',
-  gym_philosopher: '🔒',
-  tape_maniac: '🎞️',
-  retired_waitress: '🍽️',
-};
-
 interface Bubble {
   id: number;
   workerId: string;
@@ -32,6 +19,14 @@ interface Bubble {
 const BUBBLE_MS = 3200;
 /** Условная «ходка» для цифры в реплике: сколько кг одна грузчица приносит примерно за 3 секунды. */
 const TRIP_SEC = 3;
+/** Грузовик уезжает примерно раз в 20 секунд текущей добычи. */
+const TRUCK_EVERY_SEC = 20;
+const BG_LEVELS = [1, 5, 10, 25, 50, 75, 100, 150, 250, 400];
+const TRUCK_LEVELS = [0, 5, 15, 40, 100];
+const SCENE = import.meta.env.BASE_URL + 'scene/';
+
+const stepAt = (level: number, steps: number[]) => steps.reduce((hit, n) => (level >= n ? n : hit), steps[0]!);
+const cargoIcon = (n: number) => `${SCENE}cargo/${String(n).padStart(2, '0')}.webp`;
 
 function Scene({ crew }: { crew: WaifuDTO[] }) {
   const state = useStore((s) => s.state)!;
@@ -84,44 +79,93 @@ function Scene({ crew }: { crew: WaifuDTO[] }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [crew.map((c) => c.id).join(), state.rates.cargoPerSec, notation, chatter]);
 
-  const boxes = [
-    [6, 8], [16, 8], [46, 8], [72, 8], [84, 8],
-    [10, 32], [30, 32], [58, 32], [80, 32],
-    [4, 56], [22, 56], [40, 56], [66, 56], [90, 56],
-  ];
-
   const skinId = useStore((s) => s.state?.meta.loadout.warehouse);
   const skin = loadMeta().cosmetics.find((c) => c.id === skinId)?.css ?? '';
+  const resources = useLive();
+  const whLevel = state.buildings.warehouse ?? 1;
+  const apLevel = state.buildings.autopark ?? 0;
+  const bg = BG_LEVELS.indexOf(stepAt(whLevel, BG_LEVELS)) + 1;
+  const truck = stepAt(apLevel, TRUCK_LEVELS);
+  const clerk = state.waifu.find((w) => w.zone === 'clerk') ?? null;
+  const [icons, setIcons] = useState<Record<string, number>>({});
+  const [truckOut, setTruckOut] = useState(false);
+  const hauled = useRef(0);
+  const seenAt = useRef(0);
+
+  useEffect(() => {
+    const missing = crew.some((w) => icons[w.id] == null);
+    if (!missing) return;
+    setIcons((prev) => {
+      const next = { ...prev };
+      for (const w of crew) if (next[w.id] == null) next[w.id] = 1 + Math.floor(Math.random() * 50);
+      return next;
+    });
+  }, [crew, icons]);
+
+  useEffect(() => {
+    if (!resources) return;
+    const now = performance.now();
+    if (seenAt.current && !truckOut) {
+      hauled.current += D(state.rates.cargoPerSec).toNumber() * ((now - seenAt.current) / 1000);
+      const need = Math.max(1, D(state.rates.cargoPerSec).toNumber() * TRUCK_EVERY_SEC);
+      if (D(state.rates.cargoPerSec).gt(0) && hauled.current >= need) {
+        hauled.current = 0;
+        setTruckOut(true);
+        setIcons((prev) => {
+          const next = { ...prev };
+          for (const w of crew) next[w.id] = 1 + Math.floor(Math.random() * 50);
+          return next;
+        });
+      }
+    }
+    seenAt.current = now;
+  }, [resources, truckOut, state.rates.cargoPerSec, crew]);
+
+  useEffect(() => {
+    if (!truckOut) return;
+    const timer = setTimeout(() => setTruckOut(false), 900);
+    return () => clearTimeout(timer);
+  }, [truckOut]);
+
   return (
-    <div className={`scene ${skin}`} ref={sceneRef}>
-      {boxes.map(([l, top], i) => (
-        <div key={i} className="shelf-box" style={{ left: `${l}%`, top: `${top}%` }} />
-      ))}
-      <div className="floor-stripe hazard" />
-      {crew.map((w, i) => (
-        <div
-          key={w.id}
-          ref={(el) => {
-            if (el) workerRefs.current.set(w.id, el);
-            else workerRefs.current.delete(w.id);
-          }}
-          className="worker"
-          style={{ ...rarityStyle(w.rarity), animationDuration: `${Math.max(3, 14 - w.stats.spd / 6)}s`, animationDelay: `${-i * 2.3}s`, bottom: 14 + (i % 3) * 8 }}
-        >
-          {bubbles
-            .filter((b) => b.workerId === w.id)
-            .slice(-1)
-            .map((b) => (
-              <div key={b.id} className={`bubble ${b.align} ${b.crit ? 'crit' : ''}`}>
-                {b.text}
-              </div>
-            ))}
-          <span className="carry">{ARCH_ICON[w.archetype] ?? '📦'}</span>
-          <div className="avatar" style={{ backgroundImage: `url(${w.thumbUrl})` }} />
-          <div className="label">{displayName(w).split(' ')[0]}</div>
+    <div className={`scene ${skin}`} ref={sceneRef} style={{ backgroundImage: `url(${SCENE}bg-${bg}.webp)` }}>
+      <img className="prop shelves" src={`${SCENE}shelves.webp`} alt="" />
+      {clerk && (
+        <div className="clerk" style={rarityStyle(clerk.rarity)}>
+          <div className="avatar" style={{ backgroundImage: `url(${clerk.thumbUrl})` }} />
+          <div className="label">{displayName(clerk).split(' ')[0]}</div>
         </div>
-      ))}
-      {!crew.length && <div className="idle">{t('wh.noBrigade')}</div>}
+      )}
+      <img className="prop dock" src={`${SCENE}dock.webp`} alt="" />
+      <img className={`prop truck ${truckOut ? 'out' : 'in'}`} src={`${SCENE}truck-${truck}.webp`} alt="" />
+      {crew.map((w, i) => {
+        const dur = `${Math.max(3, 14 - w.stats.spd / 6)}s`;
+        const delay = `${-i * 1.7}s`;
+        return (
+          <div
+            key={w.id}
+            ref={(el) => {
+              if (el) workerRefs.current.set(w.id, el);
+              else workerRefs.current.delete(w.id);
+            }}
+            className="worker"
+            style={{ ...rarityStyle(w.rarity), animationDuration: dur, animationDelay: delay, bottom: 18 + (i % 3) * 10 }}
+          >
+            {bubbles
+              .filter((b) => b.workerId === w.id)
+              .slice(-1)
+              .map((b) => (
+                <div key={b.id} className={`bubble ${b.align} ${b.crit ? 'crit' : ''}`}>
+                  {b.text}
+                </div>
+              ))}
+            <img className="carry" src={cargoIcon(icons[w.id] ?? 1)} alt="" style={{ animationDuration: dur, animationDelay: delay }} />
+            <div className="avatar" style={{ backgroundImage: `url(${w.thumbUrl})` }} />
+            <div className="label">{displayName(w).split(' ')[0]}</div>
+          </div>
+        );
+      })}
+      {!crew.length && !clerk && <div className="idle">{t('wh.noBrigade')}</div>}
     </div>
   );
 }
@@ -133,6 +177,7 @@ export function Warehouse() {
   const toast = useStore((s) => s.toast);
   const t = useT();
   const fmt = useFmt();
+  const notation = useStore((s) => s.settings.notation);
   const flavor = useFlavor();
   const live = useLive();
   const [picker, setPicker] = useState(false);
@@ -161,7 +206,7 @@ export function Warehouse() {
         <div>
           <div className="muted small">{t('res.cargo')}</div>
           <div className="counter-big">
-            {live ? fmt(live.cargoTotal) : '…'} {t('unit.kg')}
+            {live ? formatNumber(live.cargoTotal, notation, true) : '…'} {t('unit.kg')}
           </div>
         </div>
         <span className="spacer" />

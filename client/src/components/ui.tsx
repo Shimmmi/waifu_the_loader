@@ -73,7 +73,9 @@ export function WaifuCard({
       <span className="lvl">
         {t('b.level')} {w.level}
       </span>
-      {showDuty && w.zone && <span className="onduty">{w.zone === 'warehouse' ? '📦' : w.zone === 'gym' ? '🏋️' : '📞'}</span>}
+      {showDuty && w.zone && (
+        <span className="onduty">{w.zone === 'warehouse' ? '📦' : w.zone === 'gym' ? '🏋️' : w.zone === 'clerk' ? '🗄️' : '📞'}</span>
+      )}
       {w.fatigue >= 1 && <span className="fatigue-chip" title="😮‍💨">😮‍💨 {w.fatigue}</span>}
       {badge}
       <div className="meta">

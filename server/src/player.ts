@@ -84,6 +84,17 @@ async function loadBuildings(tx: Sql | Tx, userId: string): Promise<Record<strin
   return out;
 }
 
+async function loadClerk(tx: Sql | Tx, userId: string): Promise<WaifuView | null> {
+  const rows = await tx.unsafe<InstanceRow[]>(
+    `SELECT ${INSTANCE_SELECT} FROM waifu_instances i JOIN waifu_pool p ON p.id = i.pool_id
+     WHERE i.user_id = $1 AND i.zone = 'clerk' ORDER BY i.obtained_at LIMIT 1`,
+    [userId],
+  );
+  const r = rows[0];
+  if (!r) return null;
+  return { id: r.instance_id, archetype: r.archetype, rarity: r.rarity, stats: addStats(r.stats, r.stat_bonus), level: r.level, stars: r.stars, talents: r.talents };
+}
+
 async function loadBrigade(tx: Sql | Tx, userId: string): Promise<WaifuView[]> {
   const rows = await tx.unsafe<InstanceRow[]>(
     `SELECT ${INSTANCE_SELECT} FROM waifu_instances i JOIN waifu_pool p ON p.id = i.pool_id
@@ -111,9 +122,10 @@ export async function advance(tx: Tx, userId: string, now = new Date()): Promise
   if (!row) throw new Error('player not found');
   const buildings = await loadBuildings(tx, userId);
   const brigade = await loadBrigade(tx, userId);
+  const clerk = await loadClerk(tx, userId);
   const prestige = await loadPrestige(tx, userId);
   const mods = prestigeMods(prestige.upgrades, prestige.seals_earned, cfg);
-  const rates = computeRates(brigade, buildings, cfg, mods);
+  const rates = computeRates(brigade, buildings, cfg, mods, clerk?.stats.cha ?? null);
 
   const before: Resources = { cargo: D(row.cargo), cargoTotal: D(row.cargo_total), coins: D(row.coins), protein: D(row.protein) };
   const s = settle(row.last_tick_at.getTime(), now.getTime(), rates, cfg, offlineExtraHours(buildings, cfg, mods));
@@ -199,7 +211,7 @@ export async function snapshot(
   const buildings = await loadBuildings(sql, userId);
   const prestige = await loadPrestige(sql, userId);
   const mods = prestigeMods(prestige.upgrades, prestige.seals_earned, cfg);
-  const rates = computeRates(await loadBrigade(sql, userId), buildings, cfg, mods);
+  const rates = computeRates(await loadBrigade(sql, userId), buildings, cfg, mods, (await loadClerk(sql, userId))?.stats.cha ?? null);
   const trainings = await sql<{ id: string; instance_id: string; type: string; duration_min: number; started_at: Date; ends_at: Date }[]>`
     SELECT id, instance_id, type, duration_min, started_at, ends_at FROM training_jobs WHERE user_id = ${userId} AND status = 'active' ORDER BY ends_at`;
   const contracts = await sql<

@@ -21,17 +21,18 @@ function letters(tier: number): string {
   return String.fromCharCode(97 + (a % 26)) + String.fromCharCode(97 + b);
 }
 
-function trim(n: number, digits: number): string {
+function trim(n: number, digits: number, pad = false): string {
   const s = n.toFixed(digits);
-  return digits > 0 ? s.replace(/\.?0+$/, '') : s;
+  return pad || digits === 0 ? s : s.replace(/\.?0+$/, '');
 }
 
-/** 1.23K, 4.5M, 7.8B, 1T, далее aa, ab… или научная нотация. */
-export function formatNumber(value: DecimalSource, notation: Notation = 'letters'): string {
+/** 1.23K, 4.5M, 7.8B, 1T, далее aa, ab… или научная нотация. pad держит хвост нулей, чтобы цифра не прыгала по ширине. */
+export function formatNumber(value: DecimalSource, notation: Notation = 'letters', pad = false): string {
   const v = D(value);
-  if (v.lt(0)) return '-' + formatNumber(v.neg(), notation);
+  if (v.lt(0)) return '-' + formatNumber(v.neg(), notation, pad);
   if (v.lt(1000)) {
     const n = v.toNumber();
+    if (pad) return n.toFixed(1);
     return n < 10 && n % 1 !== 0 ? trim(n, 2) : trim(n, n < 100 ? 1 : 0);
   }
   let e = v.exponent;
@@ -41,7 +42,7 @@ export function formatNumber(value: DecimalSource, notation: Notation = 'letters
     mantissa /= 10;
     e += 1;
   }
-  if (notation === 'scientific') return `${trim(mantissa, 2)}e${e}`;
+  if (notation === 'scientific') return `${trim(mantissa, 2, pad)}e${e}`;
   let tier = Math.floor(e / 3);
   let scaled = mantissa * Math.pow(10, e - tier * 3);
   const digits = scaled < 10 ? 2 : scaled < 100 ? 1 : 0;
@@ -50,7 +51,7 @@ export function formatNumber(value: DecimalSource, notation: Notation = 'letters
     scaled /= 1000;
   }
   const suffix = tier < LETTER_START_TIER ? SHORT[tier] : letters(tier);
-  return trim(scaled, scaled < 10 ? 2 : scaled < 100 ? 1 : 0) + suffix;
+  return trim(scaled, scaled < 10 ? 2 : scaled < 100 ? 1 : 0, pad) + suffix;
 }
 
 export function formatDuration(sec: number): string {

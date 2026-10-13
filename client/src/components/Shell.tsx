@@ -1,6 +1,6 @@
 import { useMemo, type ReactNode } from 'react';
-import { D, loadContent, pickLine } from '@wl/shared';
-import { useFmt, useLive, useText } from '../hooks';
+import { D, formatNumber, loadContent, pickLine } from '@wl/shared';
+import { useLive, useText } from '../hooks';
 import { useT, type TKey } from '../i18n';
 import { useStore, type Screen } from '../store';
 
@@ -22,7 +22,8 @@ const ADMIN_NAV = { id: 'admin' as const, icon: '🤖', key: 'nav.admin' as cons
 function ResourceBar() {
   const state = useStore((s) => s.state);
   const live = useLive();
-  const fmt = useFmt();
+  const notation = useStore((s) => s.settings.notation);
+  const fmt = (v: Parameters<typeof formatNumber>[0]) => formatNumber(v, notation, true);
   const t = useT();
   if (!state || !live) return null;
   const r = state.resources;

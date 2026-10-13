@@ -105,12 +105,15 @@ export async function starUp(userId: string, waifuId: string): Promise<Extras> {
   });
 }
 
-export async function assign(userId: string, waifuId: string, zone: 'warehouse' | null): Promise<Extras> {
+export async function assign(userId: string, waifuId: string, zone: 'warehouse' | 'clerk' | null): Promise<Extras> {
   const cfg = loadEconomy();
   return sql.begin(async (tx) => {
     const adv = await advance(tx, userId);
     const w = await lockInstance(tx, userId, waifuId);
     if (w.zone === 'gym' || w.zone === 'contract') throw new GameError('busy', w.zone === 'gym' ? 'Она в Спортзале' : 'Она на заказе');
+    if (zone === 'clerk') {
+      await tx`UPDATE waifu_instances SET zone = NULL WHERE user_id = ${userId} AND zone = 'clerk' AND id <> ${waifuId}`;
+    }
     if (zone === 'warehouse' && w.zone !== 'warehouse') {
       const [{ n } = { n: 0 }] = await tx<{ n: number }[]>`
         SELECT count(*)::int AS n FROM waifu_instances WHERE user_id = ${userId} AND zone = 'warehouse'`;

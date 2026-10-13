@@ -24,7 +24,7 @@ export interface Rates {
   critChance: number;
   offlineEfficiency: number;
   /** Разбивка множителей для UI */
-  mult: { warehouse: number; talentsCargo: number; talentsCoins: number; crit: number; autopark: number; merch: number; prestigeCargo: number; prestigeCoins: number };
+  mult: { warehouse: number; talentsCargo: number; talentsCoins: number; crit: number; autopark: number; merch: number; prestigeCargo: number; prestigeCoins: number; clerk: number };
 }
 
 /** Постоянные множители от печатей и дерева престижа. */
@@ -129,7 +129,19 @@ export function talentActive(t: Talent, brigade: Pick<WaifuView, 'archetype'>[])
 }
 
 // ---------- Расчёт скоростей ----------
-export function computeRates(brigade: WaifuView[], buildings: BuildingLevels, cfg: EconomyConfig, mods: RateMods = { cargoMult: 1, coinsMult: 1, proteinMult: 1 }): Rates {
+/** Кладовщик не в бригаде: 5% к грузу плюс харизма, потолок 12%. */
+export function clerkCargoMult(cha: number | null): number {
+  if (cha === null) return 1;
+  return Math.min(1.12, 1.05 + cha / 800);
+}
+
+export function computeRates(
+  brigade: WaifuView[],
+  buildings: BuildingLevels,
+  cfg: EconomyConfig,
+  mods: RateMods = { cargoMult: 1, coinsMult: 1, proteinMult: 1 },
+  clerkCha: number | null = null,
+): Rates {
   const p = cfg.production;
   let globalCargo = 0;
   let globalCoins = 0;
@@ -202,7 +214,8 @@ export function computeRates(brigade: WaifuView[], buildings: BuildingLevels, cf
   const mcLevel = mc ? (buildings.merch ?? mc.start_level) : 0;
   const merchMult = mc ? (1 + mc.per_level * mcLevel) * (mcLevel > 0 ? milestoneMult(mcLevel, cfg) : 1) : 1;
 
-  const cargoPerSec = D(weighted * p.cargo_per_power * warehouseMult * (1 + globalCargo) * critExpect * mods.cargoMult);
+  const clerk = clerkCargoMult(clerkCha);
+  const cargoPerSec = D(weighted * p.cargo_per_power * warehouseMult * (1 + globalCargo) * critExpect * mods.cargoMult * clerk);
   const coinsPerSec = cargoPerSec.mul(pricePerKg * (1 + globalCoins) * merchMult * mods.coinsMult);
 
   const cn = buildingConfig(cfg, 'canteen');
@@ -230,6 +243,7 @@ export function computeRates(brigade: WaifuView[], buildings: BuildingLevels, cf
       merch: merchMult,
       prestigeCargo: mods.cargoMult,
       prestigeCoins: mods.coinsMult,
+      clerk,
     },
   };
 }

@@ -171,14 +171,27 @@ export function WaifuDetail({ id, onClose }: { id: string; onClose: () => void }
           <div className="row" style={{ marginTop: 12 }}>
             {w.zone === 'gym' || w.zone === 'contract' ? (
               <span className="tag">{t(w.zone === 'gym' ? 'w.busyGym' : 'w.busyContract')}</span>
-            ) : w.zone === 'warehouse' ? (
-              <button className="btn" disabled={busy} onClick={() => act(() => api.assign(w.id, null))}>
-                {t('w.fromBrigade')}
-              </button>
             ) : (
-              <button className="btn primary" disabled={busy || crew.length >= state.slots} onClick={() => act(() => api.assign(w.id, 'warehouse'))}>
-                📦 {t('w.toBrigade')} ({crew.length}/{state.slots})
-              </button>
+              <>
+                {w.zone === 'warehouse' ? (
+                  <button className="btn" disabled={busy} onClick={() => act(() => api.assign(w.id, null))}>
+                    {t('w.fromBrigade')}
+                  </button>
+                ) : (
+                  <button className="btn primary" disabled={busy || crew.length >= state.slots} onClick={() => act(() => api.assign(w.id, 'warehouse'))}>
+                    📦 {t('w.toBrigade')} ({crew.length}/{state.slots})
+                  </button>
+                )}
+                {w.zone === 'clerk' ? (
+                  <button className="btn" disabled={busy} onClick={() => act(() => api.assign(w.id, null))}>
+                    {t('w.fromClerk')}
+                  </button>
+                ) : (
+                  <button className="btn" disabled={busy} onClick={() => act(() => api.assign(w.id, 'clerk'))}>
+                    🗄️ {t('w.toClerk')}
+                  </button>
+                )}
+              </>
             )}
             <span className="spacer" />
             {state.meta.regen[w.id] === 'pending' ? (
