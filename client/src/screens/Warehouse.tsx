@@ -28,6 +28,13 @@ const SCENE = import.meta.env.BASE_URL + 'scene/';
 const stepAt = (level: number, steps: number[]) => steps.reduce((hit, n) => (level >= n ? n : hit), steps[0]!);
 const cargoIcon = (n: number) => `${SCENE}cargo/${String(n).padStart(2, '0')}.webp`;
 
+/** Имя уже написано под портретом, в облачке остаётся только реплика. */
+function quoteOnly(text: string, name: string): string {
+  if (!name) return text;
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return text.replace(new RegExp(`^${escaped}\\s*:?\\s*`), '');
+}
+
 function Scene({ crew }: { crew: WaifuDTO[] }) {
   const state = useStore((s) => s.state)!;
   const notation = useStore((s) => s.settings.notation);
@@ -56,13 +63,15 @@ function Scene({ crew }: { crew: WaifuDTO[] }) {
           const crit = Math.random() < state.rates.critChance;
           const kg = D(state.rates.cargoPerSec).mul(TRIP_SEC / crew.length).mul(crit ? 3 : 1);
           const kgText = formatNumber(kg, notation);
-          const text = crit
+          const name = displayName(w).split(' ')[0] ?? '';
+          const raw = crit
             ? `💥 КРИТ! +${kgText} ${t('unit.kg')}`
             : flavor(content.flavor.scene_popups, {
                 kg: kgText,
                 cargo: arch ? arch.cargo[Math.floor(Math.random() * arch.cargo.length)]! : 'коробка',
-                name: displayName(w).split(' ')[0] ?? '',
+                name,
               });
+          const text = quoteOnly(raw, name);
           const id = ++idRef.current;
           const sc = sceneRef.current?.getBoundingClientRect();
           const el = workerRefs.current.get(w.id)?.getBoundingClientRect();
@@ -136,7 +145,6 @@ function Scene({ crew }: { crew: WaifuDTO[] }) {
           <div className="label">{displayName(clerk).split(' ')[0]}</div>
         </div>
       )}
-      <img className="prop dock" src={`${SCENE}dock.webp`} alt="" />
       <img className={`prop truck ${truckOut ? 'out' : 'in'}`} src={`${SCENE}truck-${truck}.webp`} alt="" />
       {crew.map((w, i) => {
         const dur = `${Math.max(3, 14 - w.stats.spd / 6)}s`;
