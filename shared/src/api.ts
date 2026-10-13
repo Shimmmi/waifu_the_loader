@@ -119,7 +119,7 @@ export interface PrestigeDTO {
 }
 
 export interface NoticeDTO {
-  kind: 'training' | 'contract' | 'auto_buildings';
+  kind: 'training' | 'contract' | 'auto_buildings' | 'achievement';
   outcome: TrainingOutcome | 'contract_success' | 'contract_partial' | 'info';
   waifuIds: string[];
   text: string;
@@ -168,6 +168,36 @@ export interface StateDTO {
   prestige: PrestigeDTO;
   /** События автоматики и автозабора с прошлого запроса */
   notices?: NoticeDTO[];
+  meta: MetaDTO;
+}
+
+export interface MetaDTO {
+  claimed: string[];
+  owned: string[];
+  loadout: { frame: string | null; title: string | null; warehouse: string | null; card: string | null; summon: string | null };
+  event: { id: string; score: number; claimed: number[] } | null;
+  quests: { id: string; progress: number; claimed: boolean }[];
+  mini: { id: string; templateId: string } | null;
+  board: { nickname: string; cargo: string; rank: number }[];
+  myRank: number | null;
+  myCargo: string;
+  regen: Record<string, string>;
+  metrics: {
+    cargoTotal: string;
+    collection: number;
+    fullArchetypes: number;
+    ssr: number;
+    ur: number;
+    pulls: number;
+    hardPity: boolean;
+    building: number;
+    trainings: number;
+    contracts: number;
+    piano: number;
+    prestiges: number;
+    streak: number;
+    minis: number;
+  };
 }
 
 export interface PullItemDTO {

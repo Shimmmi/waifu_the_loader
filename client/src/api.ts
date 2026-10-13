@@ -51,6 +51,12 @@ export const api = {
   endShift: () => req<{ seals: number; tickets: number; state: StateDTO }>('POST', '/prestige/end-shift', {}),
   prestigeUpgrade: (id: string) => req<StateDTO>('POST', `/prestige/upgrade/${id}`, {}),
   prestigeAuto: (patch: { buildings?: boolean }) => req<StateDTO>('POST', '/prestige/auto', patch),
+  claimQuest: (id: string) => req<StateDTO>('POST', `/quests/${id}/claim`, {}),
+  claimEvent: (index: number) => req<StateDTO>('POST', '/events/claim', { index }),
+  resolveMini: (id: string, choice: number) => req<StateDTO>('POST', `/events/mini/${id}`, { choice }),
+  buyCosmetic: (id: string) => req<StateDTO>('POST', `/shop/buy/${id}`, {}),
+  equipCosmetic: (kind: 'frame' | 'title' | 'warehouse' | 'card' | 'summon', id: string | null) => req<StateDTO>('POST', '/shop/equip', { kind, id }),
+  regenPortrait: (id: string) => req<StateDTO>('POST', `/waifu/${id}/regen`, {}),
   track: (name: string, props: Record<string, unknown> = {}) => req<{ ok: true }>('POST', '/analytics', { name, props }).catch(() => undefined),
 };
 

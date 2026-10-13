@@ -2,6 +2,7 @@ import { Queue, Worker } from 'bullmq';
 import { Redis } from 'ioredis';
 import { sql } from '../../server/src/db.js';
 import { env, QUEUES } from '../../server/src/env.js';
+import { regenPortrait } from './regen.js';
 import { makeAiRefill, makeAiTest, makeRefill } from './setup.js';
 
 const connection = new Redis(env.redisUrl, { maxRetriesPerRequest: null });
@@ -29,7 +30,11 @@ const workers = [
   // ИИ отдельной очередью: долгие вызовы RouterAI не тормозят процедурное пополнение
   new Worker(
     QUEUES.ai,
-    async () => {
+    async (job) => {
+      if (job.name === 'regen') {
+        await regenPortrait((job.data as { instanceId: string }).instanceId, log);
+        return;
+      }
       const r = await aiRefill();
       if (r.stopped || r.failed || Object.keys(r.created).length || r.review || r.rejected)
         log(`ai refill: created=${JSON.stringify(r.created)} review=${r.review} rejected=${r.rejected} failed=${r.failed} cost=${r.costRub.toFixed(2)}₽${r.stopped ? ` stopped: ${r.stopped}` : ''}`);

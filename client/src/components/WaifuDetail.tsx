@@ -4,6 +4,7 @@ import {
   levelCap,
   loadContent,
   loadEconomy,
+  loadMeta,
   starCost,
   STATS,
   talentActive,
@@ -180,6 +181,15 @@ export function WaifuDetail({ id, onClose }: { id: string; onClose: () => void }
               </button>
             )}
             <span className="spacer" />
+            {state.meta.regen[w.id] === 'pending' ? (
+              <span className="tag">{t('w.regenPending')}</span>
+            ) : state.meta.regen[w.id] === 'done' ? (
+              <span className="tag">{t('w.regenDone')}</span>
+            ) : (
+              <button className="btn small" disabled={busy || state.resources.tokens < loadMeta().regenTokens} onClick={() => act(() => api.regenPortrait(w.id))}>
+                {t('w.regen', { n: loadMeta().regenTokens })}
+              </button>
+            )}
             {renaming ? (
               <form
                 className="row"

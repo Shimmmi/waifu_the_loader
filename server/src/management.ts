@@ -150,6 +150,8 @@ async function finishTraining(tx: Tx, p: Player, job: TrainingJobRow): Promise<N
   }
   await tx`UPDATE waifu_instances SET level = ${lv.level}, xp = ${lv.xp}, stat_bonus = ${tx.json(bonus as never)} WHERE id = ${w.instance_id}`;
   await returnToZone(tx, p, w.instance_id, job.result.prevZone);
+  const { bumpDaily } = await import('./meta.js');
+  await bumpDaily(tx, p.row.user_id, 'trainings');
   const type = trainingType(cfg, job.type);
   return {
     kind: 'training',
@@ -306,6 +308,8 @@ async function finishContract(tx: Tx, p: Player, c: ContractRow): Promise<Notice
     await tx`UPDATE waifu_instances SET level = ${lv.level}, xp = ${lv.xp} WHERE id = ${w.instance_id}`;
     await returnToZone(tx, p, w.instance_id, r.prevZones[w.instance_id] ?? null);
   }
+  const { bumpDaily } = await import('./meta.js');
+  await bumpDaily(tx, userId, 'contracts');
   const content = loadContent().contracts;
   const client = content.clients.find((x) => x.id === c.client_id)?.name ?? c.client_id;
   const cargo = content.cargo.find((x) => x.id === c.cargo_id)?.name ?? c.cargo_id;

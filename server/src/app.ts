@@ -11,6 +11,7 @@ import { sql } from './db.js';
 import { env } from './env.js';
 import { history, pull } from './gacha.js';
 import * as m4 from './management.js';
+import * as meta from './meta.js';
 import { GameError, snapshot } from './player.js';
 import { poolStats } from './pool.js';
 import type { Storage } from './storage.js';
@@ -145,6 +146,52 @@ export async function buildApp(opts: { storage: Storage; configVersion: string; 
         game.post('/prestige/auto', async (req) => {
           const patch = z.object({ buildings: z.boolean() }).partial().parse(req.body);
           return state(req.userId, await m4.setAutomation(req.userId, patch));
+        });
+
+        game.post('/quests/:id/claim', async (req) => {
+          const { id } = z.object({ id: z.string().max(32) }).parse(req.params);
+          await meta.claimQuest(req.userId, id);
+          return state(req.userId);
+        });
+        game.post('/events/claim', async (req) => {
+          const { index } = z.object({ index: z.number().int().min(0).max(20) }).parse(req.body);
+          await meta.claimEvent(req.userId, index);
+          return state(req.userId);
+        });
+        game.post('/events/mini/:id', async (req) => {
+          const { id } = z.object({ id: z.string().uuid() }).parse(req.params);
+          const { choice } = z.object({ choice: z.number().int().min(0).max(2) }).parse(req.body);
+          await meta.resolveMini(req.userId, id, choice);
+          return state(req.userId);
+        });
+        game.post('/shop/buy/:id', async (req) => {
+          const { id } = z.object({ id: z.string().max(40) }).parse(req.params);
+          await meta.buyCosmetic(req.userId, id);
+          return state(req.userId);
+        });
+        game.post('/shop/equip', async (req) => {
+          const body = z.object({ kind: z.enum(['frame', 'title', 'warehouse', 'card', 'summon']), id: z.string().max(40).nullable() }).parse(req.body);
+          await meta.equipCosmetic(req.userId, body.kind, body.id);
+          return state(req.userId);
+        });
+        game.post('/waifu/:id/regen', async (req) => {
+          const { id } = waifuId.parse(req.params);
+          await meta.requestRegen(req.userId, id);
+          if (!opts.redis) {
+            await meta.refundRegen(id);
+            throw new GameError('no_queue', 'Перегенерация сейчас недоступна');
+          }
+          try {
+            const { Queue } = await import('bullmq');
+            const { QUEUES } = await import('./env.js');
+            const q = new Queue(QUEUES.ai, { connection: opts.redis });
+            await q.add('regen', { instanceId: id }, { jobId: `regen-${id}-${Date.now()}`, removeOnComplete: 20, removeOnFail: 20 });
+            await q.close();
+          } catch (e) {
+            await meta.refundRegen(id);
+            throw e;
+          }
+          return state(req.userId);
         });
 
         game.post('/daily/claim', async (req) => {

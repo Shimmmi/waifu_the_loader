@@ -1,0 +1,59 @@
+{
+  "version": "events-1.0.0",
+  "mini_chance": 0.25,
+  "mini_gap_min": 30,
+  "events": [
+    {
+      "id": "piano_2026_10",
+      "name": "Неделя пианино",
+      "description": "Филармония переезжает. Успешные контракты на пианино идут в зачёт события.",
+      "starts_at": "2026-10-12T00:00:00+03:00",
+      "ends_at": "2026-10-26T23:59:59+03:00",
+      "milestones": [
+        {"score": 1, "tokens": 5, "tickets": 1, "cosmetic": null},
+        {"score": 3, "tokens": 10, "tickets": 2, "cosmetic": null},
+        {"score": 10, "tokens": 20, "tickets": 3, "cosmetic": "frame_piano"}
+      ]
+    }
+  ],
+  "quests": [
+    {"id": "train", "name": "Один подход", "description": "Завершить тренировку.", "metric": "trainings", "need": 1, "tokens": 3},
+    {"id": "haul", "name": "Один заказ", "description": "Закрыть контракт.", "metric": "contracts", "need": 1, "tokens": 3},
+    {"id": "pull", "name": "Одна коробка", "description": "Сделать хотя бы один призыв.", "metric": "pulls", "need": 1, "tokens": 2}
+  ],
+  "minis": [
+    {
+      "id": "safe_nodocs",
+      "text": "Приехал сейф без документов. Охрана делает вид, что это не их этаж.",
+      "choices": [
+        {"text": "Принять на склад", "tokens": 2, "tickets": 0},
+        {"text": "Отправить обратно", "tokens": 0, "tickets": 1}
+      ]
+    },
+    {
+      "id": "director_office",
+      "text": "Директор просит перенести офис. Сегодня. Лифт, как всегда, в отпуске.",
+      "choices": [
+        {"text": "Берёмся", "tokens": 3, "tickets": 0},
+        {"text": "Только кресло", "tokens": 1, "tickets": 1},
+        {"text": "Пусть сам", "tokens": 0, "tickets": 0}
+      ]
+    },
+    {
+      "id": "piano_night",
+      "text": "Ночью пианино само переехало на метр. Бригада клянётся, что спала.",
+      "choices": [
+        {"text": "Поставить на место", "tokens": 2, "tickets": 0},
+        {"text": "Оставить как искусство", "tokens": 1, "tickets": 1}
+      ]
+    },
+    {
+      "id": "buckwheat",
+      "text": "Столовая сварила гречку на весь район. Котёл не влезает в дверь.",
+      "choices": [
+        {"text": "Вынести боком", "tokens": 2, "tickets": 1},
+        {"text": "Есть на месте", "tokens": 1, "tickets": 0}
+      ]
+    }
+  ]
+}

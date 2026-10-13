@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { archetypeById, CHATTER_INTERVAL_MS, D, formatNumber, loadContent, type WaifuDTO } from '@wl/shared';
+import { archetypeById, CHATTER_INTERVAL_MS, D, formatNumber, loadContent, loadMeta, type WaifuDTO } from '@wl/shared';
 import { api } from '../api';
 import { useFlavor, useFmt, useLive } from '../hooks';
 import { useT } from '../i18n';
@@ -90,8 +90,10 @@ function Scene({ crew }: { crew: WaifuDTO[] }) {
     [4, 56], [22, 56], [40, 56], [66, 56], [90, 56],
   ];
 
+  const skinId = useStore((s) => s.state?.meta.loadout.warehouse);
+  const skin = loadMeta().cosmetics.find((c) => c.id === skinId)?.css ?? '';
   return (
-    <div className="scene" ref={sceneRef}>
+    <div className={`scene ${skin}`} ref={sceneRef}>
       {boxes.map(([l, top], i) => (
         <div key={i} className="shelf-box" style={{ left: `${l}%`, top: `${top}%` }} />
       ))}

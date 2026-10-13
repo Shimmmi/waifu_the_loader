@@ -1,5 +1,5 @@
 import { useEffect, type CSSProperties, type ReactNode } from 'react';
-import { loadEconomy, rarityConfig, type Rarity, type WaifuDTO } from '@wl/shared';
+import { loadEconomy, loadMeta, rarityConfig, type Rarity, type WaifuDTO } from '@wl/shared';
 import { useStore } from '../store';
 import { useT } from '../i18n';
 import { useFmt } from '../hooks';
@@ -63,8 +63,11 @@ export function WaifuCard({
   picked?: boolean;
 }) {
   const t = useT();
+  const frameId = useStore((s) => s.state?.meta.loadout.frame);
+  const cardId = useStore((s) => s.state?.meta.loadout.card);
+  const extra = [frameId, cardId].map((id) => loadMeta().cosmetics.find((c) => c.id === id)?.css).filter(Boolean).join(' ');
   return (
-    <button className={`card r-${w.rarity}${picked ? ' picked' : ''}`} style={rarityStyle(w.rarity)} onClick={onClick} type="button">
+    <button className={`card r-${w.rarity}${picked ? ' picked' : ''} ${extra}`} style={rarityStyle(w.rarity)} onClick={onClick} type="button">
       <img src={w.thumbUrl} alt={displayName(w)} loading="lazy" />
       <span className="rar">{w.rarity}</span>
       <span className="lvl">

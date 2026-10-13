@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { UserSettings } from '@wl/shared';
+import { loadMeta, type UserSettings } from '@wl/shared';
 import { api } from '../api';
 import { useFmt, useLive } from '../hooks';
 import { useT, type TKey } from '../i18n';
@@ -38,6 +38,7 @@ export function Profile() {
     <div className="grid2">
       <div className="panel taped">
         <h3>👷 {state.user.nickname}</h3>
+        {state.meta.loadout.title && <div className="tag">{loadMeta().cosmetics.find((c) => c.id === state.meta.loadout.title)?.name}</div>}
         <form
           className="row"
           onSubmit={(e) => {

@@ -91,6 +91,9 @@ export async function pull(userId: string, bannerId: string, count: number, requ
     await tx`
       INSERT INTO gacha_log (user_id, banner_id, request_id, pull_count, results)
       VALUES (${userId}, ${bannerId}, ${requestId}, ${count}, ${tx.json(items as never)})`;
+    if (items.some((i) => i.pity === 'hard')) await tx`UPDATE player_state SET hit_hard_pity = true WHERE user_id = ${userId}`;
+    const { bumpDaily } = await import('./meta.js');
+    await bumpDaily(tx, userId, 'pulls', count);
     if (adv.player.row.total_pulls === 0) {
       await tx`INSERT INTO analytics_events (user_id, name, props) VALUES (${userId}, 'first_pull', ${tx.json({ bannerId } as never)})`;
     }

@@ -1,15 +1,19 @@
 import { useEffect } from 'react';
 import { api } from './api';
+import { MiniEvent } from './components/MiniEvent';
 import { OfflineModal, RecoveryModal } from './components/Modals';
 import { Shell } from './components/Shell';
 import { Toasts } from './components/ui';
 import { Admin } from './screens/Admin';
 import { Buildings } from './screens/Buildings';
+import { Achievements } from './screens/Achievements';
 import { Collection } from './screens/Collection';
 import { Contracts } from './screens/Contracts';
+import { Events } from './screens/Events';
 import { Gacha } from './screens/Gacha';
 import { Login } from './screens/Login';
 import { Prestige } from './screens/Prestige';
+import { Shop } from './screens/Shop';
 import { Profile } from './screens/Profile';
 import { Training } from './screens/Training';
 import { Warehouse } from './screens/Warehouse';
@@ -90,9 +94,13 @@ export function App() {
         {screen === 'training' && <Training />}
         {screen === 'contracts' && <Contracts />}
         {screen === 'prestige' && <Prestige />}
+        {screen === 'events' && <Events />}
+        {screen === 'achievements' && <Achievements />}
+        {screen === 'shop' && <Shop />}
         {screen === 'profile' && <Profile />}
         {screen === 'admin' && isAdmin && <Admin />}
       </Shell>
+      <MiniEvent />
       <OfflineModal />
       <RecoveryModal />
       <Toasts />

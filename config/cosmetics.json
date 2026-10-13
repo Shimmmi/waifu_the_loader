@@ -1,0 +1,20 @@
+{
+  "version": "cosmetics-1.0.0",
+  "regen_tokens": 25,
+  "items": [
+    {"id": "frame_tape", "kind": "frame", "name": "Рамка из скотча", "description": "Держится на честном слове и двух слоях.", "price": 12, "unlock": "shop", "rotation": 0, "css": "frame-tape"},
+    {"id": "frame_gold", "kind": "frame", "name": "Золотая кромка", "description": "Не золото. Но издали сойдёт.", "price": 24, "unlock": "shop", "rotation": 1, "css": "frame-gold"},
+    {"id": "frame_hazard", "kind": "frame", "name": "Оградительная", "description": "Жёлто-чёрное. Трогать карточку тоже опасно.", "price": 12, "unlock": "shop", "rotation": 2, "css": "frame-hazard"},
+    {"id": "frame_set", "kind": "frame", "name": "Полный комплект", "description": "За первый полный набор редкостей.", "price": 0, "unlock": "grant", "rotation": null, "css": "frame-set"},
+    {"id": "frame_legend", "kind": "frame", "name": "Легенда", "description": "За первую UR.", "price": 0, "unlock": "grant", "rotation": null, "css": "frame-legend"},
+    {"id": "frame_piano", "kind": "frame", "name": "Клавиши", "description": "Награда недели пианино.", "price": 0, "unlock": "grant", "rotation": null, "css": "frame-piano"},
+    {"id": "skin_night", "kind": "warehouse", "name": "Ночная смена", "description": "Склад после девяти. Лампы гудят громче бригады.", "price": 30, "unlock": "shop", "rotation": 0, "css": "skin-night"},
+    {"id": "skin_beach", "kind": "warehouse", "name": "Выезд на пляж", "description": "Песок в ботинках идёт в счёт груза.", "price": 30, "unlock": "shop", "rotation": 1, "css": "skin-beach"},
+    {"id": "skin_dawn", "kind": "warehouse", "name": "Рассвет после смены", "description": "За десять концов смены.", "price": 0, "unlock": "grant", "rotation": null, "css": "skin-dawn"},
+    {"id": "fx_confetti", "kind": "summon", "name": "Конфетти из накладных", "description": "Призыв сыплет бумажками. Баланс не трогает.", "price": 18, "unlock": "shop", "rotation": null, "css": "fx-confetti"},
+    {"id": "card_coffee", "kind": "card", "name": "Кофейное пятно", "description": "Карточка помнит, чей это был стакан.", "price": 8, "unlock": "shop", "rotation": 2, "css": "card-coffee"},
+    {"id": "title_hernia", "kind": "title", "name": "Грыжа бригады", "description": "Титул за миллиард килограмм.", "price": 0, "unlock": "grant", "rotation": null, "css": ""},
+    {"id": "title_pianist", "kind": "title", "name": "Пианист", "description": "Титул за десять пианино.", "price": 0, "unlock": "grant", "rotation": null, "css": ""},
+    {"id": "title_unlucky", "kind": "title", "name": "Невезучая", "description": "Титул за жёсткую гарантию.", "price": 0, "unlock": "grant", "rotation": null, "css": ""}
+  ]
+}

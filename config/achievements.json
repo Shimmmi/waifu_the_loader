@@ -1,0 +1,180 @@
+{
+  "version": "achievements-1.0.0",
+  "items": [
+    {
+      "id": "hernia",
+      "category": "cargo",
+      "name": "Первая грыжа",
+      "description": "Груз, который уже не влезает в поясницу.",
+      "hidden": false,
+      "metric": "cargo_total",
+      "tiers": [
+        {"id": "bronze", "threshold": 1000, "tokens": 5, "tickets": 1},
+        {"id": "silver", "threshold": 1000000, "tokens": 10, "tickets": 2},
+        {"id": "gold", "threshold": 1000000000, "tokens": 25, "tickets": 5, "cosmetic": "title_hernia"}
+      ]
+    },
+    {
+      "id": "collector",
+      "category": "collection",
+      "name": "Коллекционерка",
+      "description": "Сколько людей в бригаде, столько и историй, почему лифт сломан.",
+      "hidden": false,
+      "metric": "collection",
+      "tiers": [
+        {"id": "bronze", "threshold": 10, "tokens": 5, "tickets": 0},
+        {"id": "silver", "threshold": 25, "tokens": 10, "tickets": 2},
+        {"id": "gold", "threshold": 50, "tokens": 20, "tickets": 5}
+      ]
+    },
+    {
+      "id": "full_set",
+      "category": "collection",
+      "name": "Полный штат",
+      "description": "Все пять редкостей одного архетипа. Кадры плачут от зависти.",
+      "hidden": false,
+      "metric": "full_archetypes",
+      "tiers": [
+        {"id": "bronze", "threshold": 1, "tokens": 15, "tickets": 2, "cosmetic": "frame_set"},
+        {"id": "gold", "threshold": 10, "tokens": 40, "tickets": 5}
+      ]
+    },
+    {
+      "id": "ssr",
+      "category": "gacha",
+      "name": "Коробка с сюрпризом",
+      "description": "SSR и выше. Коробка тяжёлая не только снаружи.",
+      "hidden": false,
+      "metric": "ssr",
+      "tiers": [
+        {"id": "bronze", "threshold": 1, "tokens": 5, "tickets": 0},
+        {"id": "silver", "threshold": 5, "tokens": 10, "tickets": 1},
+        {"id": "gold", "threshold": 15, "tokens": 20, "tickets": 3}
+      ]
+    },
+    {
+      "id": "ur",
+      "category": "gacha",
+      "name": "Легенда смены",
+      "description": "UR. Склад на секунду замолкает.",
+      "hidden": false,
+      "metric": "ur",
+      "tiers": [
+        {"id": "gold", "threshold": 1, "tokens": 30, "tickets": 5, "cosmetic": "frame_legend"}
+      ]
+    },
+    {
+      "id": "pulls",
+      "category": "gacha",
+      "name": "Кадровик",
+      "description": "Столько коробок, что скотч кончился раньше удачи.",
+      "hidden": false,
+      "metric": "pulls",
+      "tiers": [
+        {"id": "bronze", "threshold": 10, "tokens": 3, "tickets": 0},
+        {"id": "silver", "threshold": 100, "tokens": 10, "tickets": 2},
+        {"id": "gold", "threshold": 500, "tokens": 25, "tickets": 5}
+      ]
+    },
+    {
+      "id": "unlucky",
+      "category": "hidden",
+      "name": "Невезучая",
+      "description": "Дойти до жёсткой гарантии SSR+. Удача ушла на перекур и не вернулась.",
+      "hidden": true,
+      "metric": "hard_pity",
+      "tiers": [
+        {"id": "gold", "threshold": 1, "tokens": 20, "tickets": 10, "cosmetic": "title_unlucky"}
+      ]
+    },
+    {
+      "id": "builder",
+      "category": "buildings",
+      "name": "Прораб",
+      "description": "Самое прокачанное здание. Бетон ещё не высох, а уже ×2.",
+      "hidden": false,
+      "metric": "building",
+      "tiers": [
+        {"id": "bronze", "threshold": 10, "tokens": 5, "tickets": 0},
+        {"id": "silver", "threshold": 50, "tokens": 15, "tickets": 2},
+        {"id": "gold", "threshold": 100, "tokens": 30, "tickets": 5}
+      ]
+    },
+    {
+      "id": "gym_rat",
+      "category": "work",
+      "name": "Зал не отпускает",
+      "description": "Завершённые тренировки. Протеин сам себя не выпьет.",
+      "hidden": false,
+      "metric": "trainings",
+      "tiers": [
+        {"id": "bronze", "threshold": 1, "tokens": 3, "tickets": 0},
+        {"id": "silver", "threshold": 10, "tokens": 10, "tickets": 1},
+        {"id": "gold", "threshold": 50, "tokens": 20, "tickets": 3}
+      ]
+    },
+    {
+      "id": "dispatcher",
+      "category": "work",
+      "name": "Диспетчер на линии",
+      "description": "Закрытые контракты. Телефон всё ещё горячий.",
+      "hidden": false,
+      "metric": "contracts",
+      "tiers": [
+        {"id": "bronze", "threshold": 1, "tokens": 3, "tickets": 0},
+        {"id": "silver", "threshold": 10, "tokens": 10, "tickets": 1},
+        {"id": "gold", "threshold": 40, "tokens": 20, "tickets": 3}
+      ]
+    },
+    {
+      "id": "pianist",
+      "category": "work",
+      "name": "Пианист",
+      "description": "Успешные контракты на пианино. Клавиши целы, спина — как повезёт.",
+      "hidden": false,
+      "metric": "piano",
+      "tiers": [
+        {"id": "bronze", "threshold": 1, "tokens": 5, "tickets": 1},
+        {"id": "gold", "threshold": 10, "tokens": 20, "tickets": 3, "cosmetic": "title_pianist"}
+      ]
+    },
+    {
+      "id": "new_shift",
+      "category": "prestige",
+      "name": "Новая смена",
+      "description": "Конец смены. Печати на месте, монеты — нет, и это нормально.",
+      "hidden": false,
+      "metric": "prestiges",
+      "tiers": [
+        {"id": "bronze", "threshold": 1, "tokens": 15, "tickets": 3},
+        {"id": "silver", "threshold": 3, "tokens": 25, "tickets": 5},
+        {"id": "gold", "threshold": 10, "tokens": 40, "tickets": 10, "cosmetic": "skin_dawn"}
+      ]
+    },
+    {
+      "id": "streak",
+      "category": "streak",
+      "name": "Без больничного",
+      "description": "Дни подряд на складе. Отпуск — это слухи.",
+      "hidden": false,
+      "metric": "streak",
+      "tiers": [
+        {"id": "bronze", "threshold": 3, "tokens": 5, "tickets": 1},
+        {"id": "silver", "threshold": 7, "tokens": 10, "tickets": 2},
+        {"id": "gold", "threshold": 30, "tokens": 30, "tickets": 5}
+      ]
+    },
+    {
+      "id": "foreman_stories",
+      "category": "hidden",
+      "name": "Складской фольклор",
+      "description": "Разобрать комичные происшествия. Каждое из них почти правда.",
+      "hidden": true,
+      "metric": "minis",
+      "tiers": [
+        {"id": "bronze", "threshold": 1, "tokens": 3, "tickets": 0},
+        {"id": "gold", "threshold": 10, "tokens": 15, "tickets": 2}
+      ]
+    }
+  ]
+}

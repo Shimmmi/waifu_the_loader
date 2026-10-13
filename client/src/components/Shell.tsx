@@ -12,6 +12,9 @@ const NAV: { id: Screen; icon: string; key: TKey }[] = [
   { id: 'training', icon: '🏋️', key: 'nav.training' },
   { id: 'contracts', icon: '📞', key: 'nav.contracts' },
   { id: 'prestige', icon: '🔰', key: 'nav.prestige' },
+  { id: 'events', icon: '🎹', key: 'nav.events' },
+  { id: 'achievements', icon: '🏅', key: 'nav.achievements' },
+  { id: 'shop', icon: '🛍️', key: 'nav.shop' },
   { id: 'profile', icon: '⚙️', key: 'nav.profile' },
 ];
 const ADMIN_NAV = { id: 'admin' as const, icon: '🤖', key: 'nav.admin' as const };
@@ -39,6 +42,10 @@ function ResourceBar() {
       <span className="res" title={t('res.protein')}>
         <span className="ico">🥤</span>
         <b>{fmt(live.protein)}</b>
+      </span>
+      <span className="res" title={t('res.tokens')}>
+        <span className="ico">🎖️</span>
+        <b>{r.tokens}</b>
       </span>
       <span className="res" title={t('res.tickets')}>
         <span className="ico">🎟️</span>

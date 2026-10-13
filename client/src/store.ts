@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { censor, D, DEFAULT_SETTINGS, loadContent, pickLine, type Decimal, type NoticeDTO, type OfflineReportDTO, type StateDTO, type UserSettings } from '@wl/shared';
 import { api, ApiError } from './api';
 
-export type Screen = 'warehouse' | 'buildings' | 'collection' | 'gacha' | 'training' | 'contracts' | 'prestige' | 'profile' | 'admin';
+export type Screen = 'warehouse' | 'buildings' | 'collection' | 'gacha' | 'training' | 'contracts' | 'prestige' | 'events' | 'achievements' | 'shop' | 'profile' | 'admin';
 
 export interface Toast {
   id: number;

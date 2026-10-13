@@ -31,6 +31,7 @@ import {
 } from '@wl/shared';
 import { sql, type Sql, type Tx } from './db.js';
 import { ensureBoard, loadPrestige, runAutomation } from './management.js';
+import { metaSnapshot } from './meta.js';
 import { INSTANCE_SELECT, toWaifuDTO, type InstanceRow } from './pool.js';
 
 const PLAYER_COLS = `user_id, cargo, cargo_total, coins, protein, seals, tickets, tokens, shards, cargo_milestone,
@@ -132,7 +133,10 @@ export async function advance(tx: Tx, userId: string, now = new Date()): Promise
   const out: AdvanceResult = { player: { row: newRow, res, buildings, brigade, rates, mods } };
   if (ms.tickets > 0) out.milestoneTickets = ms.tickets;
   const notices = await runAutomation(tx, out.player, prestige.auto);
-  if (notices.length) out.notices = notices;
+  const { settleMeta } = await import('./meta.js');
+  const metaNotices = await settleMeta(tx, userId, res.cargoTotal.sub(before.cargoTotal), now);
+  const all = [...notices, ...metaNotices];
+  if (all.length) out.notices = all;
   await ensureBoard(tx, out.player);
   if (s.offlineSec >= cfg.offline.report_min_sec) {
     out.offlineReport = {
@@ -289,6 +293,7 @@ export async function snapshot(
       auto: { buildings: !!prestige.auto.buildings },
       unlocked: { autoClaim: mods.autoClaim, autoBuildings: mods.autoBuildings },
     },
+    meta: await metaSnapshot(userId),
   };
   if (extras.notices?.length) dto.notices = extras.notices;
   if (extras.offlineReport) dto.offlineReport = extras.offlineReport;
