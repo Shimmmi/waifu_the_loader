@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { api } from './api';
-import { MiniEvent } from './components/MiniEvent';
 import { OfflineModal, RecoveryModal } from './components/Modals';
 import { Shell } from './components/Shell';
 import { Toasts } from './components/ui';
@@ -111,7 +110,6 @@ export function App() {
         {screen === 'profile' && <Profile />}
         {screen === 'admin' && isAdmin && <Admin />}
       </Shell>
-      <MiniEvent />
       <Fanfare />
       <OfflineModal />
       <RecoveryModal />

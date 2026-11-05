@@ -373,7 +373,7 @@ table.rates td:not(:first-child), table.rates th:not(:first-child) { text-align:
 .tmap { position: absolute; inset: 0; background: #c8a46a center/cover no-repeat; overflow: hidden; }
 .tmap-back { position: absolute; inset: 0; width: 100%; height: 100%; }
 .tmap-daily { position: absolute; top: 12px; right: 12px; z-index: 3; }
-.tbuilding { position: absolute; width: 148px; transform: translate(-50%, -50%); background: transparent; border: 0; cursor: pointer; padding: 0; }
+.tbuilding { position: absolute; width: auto; transform: translate(-50%, -50%); background: transparent; border: 0; cursor: pointer; padding: 0; }
 .tbuilding-art, .tbuilding .art-fallback { width: 148px; height: 100px; display: grid; place-items: center; }
 .art-fallback { background: rgba(196, 165, 116, .9); color: #3a2a16; border: 2px dashed #6b4e2e; border-radius: 8px; font-size: 12px; text-align: center; padding: 6px; }
 .tplaque { display: block; background: #f3ead6; color: #3a2a16; border-radius: 8px; padding: 2px 6px; margin-top: 4px; box-shadow: 0 2px 6px rgba(0,0,0,.25); }
@@ -432,7 +432,7 @@ table.rates td:not(:first-child), table.rates th:not(:first-child) { text-align:
 .bmanage { overflow-x: auto; }
 .btable { width: 100%; border-collapse: collapse; background: #fff6df; color: #4a3420; }
 .btable th, .btable td { border-bottom: 2px solid #e4d3ae; padding: 10px 8px; text-align: left; vertical-align: middle; }
-.bicon-img { width: 64px; height: 48px; object-fit: contain; image-rendering: pixelated; background: #e7d3a8; }
+.bicon-img { width: 112px; height: 84px; object-fit: contain; image-rendering: auto; background: transparent; }
 .lamp { width: 16px; height: 16px; display: inline-block; border: 2px solid #4a3420; }
 .lamp.ok { background: #7dce6a; }
 .lamp.warn { background: #f0b429; }

@@ -104,6 +104,9 @@ async function loadBuildings(tx: Sql | Tx, userId: string): Promise<Record<strin
   const out: Record<string, number> = {};
   for (const b of cfg.buildings) out[b.id] = b.start_level;
   for (const r of rows) out[r.building_id] = r.level;
+  const [sector] = await tx<{ level: number }[]>`
+    SELECT level FROM terminal_sectors WHERE user_id = ${userId} AND sector = 'dispatch'`;
+  if (sector) out.dispatch = Math.max(out.dispatch ?? 0, Math.max(1, sector.level));
   return out;
 }
 

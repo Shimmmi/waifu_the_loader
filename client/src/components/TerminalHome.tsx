@@ -3,27 +3,28 @@ import { D, loadContent, upgradeCost, type StateDTO } from '@wl/shared';
 import { api } from '../api';
 import { useFlavor, useFmt } from '../hooks';
 import { useStore } from '../store';
-import { ArtSlot, buildingArtUrl, interiorArtUrl, terminalMapUrl } from './ArtSlot';
+import { ArtSlot, interiorArtUrl, terminalMapUrl } from './ArtSlot';
 import { BUILDING_STATION, buildingCaption, buildingCrew } from './Terminal';
 import { displayName } from './ui';
 import { WaifuDetail as Card } from './WaifuDetail';
 
+/** Плашки сидят на нарисованных объектах карты, без отдельных спрайтов. */
 const SPOTS: Record<string, { left: string; top: string }> = {
-  pier: { left: '6%', top: '16%' },
-  warehouse: { left: '34%', top: '30%' },
-  dorm: { left: '56%', top: '10%' },
-  office: { left: '76%', top: '20%' },
-  garage: { left: '70%', top: '58%' },
-  rest: { left: '46%', top: '64%' },
-  canteen: { left: '16%', top: '62%' },
-  school: { left: '18%', top: '38%' },
-  crane: { left: '4%', top: '42%' },
-  dispatch: { left: '84%', top: '46%' },
-  fridge: { left: '38%', top: '50%' },
-  workshop: { left: '56%', top: '46%' },
-  bunker: { left: '8%', top: '78%' },
-  garden: { left: '28%', top: '78%' },
-  observatory: { left: '82%', top: '74%' },
+  warehouse: { left: '16%', top: '40%' },
+  garage: { left: '34%', top: '44%' },
+  workshop: { left: '46%', top: '42%' },
+  pier: { left: '78%', top: '38%' },
+  dispatch: { left: '66%', top: '50%' },
+  office: { left: '52%', top: '28%' },
+  dorm: { left: '12%', top: '70%' },
+  canteen: { left: '24%', top: '66%' },
+  rest: { left: '40%', top: '72%' },
+  school: { left: '8%', top: '28%' },
+  crane: { left: '90%', top: '62%' },
+  fridge: { left: '22%', top: '50%' },
+  bunker: { left: '6%', top: '78%' },
+  garden: { left: '88%', top: '74%' },
+  observatory: { left: '50%', top: '22%' },
 };
 
 function stationOf(id: string) {
@@ -72,8 +73,7 @@ export function TerminalHome() {
           const canUp = s.level < 20 && D(state.resources.coins).gte(upgradeCost(s.level));
           const status = canUp ? 'Можно улучшить' : crewN > 0 || term.shift?.active ? 'Работает' : 'Ждёт';
           return (
-            <button key={s.id} className="tbuilding" style={spot} onClick={() => setOpen(s.id)}>
-              <ArtSlot src={buildingArtUrl(s.id)} alt="" fit="contain" className="tbuilding-art" label={s.name} />
+            <button key={s.id} className="tbuilding plaque-only" style={spot} onClick={() => setOpen(s.id)}>
               <span className="tplaque">
                 <b>{s.name}</b>
                 <small>Ур. {s.level}</small>

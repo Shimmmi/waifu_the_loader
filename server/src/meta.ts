@@ -15,7 +15,6 @@ import {
 } from '@wl/shared';
 import { sql, type Tx } from './db.js';
 import { GameError, todayIn } from './player.js';
-import { cryptoRandom } from './rng.js';
 
 const today = () => todayIn(loadEconomy().daily.timezone);
 
@@ -86,17 +85,6 @@ export async function settleMeta(tx: Tx, userId: string, cargoDelta: ReturnType<
     await tx`
       INSERT INTO weekly_cargo (user_id, week, cargo) VALUES (${userId}, ${week}, ${next})
       ON CONFLICT (user_id, week) DO UPDATE SET cargo = EXCLUDED.cargo`;
-  }
-
-  const [open] = await tx<{ id: string }[]>`SELECT id FROM mini_events WHERE user_id = ${userId} AND resolved_at IS NULL`;
-  if (!open && cryptoRandom() < meta.miniChance) {
-    const [last] = await tx<{ created_at: Date }[]>`
-      SELECT created_at FROM mini_events WHERE user_id = ${userId} ORDER BY created_at DESC LIMIT 1`;
-    const gap = meta.miniGapMin * 60_000;
-    if (!last || now.getTime() - last.created_at.getTime() >= gap) {
-      const template = meta.minis[Math.floor(cryptoRandom() * meta.minis.length)]!;
-      await tx`INSERT INTO mini_events (user_id, template_id) VALUES (${userId}, ${template.id})`;
-    }
   }
 
   const metrics = await loadMetrics(tx, userId);
