@@ -190,7 +190,7 @@ export function Gacha() {
   const busy = useStore((s) => s.busy);
   const t = useT();
   const text = useText();
-  const visible = state.banners.filter((b) => b.active || b.type !== 'newbie');
+  const visible = state.banners.filter((b) => b.active);
   const [sel, setSel] = useState<string>(() => visible.find((b) => b.type === 'newbie' && b.active)?.id ?? 'standard');
   const [result, setResult] = useState<PullItemDTO[] | null>(null);
   const [seek, setSeek] = useState('');

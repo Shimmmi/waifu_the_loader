@@ -8,7 +8,13 @@ function cardKind(w: WaifuDTO): 'ok' | 'warn' | 'bad' | 'idle' {
   return 'idle';
 }
 
-const KIND_LABEL = { ok: 'На смене', warn: 'Устала', bad: 'Занята', idle: 'Свободна' };
+const MARK = {
+  ok: 'status-ok.png',
+  warn: 'status-warn.png',
+  bad: 'status-bad.png',
+  idle: 'status-idle.png',
+} as const;
+const UI = import.meta.env.BASE_URL + 'terminal/ui/';
 
 export function BrigadePick({
   waifu,
@@ -34,13 +40,15 @@ export function BrigadePick({
             const busy = kind === 'bad';
             return (
               <button key={w.id} className={`brig-card ${kind}`} disabled={busy} onClick={() => onPick(w.id)}>
-                <img src={w.portraitUrl || w.thumbUrl} alt="" />
+                <span className="brig-frame">
+                  <img className="brig-portrait" src={w.portraitUrl || w.thumbUrl} alt="" />
+                  <img className="brig-mark" src={`${UI}${MARK[kind]}`} alt="" />
+                </span>
                 <b>{displayName(w)}</b>
-                <small>{KIND_LABEL[kind]}{w.station ? '' : ''}</small>
               </button>
             );
           })}
-          {waifu.length === 0 && <p className="small">В коллекции пока пусто.</p>}
+          {waifu.length === 0 && <p className="small">Наёмниц пока нет. Бесплатные призывы уже на счету.</p>}
         </div>
       </div>
     </div>

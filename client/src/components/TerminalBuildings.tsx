@@ -122,7 +122,7 @@ export function TerminalBuildings() {
 
       {pick && (
         <BrigadePick
-          waifu={state.waifu}
+          waifu={state.waifu.filter((w) => w.hired)}
           onClose={() => setPick(null)}
           onPick={(id) => {
             const station = pick.station;

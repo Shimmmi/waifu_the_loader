@@ -83,6 +83,8 @@ export interface WaifuDTO {
   /** Класс терминала. Пусто, пока вайп не включил линию. */
   jobClass?: string | null;
   station?: string | null;
+  /** Наёмница смены. Карточки альбома до вайпа — false. */
+  hired?: boolean;
   element?: string;
   psycho?: string;
 }

@@ -426,9 +426,10 @@ async function slotCap(tx: Tx, userId: string, station: string): Promise<number>
 export async function assignStation(tx: Tx, userId: string, waifuId: string, station: string | null): Promise<void> {
   await requireLive(tx);
   if (station !== null && !STATION_SET.has(station)) throw new GameError('bad_station', 'Нет такой станции');
-  const [w] = await tx<{ id: string; zone: string | null; station: string | null }[]>`
-    SELECT id, zone, station FROM waifu_instances WHERE id = ${waifuId} AND user_id = ${userId}`;
+  const [w] = await tx<{ id: string; zone: string | null; station: string | null; hired: boolean }[]>`
+    SELECT id, zone, station, hired FROM waifu_instances WHERE id = ${waifuId} AND user_id = ${userId}`;
   if (!w) throw new GameError('no_waifu', 'Нет такой грузчицы', 404);
+  if (station !== null && !w.hired) throw new GameError('album', 'Карточка коллекции не выходит на смену');
   if (w.zone === 'gym' || w.zone === 'contract') throw new GameError('busy', 'Она занята и вернётся на своё место сама');
   if (station === null) {
     await tx`UPDATE waifu_instances SET station = NULL WHERE id = ${waifuId}`;

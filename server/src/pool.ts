@@ -53,6 +53,7 @@ export interface InstanceRow extends PoolRow {
   fatigue_at: Date;
   current_class?: string | null;
   station?: string | null;
+  hired?: boolean;
 }
 
 export const basePortraitKey = (archetype: string) => `base/${archetype}.webp`;
@@ -84,6 +85,7 @@ export function toWaifuDTO(r: InstanceRow, ctx?: { buildings: BuildingLevels; no
     level: r.level,
     stars: r.stars,
     zone: r.zone,
+    hired: r.hired === true,
     obtainedAt: r.obtained_at.toISOString(),
     power: waifuPower({ ...r, stats }, cfg),
   };
@@ -233,17 +235,17 @@ export async function takePoolRow(tx: Tx, poolId: string, userId: string): Promi
 }
 
 export const INSTANCE_SELECT = `
-  i.id AS instance_id, i.custom_name, i.level, i.stars, i.zone, i.obtained_at, i.xp, i.stat_bonus, i.fatigue, i.fatigue_at, i.current_class, i.station,
+  i.id AS instance_id, i.custom_name, i.level, i.stars, i.zone, i.obtained_at, i.xp, i.stat_bonus, i.fatigue, i.fatigue_at, i.current_class, i.station, i.hired,
   p.id, p.rarity, p.archetype, p.name, p.age, p.bio, p.quote, p.appearance, p.stats, p.talents, p.portrait_url, p.thumb_url`;
 
 export async function grantWaifu(tx: Tx, userId: string, pool: PoolRow, zone: 'warehouse' | null = null): Promise<InstanceRow> {
   await takePoolRow(tx, pool.id, userId);
   const [inst] = await tx<{ id: string; obtained_at: Date }[]>`
-    INSERT INTO waifu_instances (user_id, pool_id, rarity, archetype, zone)
-    VALUES (${userId}, ${pool.id}, ${pool.rarity}, ${pool.archetype}, ${zone})
+    INSERT INTO waifu_instances (user_id, pool_id, rarity, archetype, zone, hired)
+    VALUES (${userId}, ${pool.id}, ${pool.rarity}, ${pool.archetype}, ${zone}, true)
     RETURNING id, obtained_at`;
   if (!inst) throw new Error('instance insert failed');
-  return { ...pool, instance_id: inst.id, custom_name: null, level: 1, stars: 0, zone, obtained_at: inst.obtained_at, xp: 0, stat_bonus: {}, fatigue: 0, fatigue_at: inst.obtained_at };
+  return { ...pool, instance_id: inst.id, custom_name: null, level: 1, stars: 0, zone, hired: true, obtained_at: inst.obtained_at, xp: 0, stat_bonus: {}, fatigue: 0, fatigue_at: inst.obtained_at };
 }
 
 export async function poolStats(): Promise<Record<string, number>> {
