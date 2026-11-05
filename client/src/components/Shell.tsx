@@ -28,7 +28,7 @@ function ResourceBar() {
   const notation = useStore((s) => s.settings.notation);
   const fmt = (v: Parameters<typeof formatNumber>[0]) => formatNumber(v, notation, true);
   const t = useT();
-  const pixel = screen === 'warehouse' && !!state?.terminal?.live;
+  const pixel = !!state?.terminal?.live;
   if (!state || !live) return null;
   const r = state.resources;
   const ico = (file: string, emoji: string) => (pixel ? <img className="pix" src={`${UI}${file}`} alt="" /> : <span className="ico">{emoji}</span>);
@@ -92,7 +92,7 @@ export function Shell({ children }: { children: ReactNode }) {
     gacha: state ? Math.floor(state.resources.tickets / 10) + (state.banners.some((b) => b.type === 'newbie' && b.active) ? 1 : 0) : 0,
   };
   return (
-    <div className={screen === 'warehouse' && state?.terminal?.live ? 'app pixel-term' : 'app'}>
+    <div className={state?.terminal?.live ? 'app pixel-term' : 'app'}>
       <header className="topbar">
         <div className="stripe hazard" />
         <ResourceBar />
@@ -100,7 +100,11 @@ export function Shell({ children }: { children: ReactNode }) {
       <nav className="sidenav">
         {(state?.user.isAdmin ? [...NAV, ADMIN_NAV] : NAV).map((n) => (
           <button key={n.id} className={`navbtn ${screen === n.id ? 'active' : ''}`} onClick={() => setScreen(n.id)}>
-            <span className="ico">{n.icon}</span>
+            {state?.terminal?.live ? (
+              <img className="pix-nav" src={`${UI}nav-${n.id}.png`} alt="" />
+            ) : (
+              <span className="ico">{n.icon}</span>
+            )}
             <span>{n.id === 'warehouse' && state?.terminal?.live ? 'Терминал' : t(n.key)}</span>
             {!!badges[n.id] && <span className="badge">{badges[n.id]}</span>}
           </button>

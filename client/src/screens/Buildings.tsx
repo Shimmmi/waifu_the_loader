@@ -13,6 +13,7 @@ import {
   type BuildingConfig,
 } from '@wl/shared';
 import { api } from '../api';
+import { TerminalBuildings } from '../components/TerminalBuildings';
 import { useFlavor, useFmt, useLive, useText } from '../hooks';
 import { useT, type TKey } from '../i18n';
 import { useStore } from '../store';
@@ -65,6 +66,8 @@ export function Buildings() {
   const flavor = useFlavor();
   const cfg = loadEconomy();
   const content = loadContent();
+
+  if (state.terminal?.live && state.terminal.stations) return <TerminalBuildings />;
 
   const upgrade = (b: BuildingConfig, count: number | 'max') =>
     run(async () => {
