@@ -13,6 +13,7 @@ import {
   type BuildingConfig,
 } from '@wl/shared';
 import { api } from '../api';
+import { buildingCaption } from '../components/Terminal';
 import { useFlavor, useFmt, useLive, useText } from '../hooks';
 import { useT, type TKey } from '../i18n';
 import { useStore } from '../store';
@@ -66,6 +67,8 @@ export function Buildings() {
   const cfg = loadEconomy();
   const content = loadContent();
 
+  const openBuilding = useStore((s) => s.openBuilding);
+  const term = state.terminal;
   const upgrade = (b: BuildingConfig, count: number | 'max') =>
     run(async () => {
       apply(await api.upgrade(b.id, count));
@@ -75,6 +78,29 @@ export function Buildings() {
 
   return (
     <div className="grid2">
+      {term?.live &&
+        (term.sectors ?? []).map((s) => (
+          <div className="panel taped" key={s.id}>
+            <h3 style={{ marginTop: 0 }}>
+              {s.name} · ур. {s.level}
+            </h3>
+            <p className="small muted">{buildingCaption(s.id)}</p>
+            <div className="row">
+              <button className="btn primary small" onClick={() => openBuilding(s.id)}>
+                Зайти
+              </button>
+              <button className="btn small" disabled={busy} onClick={() => run(async () => apply(await api.terminalUpgrade(s.id)))}>
+                Улучшить
+              </button>
+              {s.id !== 'pier' && (
+                <button className="btn small" disabled={busy} onClick={() => run(async () => apply(await api.terminalDemolish(s.id)))}>
+                  Снести
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
+      {term?.live && <h3 style={{ gridColumn: '1 / -1' }}>Служебные постройки</h3>}
       {cfg.buildings.map((b) => {
         const level = state.buildings[b.id] ?? b.start_level;
         const cost1 = buildingCost(b, level);

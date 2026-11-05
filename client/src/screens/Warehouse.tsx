@@ -36,7 +36,7 @@ function quoteOnly(text: string, name: string): string {
   return text.replace(new RegExp(`^${escaped}\\s*:?\\s*`), '');
 }
 
-function Scene({ crew, hideClerk = false }: { crew: WaifuDTO[]; hideClerk?: boolean }) {
+function Scene({ crew, hideClerk = false, idle }: { crew: WaifuDTO[]; hideClerk?: boolean; idle?: string }) {
   const state = useStore((s) => s.state)!;
   const notation = useStore((s) => s.settings.notation);
   const chatter = useStore((s) => s.settings.chatter ?? 'rare');
@@ -174,7 +174,7 @@ function Scene({ crew, hideClerk = false }: { crew: WaifuDTO[]; hideClerk?: bool
           </div>
         );
       })}
-      {!crew.length && !clerk && <div className="idle">{t('wh.noBrigade')}</div>}
+      {!crew.length && !clerk && <div className="idle">{idle ?? t('wh.noBrigade')}</div>}
     </div>
   );
 }
@@ -192,6 +192,12 @@ export function Warehouse() {
   const [picker, setPicker] = useState(false);
   const [detail, setDetail] = useState<string | null>(null);
   const [building, setBuilding] = useState('pier');
+  const focus = useStore((s) => s.terminalFocus);
+  useEffect(() => {
+    if (!focus) return;
+    setBuilding(focus);
+    useStore.setState({ terminalFocus: null });
+  }, [focus]);
 
   const terminalOn = !!state.terminal?.live && !!state.terminal.stations;
   const sectors = state.terminal?.sectors ?? [];
@@ -237,7 +243,7 @@ export function Warehouse() {
           {buildingCaption(selected)}
         </p>
       )}
-      <Scene crew={sceneCrew} hideClerk={terminalOn} />
+      <Scene crew={sceneCrew} hideClerk={terminalOn} idle={terminalOn ? 'Здесь пока никого. Назначь людей в этом строении.' : undefined} />
 
       <div className="grid2" style={{ marginTop: 14 }}>
         <div className="panel taped">
@@ -264,6 +270,12 @@ export function Warehouse() {
             <span>{r.pricePerKg.toFixed(3)}</span>
             <span>💥 {t('wh.crit')}</span>
             <span>{(r.critChance * 100).toFixed(1)}%</span>
+            {terminalOn && !state.terminal?.shift?.active && (
+              <>
+                <span>Смена</span>
+                <span>не идёт</span>
+              </>
+            )}
             <span>🌙 {t('wh.offline')}</span>
             <span>
               {Math.round(r.offlineEfficiency * 100)}% · {state.limits.offlineCapHours} ч

@@ -20,6 +20,19 @@ const PLACE_NAME: Record<StationId, string> = {
   support: 'Офис',
 };
 
+const NEIGHBOR_NAME: Record<string, string> = {
+  flow: 'поток',
+  morale: 'мораль',
+  rest: 'отдых',
+  move: 'ход',
+  repair: 'ремонт',
+  heavy: 'тяжёлое',
+  xp: 'опыт',
+  contract: 'заказы',
+  parts: 'запчасти',
+  spoil: 'сохранность',
+};
+
 const BLURB: Record<string, string> = {
   pier: 'Разгружает машины у причала.',
   warehouse: 'Размещает груз по местам.',
@@ -136,11 +149,10 @@ export function TerminalPanel({ selected, onSelect }: { selected: string; onSele
       )}
       <h3>Строения</h3>
       {(term.sectors ?? []).map((s) => (
-        <div key={s.id} className="row">
+        <div key={s.id} className="row" style={{ marginBottom: 6, flexWrap: 'wrap' }}>
           <button className={`btn small ${selected === s.id ? 'primary' : ''}`} onClick={() => onSelect(s.id)}>
             {s.name} · ур. {s.level}
           </button>
-          <span className="spacer" />
           <button className="btn small" onClick={() => act(() => api.terminalUpgrade(s.id))}>
             Улучшить
           </button>
@@ -215,7 +227,9 @@ export function TerminalPanel({ selected, onSelect }: { selected: string; onSele
       {selected === 'dorm' && (
         <p className="small muted">{resting.length ? resting.map((w) => displayName(w)).join(', ') : 'В общежитии сейчас пусто.'}</p>
       )}
-      {term.neighbors && term.neighbors.length > 0 && <p className="small muted">Соседство: {term.neighbors.join(', ')}</p>}
+      {term.neighbors && term.neighbors.length > 0 && (
+        <p className="small muted">Соседство: {term.neighbors.map((id) => NEIGHBOR_NAME[id] ?? id).join(', ')}</p>
+      )}
       {term.building && (
         <p className="small">
           Строится {term.building.name} до {new Date(term.building.until).toLocaleTimeString()}{' '}

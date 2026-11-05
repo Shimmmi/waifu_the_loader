@@ -203,9 +203,22 @@ export function stopCargo(rates: Rates): Rates {
   return { ...rates, cargoPerSec: D(0), coinsPerSec: D(0) };
 }
 
-export async function ratesForLine(tx: Tx, userId: string, rates: Rates, rush: boolean): Promise<Rates> {
+export async function ratesForLine(tx: Db, userId: string, rates: Rates, rush: boolean): Promise<Rates> {
   const { kgPerSec } = await lineContext(tx, userId, rush);
   return applyLineCargo(rates, kgPerSec);
+}
+
+/** Ставка, которую клиент рисует между тиками. Совпадает с тем, что advance записывает в базу. */
+export async function presentRates(db: Db, userId: string, rates: Rates, now = new Date()): Promise<Rates> {
+  if (!(await terminalLive(db))) return rates;
+  await ensureTerminal(db, userId);
+  const clock = termClock(await loadTerm(db, userId));
+  const nowMs = now.getTime();
+  const shiftOn = clock.shiftEnd !== null && clock.shiftEnd > nowMs;
+  if (!shiftOn) return { ...stopCargo(rates), power: 0 };
+  const rush = clock.rushStart !== null && clock.rushEnd !== null && nowMs >= clock.rushStart && nowMs < clock.rushEnd;
+  const line = await ratesForLine(db, userId, rates, rush);
+  return { ...line, power: 0 };
 }
 
 export async function addShiftTotals(tx: Tx, userId: string, kg: ReturnType<typeof D>, coins: ReturnType<typeof D>): Promise<void> {

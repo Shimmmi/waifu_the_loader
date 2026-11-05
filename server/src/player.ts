@@ -45,6 +45,7 @@ import {
   closeShift,
   ensureTerminal,
   finishDueBuilds,
+  presentRates,
   ratesForLine,
   startShiftIfIdle,
   stopCargo,
@@ -321,7 +322,8 @@ export async function snapshot(
   const buildings = await loadBuildings(sql, userId);
   const prestige = await loadPrestige(sql, userId);
   const mods = prestigeMods(prestige.upgrades, prestige.seals_earned, cfg);
-  const rates = computeRates(await loadBrigade(sql, userId), buildings, cfg, mods, (await loadClerk(sql, userId))?.stats.cha ?? null);
+  let rates = computeRates(await loadBrigade(sql, userId), buildings, cfg, mods, (await loadClerk(sql, userId))?.stats.cha ?? null);
+  if (await terminalLive(sql)) rates = await presentRates(sql, userId, rates);
   const trainings = await sql<{ id: string; instance_id: string; type: string; duration_min: number; started_at: Date; ends_at: Date }[]>`
     SELECT id, instance_id, type, duration_min, started_at, ends_at FROM training_jobs WHERE user_id = ${userId} AND status = 'active' ORDER BY ends_at`;
   const contracts = await sql<

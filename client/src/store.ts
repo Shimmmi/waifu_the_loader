@@ -24,6 +24,8 @@ interface Store {
   /** performance.now() в момент получения state — от него интерполируем */
   receivedAt: number;
   screen: Screen;
+  /** Строение, которое надо открыть на складе */
+  terminalFocus: string | null;
   toasts: Toast[];
   offlineReport: OfflineReportDTO | null;
   recoveryCode: string | null;
@@ -33,6 +35,7 @@ interface Store {
   fanfare: boolean;
 
   setScreen(s: Screen): void;
+  openBuilding(id: string): void;
   toast(text: string, kind?: Toast['kind']): void;
   /** Итог тренировки/контракта: сводка + реплика из flavor.m4 */
   notify(n: NoticeDTO): void;
@@ -54,6 +57,7 @@ export const useStore = create<Store>((set, get) => ({
   state: null,
   receivedAt: 0,
   screen: 'warehouse',
+  terminalFocus: null,
   toasts: [],
   offlineReport: null,
   recoveryCode: null,
@@ -62,6 +66,7 @@ export const useStore = create<Store>((set, get) => ({
   fanfare: false,
 
   setScreen: (screen) => set({ screen }),
+  openBuilding: (id) => set({ terminalFocus: id, screen: 'warehouse' }),
   toast: (text, kind = 'info') => {
     const id = ++toastId;
     set((s) => ({ toasts: [...s.toasts.slice(-3), { id, text, kind }] }));
