@@ -153,7 +153,7 @@ export async function advance(tx: Tx, userId: string, now = new Date()): Promise
   const windowStart = row.last_tick_at.getTime();
   const nowMs = now.getTime();
   const live = await terminalLive(tx);
-  const online = live && nowMs > windowStart && nowMs - windowStart <= cfg.offline.online_grace_sec;
+  const online = live && nowMs > windowStart && nowMs - windowStart <= cfg.offline.online_grace_sec * 1000;
   if (live) {
     await ensureTerminal(tx, userId);
     await finishDueBuilds(tx, userId, row.last_tick_at);
