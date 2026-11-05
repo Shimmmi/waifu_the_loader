@@ -9,10 +9,76 @@
       "description": "Филармония переезжает. Успешные контракты на пианино идут в зачёт события.",
       "starts_at": "2026-10-12T00:00:00+03:00",
       "ends_at": "2026-10-26T23:59:59+03:00",
+      "score_tag": "piano",
       "milestones": [
         {"score": 1, "tokens": 5, "tickets": 1, "cosmetic": null},
         {"score": 3, "tokens": 10, "tickets": 2, "cosmetic": null},
         {"score": 10, "tokens": 20, "tickets": 3, "cosmetic": "frame_piano"}
+      ]
+    },
+    {
+      "id": "fridge_2026_11",
+      "name": "Холодильный аврал",
+      "description": "Магазины меняют витрины. Успешные заказы с холодильниками идут в зачёт.",
+      "starts_at": "2026-11-06T00:00:00+03:00",
+      "ends_at": "2026-11-19T23:59:59+03:00",
+      "score_tag": "fridge",
+      "milestones": [
+        {"score": 1, "tokens": 5, "tickets": 1, "cosmetic": null},
+        {"score": 3, "tokens": 10, "tickets": 2, "cosmetic": null},
+        {"score": 10, "tokens": 20, "tickets": 3, "cosmetic": "frame_fridge"}
+      ]
+    },
+    {
+      "id": "safe_2026_11",
+      "name": "Сейфы к закрытию года",
+      "description": "Бухгалтерии прячут год в железо. Успешные заказы с сейфами идут в зачёт.",
+      "starts_at": "2026-11-20T00:00:00+03:00",
+      "ends_at": "2026-12-03T23:59:59+03:00",
+      "score_tag": "safe",
+      "milestones": [
+        {"score": 1, "tokens": 5, "tickets": 1, "cosmetic": null},
+        {"score": 3, "tokens": 10, "tickets": 2, "cosmetic": null},
+        {"score": 10, "tokens": 20, "tickets": 3, "cosmetic": "frame_safe"}
+      ]
+    },
+    {
+      "id": "fragile_2026_12",
+      "name": "Хрупкий декабрь",
+      "description": "Стекло, ёлки и чужая посуда. Успешные хрупкие заказы идут в зачёт.",
+      "starts_at": "2026-12-04T00:00:00+03:00",
+      "ends_at": "2026-12-17T23:59:59+03:00",
+      "score_tag": "fragile",
+      "milestones": [
+        {"score": 1, "tokens": 5, "tickets": 1, "cosmetic": null},
+        {"score": 3, "tokens": 10, "tickets": 2, "cosmetic": null},
+        {"score": 10, "tokens": 20, "tickets": 3, "cosmetic": "frame_fragile"}
+      ]
+    },
+    {
+      "id": "newyear_2026_12",
+      "name": "Новогодний переезд",
+      "description": "Все внезапно вспомнили, что диван тоже хочет праздника. Странные заказы идут в зачёт.",
+      "starts_at": "2026-12-18T00:00:00+03:00",
+      "ends_at": "2026-12-31T23:59:59+03:00",
+      "score_tag": "weird",
+      "milestones": [
+        {"score": 1, "tokens": 5, "tickets": 1, "cosmetic": null},
+        {"score": 3, "tokens": 10, "tickets": 2, "cosmetic": null},
+        {"score": 10, "tokens": 20, "tickets": 3, "cosmetic": "frame_newyear"}
+      ]
+    },
+    {
+      "id": "line_2027_01",
+      "name": "Снова на линию",
+      "description": "Каникулы кончились, офисы вспомнили про коробки. Офисные заказы идут в зачёт.",
+      "starts_at": "2027-01-01T00:00:00+03:00",
+      "ends_at": "2027-01-14T23:59:59+03:00",
+      "score_tag": "office",
+      "milestones": [
+        {"score": 1, "tokens": 5, "tickets": 1, "cosmetic": null},
+        {"score": 3, "tokens": 10, "tickets": 2, "cosmetic": null},
+        {"score": 10, "tokens": 20, "tickets": 3, "cosmetic": "frame_rigger"}
       ]
     }
   ],

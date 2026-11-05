@@ -43,6 +43,71 @@
       "featured_share": 0.5,
       "starts_at": "2026-10-12T00:00:00+03:00",
       "ends_at": "2026-10-26T23:59:59+03:00"
+    },
+    {
+      "id": "event_fridge_2026_11",
+      "type": "event",
+      "name": "Холодильный аврал",
+      "description": "Витрины пустеют. Шанс SSR+ «Тихони с холодильником» — 50% от всех SSR+.",
+      "cost_per_pull": 1,
+      "pull_sizes": [1, 10],
+      "max_uses": null,
+      "featured_archetype": "fridge_quiet",
+      "featured_share": 0.5,
+      "starts_at": "2026-11-06T00:00:00+03:00",
+      "ends_at": "2026-11-19T23:59:59+03:00"
+    },
+    {
+      "id": "event_safe_2026_11",
+      "type": "event",
+      "name": "Сейфы к закрытию года",
+      "description": "Год прячут в железо. Шанс SSR+ «Крика-командира» — 50% от всех SSR+.",
+      "cost_per_pull": 1,
+      "pull_sizes": [1, 10],
+      "max_uses": null,
+      "featured_archetype": "shout_commander",
+      "featured_share": 0.5,
+      "starts_at": "2026-11-20T00:00:00+03:00",
+      "ends_at": "2026-12-03T23:59:59+03:00"
+    },
+    {
+      "id": "event_fragile_2026_12",
+      "type": "event",
+      "name": "Хрупкий декабрь",
+      "description": "Стекло не любит спешку. Шанс SSR+ «Готессы-упаковщицы» — 50% от всех SSR+.",
+      "cost_per_pull": 1,
+      "pull_sizes": [1, 10],
+      "max_uses": null,
+      "featured_archetype": "goth_packer",
+      "featured_share": 0.5,
+      "starts_at": "2026-12-04T00:00:00+03:00",
+      "ends_at": "2026-12-17T23:59:59+03:00"
+    },
+    {
+      "id": "event_newyear_2026_12",
+      "type": "event",
+      "name": "Новогодний переезд",
+      "description": "Диван тоже хочет праздник. Шанс SSR+ «Отставной официантки» — 50% от всех SSR+.",
+      "cost_per_pull": 1,
+      "pull_sizes": [1, 10],
+      "max_uses": null,
+      "featured_archetype": "retired_waitress",
+      "featured_share": 0.5,
+      "starts_at": "2026-12-18T00:00:00+03:00",
+      "ends_at": "2026-12-31T23:59:59+03:00"
+    },
+    {
+      "id": "event_line_2027_01",
+      "type": "event",
+      "name": "Снова на линию",
+      "description": "Офисы вспомнили про коробки. Шанс SSR+ «Бывшей гимнастки-такелажницы» — 50% от всех SSR+.",
+      "cost_per_pull": 1,
+      "pull_sizes": [1, 10],
+      "max_uses": null,
+      "featured_archetype": "gymnast_rigger",
+      "featured_share": 0.5,
+      "starts_at": "2027-01-01T00:00:00+03:00",
+      "ends_at": "2027-01-14T23:59:59+03:00"
     }
   ]
 }

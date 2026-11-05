@@ -353,6 +353,11 @@ table.rates td:not(:first-child), table.rates th:not(:first-child) { text-align:
 .card.frame-set { box-shadow: 0 0 0 3px #7eb6ff; }
 .card.frame-legend { box-shadow: 0 0 0 3px #ff5a7a, 0 0 18px #ff5a7a; }
 .card.frame-piano { box-shadow: inset 0 -8px 0 #111, inset 0 -12px 0 #f4f4f4, inset 0 -16px 0 #111; }
+.card.frame-fridge { box-shadow: inset 0 0 0 3px #9ad7ff, inset 0 0 0 6px #e8f6ff; }
+.card.frame-safe { box-shadow: inset 0 0 0 4px #5c6570, inset 0 0 0 7px #c5a36a; }
+.card.frame-fragile { outline: 3px dashed #7eb6ff; outline-offset: -8px; }
+.card.frame-newyear { box-shadow: 0 0 0 3px #2f6b3a, 0 0 12px #d4a017; }
+.card.frame-rigger { box-shadow: inset 4px 0 0 #c45c26, inset -4px 0 0 #c45c26; }
 .card.card-coffee::before { content: ''; position: absolute; right: 10px; bottom: 46px; width: 28px; height: 18px; border-radius: 50%; background: rgba(90, 50, 20, .55); pointer-events: none; }
 .scene.skin-night { filter: hue-rotate(200deg) brightness(.85); }
 .scene.skin-beach { filter: saturate(1.3) hue-rotate(-15deg); }

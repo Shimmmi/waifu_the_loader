@@ -164,7 +164,7 @@ export async function claimEvent(userId: string, index: number): Promise<void> {
   await sql.begin(async (tx) => {
     const { advance } = await import('./player.js');
     await advance(tx, userId);
-    const score = await pianoScore(tx, userId, ev.starts_at, ev.ends_at);
+    const score = await eventScore(tx, userId, ev.starts_at, ev.ends_at, ev.score_tag);
     const have = await tx<{ milestone: number }[]>`
       SELECT milestone FROM event_claims WHERE user_id = ${userId} AND event_id = ${ev.id}`;
     if (!dueMilestones(ev, score, new Set(have.map((h) => h.milestone))).includes(index)) {
@@ -179,10 +179,10 @@ export async function claimEvent(userId: string, index: number): Promise<void> {
   });
 }
 
-async function pianoScore(tx: Tx | typeof sql, userId: string, from: string, to: string): Promise<number> {
+async function eventScore(tx: Tx | typeof sql, userId: string, from: string, to: string, scoreTag: string): Promise<number> {
   const [r] = await tx<{ n: number }[]>`
     SELECT count(*)::int AS n FROM contracts
-    WHERE user_id = ${userId} AND status = 'done' AND tag = 'piano' AND (result->>'success') = 'true'
+    WHERE user_id = ${userId} AND status = 'done' AND tag = ${scoreTag} AND (result->>'success') = 'true'
       AND coalesce(ends_at, created_at) >= ${from}::timestamptz AND coalesce(ends_at, created_at) <= ${to}::timestamptz`;
   return r?.n ?? 0;
 }
@@ -285,7 +285,7 @@ export async function metaSnapshot(userId: string): Promise<{
   const ev = activeEvent(meta.events);
   let event: { id: string; score: number; claimed: number[] } | null = null;
   if (ev) {
-    const score = await pianoScore(sql, userId, ev.starts_at, ev.ends_at);
+    const score = await eventScore(sql, userId, ev.starts_at, ev.ends_at, ev.score_tag);
     const rows = await sql<{ milestone: number }[]>`SELECT milestone FROM event_claims WHERE user_id = ${userId} AND event_id = ${ev.id}`;
     event = { id: ev.id, score, claimed: rows.map((r) => r.milestone) };
   }

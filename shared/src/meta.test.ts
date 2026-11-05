@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { D } from './bignum.js';
 import {
   activeEvent,
+  countsForEvent,
   dueMilestones,
   dueTiers,
   emptyMetrics,
@@ -47,9 +48,23 @@ describe('магазин и событие', () => {
     const ev = activeEvent(meta.events, new Date('2026-10-13T12:00:00+03:00'));
     expect(ev?.id).toBe('piano_2026_10');
     expect(activeEvent(meta.events, new Date('2026-11-01T00:00:00+03:00'))).toBeNull();
+    expect(activeEvent(meta.events, new Date('2026-11-10T12:00:00+03:00'))?.id).toBe('fridge_2026_11');
+    expect(activeEvent(meta.events, new Date('2026-11-25T12:00:00+03:00'))?.score_tag).toBe('safe');
+    expect(activeEvent(meta.events, new Date('2026-12-10T12:00:00+03:00'))?.score_tag).toBe('fragile');
+    expect(activeEvent(meta.events, new Date('2026-12-25T12:00:00+03:00'))?.id).toBe('newyear_2026_12');
+    expect(activeEvent(meta.events, new Date('2027-01-08T12:00:00+03:00'))?.score_tag).toBe('office');
+    expect(activeEvent(meta.events, new Date('2027-01-20T00:00:00+03:00'))).toBeNull();
     const due = dueMilestones(ev!, 3, new Set());
     expect(due).toEqual([0, 1]);
     expect(dueMilestones(ev!, 3, new Set(due))).toEqual([]);
+  });
+
+  it('в счёт идёт только свой тег успешного контракта', () => {
+    expect(countsForEvent('piano', true, 'fridge')).toBe(false);
+    expect(countsForEvent('fridge', false, 'fridge')).toBe(false);
+    expect(countsForEvent('fridge', true, 'fridge')).toBe(true);
+    expect(countsForEvent('safe', true, 'safe')).toBe(true);
+    expect(countsForEvent('piano', true, 'safe')).toBe(false);
   });
 
   it('ежедневка забирается один раз', () => {

@@ -67,6 +67,8 @@ const EventSchema = z.object({
   description: z.string(),
   starts_at: z.string(),
   ends_at: z.string(),
+  /** Тег контракта, успешные заказы с которым идут в счёт. */
+  score_tag: z.string().min(1),
   milestones: z.array(RewardSchema).min(1),
 });
 export type LiveEvent = z.infer<typeof EventSchema>;
@@ -219,6 +221,11 @@ export function weekIndex(now = new Date()): number {
 
 export function inShop(item: CosmeticDef, now = new Date()): boolean {
   return item.unlock === 'shop' && (item.rotation === null || item.rotation === weekIndex(now) % 3);
+}
+
+/** Успешный контракт идёт в счёт только если его тег совпал с тегом события. */
+export function countsForEvent(tag: string, success: boolean, scoreTag: string): boolean {
+  return success && tag === scoreTag;
 }
 
 export function activeEvent(events: LiveEvent[], now = new Date()): LiveEvent | null {
