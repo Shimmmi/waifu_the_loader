@@ -1,3 +1,9 @@
+@font-face {
+  font-family: Silkscreen;
+  src: url('./fonts/Silkscreen-Regular.ttf') format('truetype');
+  font-display: swap;
+}
+
 :root {
   --bg: #17150f;
   --bg2: #201d15;
@@ -388,6 +394,40 @@ table.rates td:not(:first-child), table.rates th:not(:first-child) { text-align:
 .portrait-slot { width: 72px; background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 4px; cursor: pointer; color: inherit; }
 .portrait-slot img { width: 64px; height: 64px; object-fit: cover; border-radius: 6px; display: block; }
 .portrait-slot.empty { height: 78px; font-size: 24px; }
+.interior-still, .bmodal-scene .art-fallback { width: 100%; height: 320px; display: block; object-fit: cover; background: #d7c4a0; image-rendering: pixelated; }
+.tmap-hint { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); margin: 0; background: #fff6df; color: #4a3420; border: 2px solid #4a3420; padding: 4px 8px; font-size: 11px; z-index: 2; }
+.pix, .pix-up { image-rendering: pixelated; width: 22px; height: 22px; display: block; }
+.pix-up { width: 14px; height: 14px; display: inline-block; }
+.logo-mark { width: 28px; height: 28px; }
+.app.pixel-term { --bg: #f3e6c8; --bg2: #f7edd4; --panel: #fff6df; --panel2: #fff6df; --line: #4a3420; --text: #4a3420; --muted: #7a6248; --accent: #f0b429; --accent-ink: #4a3420; grid-template-columns: 176px 1fr; font-family: Silkscreen, monospace; color: #4a3420; background: #f3e6c8; }
+.app.pixel-term .stripe { display: none; }
+.app.pixel-term .tip { display: none; }
+.app.pixel-term .topbar, .app.pixel-term .sidenav { background: #f7edd4; color: #4a3420; }
+.app.pixel-term .logo { display: flex; align-items: center; gap: 8px; color: #4a3420; font-family: Silkscreen, monospace; font-size: 14px; text-shadow: none; }
+.app.pixel-term .res { background: #fff6df; border: 2px solid #4a3420; color: #4a3420; box-shadow: 2px 2px 0 #4a3420; }
+.app.pixel-term .res:last-child { margin-left: auto; }
+.app.pixel-term .navbtn { color: #4a3420; border: 3px solid transparent; font-family: Silkscreen, monospace; font-size: 11px; }
+.app.pixel-term .navbtn.active { background: #f0b429; color: #4a3420; border-color: #4a3420; box-shadow: 3px 3px 0 #4a3420; }
+.app.pixel-term .tplaque { border: 2px solid #4a3420; font-family: Silkscreen, monospace; }
+.app.pixel-term .building-modal, .building-modal { background: #fff6df; color: #4a3420; border: 4px solid #4a3420; box-shadow: 6px 6px 0 #4a3420; font-family: Silkscreen, monospace; }
+.building-modal h2 { font-family: Silkscreen, monospace; font-size: 16px; color: #4a3420; }
+.pix-status { color: #3d7a32; }
+.pix-status i { display: inline-block; width: 10px; height: 10px; margin-right: 6px; background: #7dce6a; border: 2px solid #3d7a32; vertical-align: middle; }
+.pix-upgrade, .bmodal-tabs button, .app.pixel-term .tmap-daily {
+  font-family: Silkscreen, monospace;
+  color: #4a3420;
+  background: #fff6df;
+  border: 3px solid #4a3420;
+  box-shadow: 3px 3px 0 #4a3420;
+  cursor: pointer;
+  image-rendering: pixelated;
+}
+.pix-upgrade, .bmodal-tabs button.on, .app.pixel-term .navbtn.active, .app.pixel-term .tmap-daily {
+  background: #f0b429;
+}
+.pix-upgrade { width: 100%; padding: 10px 8px; margin-top: 8px; font-size: 12px; }
+.pix-upgrade:disabled { opacity: .45; cursor: default; }
+.bmodal-tabs button.on { background: #f0b429; }
 @media (max-width: 800px) {
   .bmodal-body { grid-template-columns: 1fr; }
   .tbuilding { width: 112px; }
