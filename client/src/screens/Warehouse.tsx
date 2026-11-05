@@ -6,7 +6,7 @@ import { useT } from '../i18n';
 import { useStore } from '../store';
 import { displayName, Modal, rarityStyle, WaifuCard } from '../components/ui';
 import { WaifuDetail } from '../components/WaifuDetail';
-import { TerminalPanel } from '../components/Terminal';
+import { buildingCaption, buildingCrew, TerminalPanel } from '../components/Terminal';
 
 interface Bubble {
   id: number;
@@ -36,7 +36,7 @@ function quoteOnly(text: string, name: string): string {
   return text.replace(new RegExp(`^${escaped}\\s*:?\\s*`), '');
 }
 
-function Scene({ crew }: { crew: WaifuDTO[] }) {
+function Scene({ crew, hideClerk = false }: { crew: WaifuDTO[]; hideClerk?: boolean }) {
   const state = useStore((s) => s.state)!;
   const notation = useStore((s) => s.settings.notation);
   const chatter = useStore((s) => s.settings.chatter ?? 'rare');
@@ -96,7 +96,7 @@ function Scene({ crew }: { crew: WaifuDTO[] }) {
   const apLevel = state.buildings.autopark ?? 0;
   const bg = BG_LEVELS.indexOf(stepAt(whLevel, BG_LEVELS)) + 1;
   const truck = stepAt(apLevel, TRUCK_LEVELS);
-  const clerk = state.waifu.find((w) => w.zone === 'clerk') ?? null;
+  const clerk = hideClerk ? null : (state.waifu.find((w) => w.zone === 'clerk') ?? null);
   const [icons, setIcons] = useState<Record<string, number>>({});
   const [truckOut, setTruckOut] = useState(false);
   const hauled = useRef(0);
@@ -191,8 +191,13 @@ export function Warehouse() {
   const live = useLive();
   const [picker, setPicker] = useState(false);
   const [detail, setDetail] = useState<string | null>(null);
+  const [building, setBuilding] = useState('pier');
 
+  const terminalOn = !!state.terminal?.live && !!state.terminal.stations;
+  const sectors = state.terminal?.sectors ?? [];
+  const selected = sectors.some((s) => s.id === building) ? building : (sectors[0]?.id ?? 'pier');
   const crew = state.waifu.filter((w) => w.zone === 'warehouse');
+  const sceneCrew = terminalOn ? buildingCrew(state.waifu, selected) : crew;
   const away = state.waifu.filter((w) => w.homeZone === 'warehouse');
   const bench = state.waifu.filter((w) => !w.zone).sort((a, b) => b.power - a.power);
   const r = state.rates;
@@ -225,7 +230,14 @@ export function Warehouse() {
         </button>
       </div>
 
-      <Scene crew={crew} />
+      {terminalOn && (
+        <p className="small" style={{ margin: '8px 0 0' }}>
+          <b>{sectors.find((s) => s.id === selected)?.name ?? 'Строение'}</b>
+          {' · '}
+          {buildingCaption(selected)}
+        </p>
+      )}
+      <Scene crew={sceneCrew} hideClerk={terminalOn} />
 
       <div className="grid2" style={{ marginTop: 14 }}>
         <div className="panel taped">
@@ -270,8 +282,8 @@ export function Warehouse() {
             )}
           </div>
         </div>
-        {state.terminal?.live && <TerminalPanel />}
-        {state.conveyor && (
+        {terminalOn && <TerminalPanel selected={selected} onSelect={setBuilding} />}
+        {!terminalOn && state.conveyor && (
           <div className="panel">
             <h3 style={{ marginTop: 0 }}>Конвейер</h3>
             <p className="small muted">
@@ -284,7 +296,7 @@ export function Warehouse() {
             </p>
           </div>
         )}
-        <div className="panel taped">
+        {!terminalOn && <div className="panel taped">
           <h3>
             {t('wh.brigade')} ({crew.length + away.length}/{state.slots})
           </h3>
@@ -321,7 +333,7 @@ export function Warehouse() {
               </button>
             ))}
           </div>
-        </div>
+        </div>}
       </div>
 
       {picker && (

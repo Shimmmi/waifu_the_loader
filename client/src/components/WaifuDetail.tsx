@@ -17,6 +17,7 @@ import { api } from '../api';
 import { useFlavor, useFmt, useLive, useText } from '../hooks';
 import { useT, type TKey } from '../i18n';
 import { useStore } from '../store';
+import { buildingPlace } from './Terminal';
 import { Cost, displayName, Modal, rarityName, rarityStyle, Stars } from './ui';
 
 /** Таланты тренировок и контрактов работают вне склада */
@@ -183,7 +184,20 @@ export function WaifuDetail({ id, onClose }: { id: string; onClose: () => void }
           </div>
 
           <div className="row" style={{ marginTop: 12 }}>
-            {w.zone === 'gym' || w.zone === 'contract' ? (
+            {state.terminal?.live ? (
+              w.zone === 'gym' || w.zone === 'contract' ? (
+                <span className="tag">{t(w.zone === 'gym' ? 'w.busyGym' : 'w.busyContract')}</span>
+              ) : w.station ? (
+                <>
+                  <span className="tag">{buildingPlace(w.station)}</span>
+                  <button className="btn" disabled={busy} onClick={() => act(() => api.terminalAssign(w.id, null))}>
+                    Снять
+                  </button>
+                </>
+              ) : (
+                <span className="small muted">Назначить можно в строении на складе</span>
+              )
+            ) : w.zone === 'gym' || w.zone === 'contract' ? (
               <span className="tag">{t(w.zone === 'gym' ? 'w.busyGym' : 'w.busyContract')}</span>
             ) : (
               <>

@@ -1,8 +1,63 @@
 import { useState } from 'react';
-import { JOB_NAME, type StateDTO, type TerminalJob } from '@wl/shared';
+import { JOB_NAME, type StateDTO, type TerminalJob, type WaifuDTO } from '@wl/shared';
 import { api } from '../api';
 import { useStore } from '../store';
 import { displayName, Modal } from './ui';
+
+export type StationId = 'unload' | 'move' | 'store' | 'support';
+
+const BUILDING_STATION: Record<string, StationId | null> = {
+  pier: 'unload',
+  warehouse: 'store',
+  garage: 'move',
+  office: 'support',
+};
+
+const PLACE_NAME: Record<StationId, string> = {
+  unload: 'Причал',
+  move: 'Гараж',
+  store: 'Склад',
+  support: 'Офис',
+};
+
+const BLURB: Record<string, string> = {
+  pier: 'Разгружает машины у причала.',
+  warehouse: 'Размещает груз по местам.',
+  garage: 'Перевозит груз по терминалу.',
+  office: 'Бригадир и механик держат линию.',
+  dorm: 'Отдыхает между сменами.',
+  canteen: 'Кормит смену. Рядом с общежитием снимает усталость, рядом с причалом поднимает мораль.',
+  rest: 'Комната отдыха. Рядом с учебкой даёт опыт.',
+  school: 'Учебка. Рядом с комнатой отдыха даёт опыт.',
+  crane: 'Кран-ангар. Рядом с причалом берёт тяжёлое.',
+  dispatch: 'Диспетчерская. Рядом с офисом ведёт контракты.',
+  fridge: 'Рефрижератор. Рядом со складом бережёт груз.',
+  workshop: 'Мастерская. Рядом с гаражом чинит технику, рядом со складом даёт запчасти.',
+  bunker: 'Редкая находка. Людей на линию не ставит.',
+  garden: 'Редкая находка. Людей на линию не ставит.',
+  observatory: 'Редкая находка. Людей на линию не ставит.',
+};
+
+export function buildingCaption(sector: string): string {
+  return BLURB[sector] ?? 'Строение терминала.';
+}
+
+export function buildingPlace(station: string | null | undefined): string | null {
+  if (!station || !(station in PLACE_NAME)) return null;
+  return PLACE_NAME[station as StationId];
+}
+
+export function buildingCrew(waifu: WaifuDTO[], sector: string): WaifuDTO[] {
+  if (sector === 'dorm') {
+    return waifu.filter((w) => w.zone !== 'gym' && w.zone !== 'contract' && (!w.station || w.fatigue >= 80));
+  }
+  const station = BUILDING_STATION[sector];
+  if (!station) return [];
+  const onStation = waifu.filter((w) => w.station === station && w.zone !== 'gym' && w.zone !== 'contract');
+  if (sector !== 'warehouse') return onStation;
+  const strays = waifu.filter((w) => w.zone === 'warehouse' && !w.station);
+  return [...onStation, ...strays];
+}
 
 const PREVIEW = { up: 'Линия станет быстрее', same: 'Линия останется такой же', down: 'Линия станет медленнее' };
 const MODES = [
@@ -11,24 +66,24 @@ const MODES = [
   ['hard', 'Ударный'],
 ] as const;
 
-export function TerminalPanel() {
+export function TerminalPanel({ selected, onSelect }: { selected: string; onSelect: (id: string) => void }) {
   const state = useStore((s) => s.state);
   const run = useStore((s) => s.run);
   const apply = useStore((s) => s.apply);
   const term = state?.terminal;
-  const [slot, setSlot] = useState<'unload' | 'move' | 'store' | 'support' | null>(null);
+  const [slot, setSlot] = useState<StationId | null>(null);
   const [pick, setPick] = useState<{ id: string; preview: 'up' | 'same' | 'down' } | null>(null);
-  if (!state || !term?.live || !term.stations) return null;
+  const stations = term?.live ? term.stations : undefined;
+  if (!state || !term?.live || !stations) return null;
 
   const act = (fn: () => Promise<StateDTO>) => run(async () => apply(await fn()));
-  const stations = [
-    ['unload', term.stations.unload],
-    ['move', term.stations.move],
-    ['store', term.stations.store],
-  ] as const;
-  const max = Math.max(1, ...stations.map(([, s]) => s.rate));
+  const lineMax = Math.max(1, stations.unload.rate, stations.move.rate, stations.store.rate);
+  const stationId = BUILDING_STATION[selected] ?? null;
+  const station = stationId === 'unload' ? stations.unload : stationId === 'move' ? stations.move : stationId === 'store' ? stations.store : stationId === 'support' ? stations.support : null;
   const names = new Map(state.waifu.map((w) => [w.id, displayName(w)]));
   const bench = state.waifu.filter((w) => w.zone !== 'gym' && w.zone !== 'contract');
+  const strays = state.waifu.filter((w) => w.zone === 'warehouse' && !w.station);
+  const resting = buildingCrew(state.waifu, 'dorm');
 
   return (
     <div className="panel">
@@ -54,42 +109,8 @@ export function TerminalPanel() {
         </div>
       )}
       <p className="small muted">
-        Узкое место: {term.stations[term.bottleneck as 'unload']?.name ?? 'линия'} · {term.tonsPerMin?.toFixed(2)} т/мин · мораль {term.morale ?? 0}
+        Узкое место: {stations[term.bottleneck as 'unload']?.name ?? 'линия'} · {term.tonsPerMin?.toFixed(2)} т/мин · мораль {term.morale ?? 0}
       </p>
-      {stations.map(([id, s]) => (
-        <div key={id} style={{ marginBottom: 8 }}>
-          <div className="row">
-            <b className="small">{s.name}</b>
-            <span className="spacer" />
-            <span className="small muted">
-              {s.crew.length}/{s.slots}
-            </span>
-          </div>
-          <div className="bar">
-            <i style={{ width: `${Math.min(100, (s.rate / max) * 100)}%` }} />
-          </div>
-          <div className="row" style={{ flexWrap: 'wrap', gap: 6 }}>
-            {s.crew.map((idCrew) => (
-              <button key={idCrew} className="btn small" onClick={() => act(() => api.terminalAssign(idCrew, null))}>
-                {names.get(idCrew) ?? 'Слот'} ×
-              </button>
-            ))}
-            {s.crew.length < s.slots && (
-              <button className="btn small primary" onClick={() => { setSlot(id); setPick(null); }}>
-                Назначить
-              </button>
-            )}
-          </div>
-        </div>
-      ))}
-      {term.stations.support.open && (
-        <p className="small">
-          Поддержка {term.stations.support.crew.length}/{term.stations.support.slots}{' '}
-          <button className="btn small" onClick={() => { setSlot('support'); setPick(null); }}>
-            Назначить
-          </button>
-        </p>
-      )}
       <div className="row" style={{ marginTop: 8 }}>
         {MODES.map(([id, label]) => (
           <button key={id} className={`btn small ${term.shift?.mode === id ? 'primary' : ''}`} onClick={() => act(() => api.terminalMode(id))}>
@@ -113,12 +134,12 @@ export function TerminalPanel() {
           </button>
         </p>
       )}
-      <h3>Сектора</h3>
+      <h3>Строения</h3>
       {(term.sectors ?? []).map((s) => (
         <div key={s.id} className="row">
-          <span>
+          <button className={`btn small ${selected === s.id ? 'primary' : ''}`} onClick={() => onSelect(s.id)}>
             {s.name} · ур. {s.level}
-          </span>
+          </button>
           <span className="spacer" />
           <button className="btn small" onClick={() => act(() => api.terminalUpgrade(s.id))}>
             Улучшить
@@ -130,6 +151,70 @@ export function TerminalPanel() {
           )}
         </div>
       ))}
+      <p className="small">{buildingCaption(selected)}</p>
+      {station && stationId && (
+        <div style={{ marginBottom: 8 }}>
+          <div className="row">
+            <b className="small">{station.name}</b>
+            <span className="spacer" />
+            <span className="small muted">
+              {station.crew.length}/{station.slots}
+            </span>
+          </div>
+          {'rate' in station && (
+            <div className="bar">
+              <i style={{ width: `${Math.min(100, (station.rate / lineMax) * 100)}%` }} />
+            </div>
+          )}
+          {station.slots > 0 ? (
+            <div className="row" style={{ flexWrap: 'wrap', gap: 6 }}>
+              {station.crew.map((idCrew) => {
+                const person = state.waifu.find((w) => w.id === idCrew);
+                const away = person?.zone === 'gym' || person?.zone === 'contract';
+                if (away) {
+                  return (
+                    <span key={idCrew} className="small muted">
+                      {names.get(idCrew) ?? 'Слот'} · вернётся
+                    </span>
+                  );
+                }
+                return (
+                  <button key={idCrew} className="btn small" onClick={() => act(() => api.terminalAssign(idCrew, null))}>
+                    {names.get(idCrew) ?? 'Слот'} ×
+                  </button>
+                );
+              })}
+              {station.crew.length < station.slots && (
+                <button className="btn small primary" onClick={() => { setSlot(stationId); setPick(null); }}>
+                  Назначить
+                </button>
+              )}
+            </div>
+          ) : (
+            <p className="small muted">Места откроются, когда строение будет готово к работе.</p>
+          )}
+        </div>
+      )}
+      {selected === 'warehouse' && strays.length > 0 && (
+        <div>
+          {strays.map((w) => (
+            <div key={w.id} className="row" style={{ marginBottom: 6 }}>
+              <span className="small">{displayName(w)} — на складе, не на линии</span>
+              <span className="spacer" />
+              <button
+                className="btn small primary"
+                disabled={stations.store.crew.length >= stations.store.slots}
+                onClick={() => act(() => api.terminalAssign(w.id, 'store'))}
+              >
+                Поставить на размещение
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+      {selected === 'dorm' && (
+        <p className="small muted">{resting.length ? resting.map((w) => displayName(w)).join(', ') : 'В общежитии сейчас пусто.'}</p>
+      )}
       {term.neighbors && term.neighbors.length > 0 && <p className="small muted">Соседство: {term.neighbors.join(', ')}</p>}
       {term.building && (
         <p className="small">
