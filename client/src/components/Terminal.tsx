@@ -6,7 +6,7 @@ import { displayName, Modal } from './ui';
 
 export type StationId = 'unload' | 'move' | 'store' | 'support';
 
-const BUILDING_STATION: Record<string, StationId | null> = {
+export const BUILDING_STATION: Record<string, StationId | null> = {
   pier: 'unload',
   warehouse: 'store',
   garage: 'move',

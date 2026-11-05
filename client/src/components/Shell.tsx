@@ -62,6 +62,11 @@ function ResourceBar() {
           <b>{fmt(r.seals)}</b>
         </span>
       )}
+      {state.terminal?.live && (
+        <span className="res">
+          <b>{state.terminal.shift?.active ? 'Смена идёт' : 'Смена не идёт'}</b>
+        </span>
+      )}
     </div>
   );
 }
@@ -93,12 +98,12 @@ export function Shell({ children }: { children: ReactNode }) {
         {(state?.user.isAdmin ? [...NAV, ADMIN_NAV] : NAV).map((n) => (
           <button key={n.id} className={`navbtn ${screen === n.id ? 'active' : ''}`} onClick={() => setScreen(n.id)}>
             <span className="ico">{n.icon}</span>
-            <span>{t(n.key)}</span>
+            <span>{n.id === 'warehouse' && state?.terminal?.live ? 'Терминал' : t(n.key)}</span>
             {!!badges[n.id] && <span className="badge">{badges[n.id]}</span>}
           </button>
         ))}
       </nav>
-      <main>
+      <main className={screen === 'warehouse' && state?.terminal?.live ? 'map-main' : undefined}>
         {children}
         <div className="tip" key={screen}>
           💡 {tip}

@@ -7,6 +7,7 @@ import { useStore } from '../store';
 import { displayName, Modal, rarityStyle, WaifuCard } from '../components/ui';
 import { WaifuDetail } from '../components/WaifuDetail';
 import { buildingCaption, buildingCrew, TerminalPanel } from '../components/Terminal';
+import { TerminalHome } from '../components/TerminalHome';
 
 interface Bubble {
   id: number;
@@ -220,6 +221,8 @@ export function Warehouse() {
       apply(await api.assign(id, 'warehouse'));
       setPicker(false);
     });
+
+  if (terminalOn) return <TerminalHome />;
 
   return (
     <>

@@ -79,6 +79,7 @@ a { color: var(--accent); }
 .navbtn .badge { margin-left: auto; background: var(--danger); color: #fff; border-radius: 999px; font-size: 11px; padding: 0 6px; }
 
 main { padding: 16px; max-width: 1200px; width: 100%; }
+main.map-main { max-width: none; padding: 0; display: flex; min-height: 0; }
 .tip { margin-top: 18px; color: var(--muted); font-size: 13px; border-top: 1px dashed var(--line); padding-top: 10px; }
 
 @media (max-width: 760px) {
@@ -362,5 +363,35 @@ table.rates td:not(:first-child), table.rates th:not(:first-child) { text-align:
 .scene.skin-night { filter: hue-rotate(200deg) brightness(.85); }
 .scene.skin-beach { filter: saturate(1.3) hue-rotate(-15deg); }
 .scene.skin-dawn { filter: sepia(.25) brightness(1.05); }
+.tmap-page { position: relative; flex: 1; min-height: calc(100vh - 64px); }
+.tmap { position: absolute; inset: 0; background: #c8a46a center/cover no-repeat; overflow: hidden; }
+.tmap-back { position: absolute; inset: 0; width: 100%; height: 100%; }
+.tmap-daily { position: absolute; top: 12px; right: 12px; z-index: 3; }
+.tbuilding { position: absolute; width: 148px; transform: translate(-50%, -50%); background: transparent; border: 0; cursor: pointer; padding: 0; }
+.tbuilding-art, .tbuilding .art-fallback { width: 148px; height: 100px; display: grid; place-items: center; }
+.art-fallback { background: rgba(196, 165, 116, .9); color: #3a2a16; border: 2px dashed #6b4e2e; border-radius: 8px; font-size: 12px; text-align: center; padding: 6px; }
+.tplaque { display: block; background: #f3ead6; color: #3a2a16; border-radius: 8px; padding: 2px 6px; margin-top: 4px; box-shadow: 0 2px 6px rgba(0,0,0,.25); }
+.tplaque small { display: block; font-size: 11px; }
+.tplaque .up { color: #8a5a00; font-weight: 700; }
+.building-modal { background: var(--panel); width: min(1100px, 92vw); max-height: 86vh; border-radius: 14px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--line); }
+.building-modal .head { display: flex; align-items: center; gap: 10px; padding: 12px 14px 0; }
+.building-modal .x { margin-left: auto; background: transparent; border: 0; font-size: 22px; cursor: pointer; color: var(--muted); }
+.bmodal-body { display: grid; grid-template-columns: 1.4fr .8fr; gap: 12px; padding: 12px; min-height: 0; }
+.bmodal-scene .scene { height: 360px; }
+.scene-back { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+.bmodal-tabs { display: flex; gap: 8px; padding: 0 12px 8px; }
+.bmodal-tabs button { background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; cursor: pointer; }
+.bmodal-tabs button.on { background: var(--accent); color: var(--accent-ink); }
+.bmodal-tab { padding: 12px 14px; overflow: auto; }
+.bmodal-hint { margin: 0; padding: 0 14px 12px; }
+.portraits { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+.portrait-slot { width: 72px; background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 4px; cursor: pointer; color: inherit; }
+.portrait-slot img { width: 64px; height: 64px; object-fit: cover; border-radius: 6px; display: block; }
+.portrait-slot.empty { height: 78px; font-size: 24px; }
+@media (max-width: 800px) {
+  .bmodal-body { grid-template-columns: 1fr; }
+  .tbuilding { width: 112px; }
+  .tbuilding-art, .tbuilding .art-fallback { width: 112px; height: 76px; }
+}
 .fanfare { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; font-size: 120px; pointer-events: none; background: radial-gradient(circle, rgba(224,168,0,.35), transparent 60%); animation: fanfare 1.6s ease forwards; }
 @keyframes fanfare { 0% { opacity: 0; transform: scale(.6); } 20% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1.15); } }
