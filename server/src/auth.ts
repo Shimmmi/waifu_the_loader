@@ -72,7 +72,7 @@ export async function registerGuest(
     // Стартовая waifu: N того же архетипа, что и заготовленная стартовая
     const starter = cfg.start.starter_reserve_id.replace(/^reserve_/, '');
     const row = await pickFromPool(tx, 'N', starter, storage);
-    await grantWaifu(tx, u.id, row, 'warehouse');
+    await grantWaifu(tx, u.id, row, null);
     await tx`INSERT INTO currency_ledger (user_id, currency, delta, reason) VALUES (${u.id}, 'tickets', ${String(cfg.start.tickets)}, 'start')`;
     await tx`INSERT INTO analytics_events (user_id, name) VALUES (${u.id}, 'registration')`;
     return u.id;

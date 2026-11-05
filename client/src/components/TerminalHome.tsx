@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
-import { D, loadContent, upgradeCost, JOB_NAME, type StateDTO, type TerminalJob } from '@wl/shared';
+import { D, loadContent, upgradeCost, type StateDTO } from '@wl/shared';
 import { api } from '../api';
 import { useFlavor, useFmt } from '../hooks';
 import { useStore } from '../store';
 import { ArtSlot, buildingArtUrl, interiorArtUrl, terminalMapUrl } from './ArtSlot';
-import { HaulScene } from './HaulScene';
-import { BUILDING_STATION, buildingCaption, buildingCrew, type StationId } from './Terminal';
+import { BUILDING_STATION, buildingCaption, buildingCrew } from './Terminal';
 import { displayName } from './ui';
 import { WaifuDetail as Card } from './WaifuDetail';
 
@@ -26,8 +25,6 @@ const SPOTS: Record<string, { left: string; top: string }> = {
   garden: { left: '28%', top: '78%' },
   observatory: { left: '82%', top: '74%' },
 };
-
-const PREVIEW = { up: 'Линия станет быстрее', same: 'Линия останется такой же', down: 'Линия станет медленнее' };
 
 function stationOf(id: string) {
   return BUILDING_STATION[id] ?? null;
@@ -80,11 +77,15 @@ export function TerminalHome() {
               <span className="tplaque">
                 <b>{s.name}</b>
                 <small>Ур. {s.level}</small>
-                <small className={canUp ? 'up' : ''}>{status}{crewN ? ` · ${crewN}` : ''}</small>
+                <small className={canUp ? 'up' : ''}>
+                  {canUp && <img className="pix-up" src={`${import.meta.env.BASE_URL}terminal/ui/up.png`} alt="" />}
+                  {status}{crewN ? ` · ${crewN}` : ''}
+                </small>
               </span>
             </button>
           );
         })}
+        <p className="tmap-hint">Нажмите на строение, чтобы открыть управление</p>
       </div>
       {open && <BuildingModal sectorId={open} onClose={() => setOpen(null)} onCard={setCard} />}
       {card && <Card id={card} onClose={() => setCard(null)} />}
@@ -100,13 +101,9 @@ function BuildingModal({ sectorId, onClose, onCard }: { sectorId: string; onClos
   const term = state.terminal!;
   const sector = term.sectors?.find((s) => s.id === sectorId);
   const [tab, setTab] = useState<'overview' | 'crew' | 'upgrade'>('overview');
-  const [slot, setSlot] = useState<StationId | null>(null);
-  const [pick, setPick] = useState<{ id: string; preview: 'up' | 'same' | 'down' } | null>(null);
   const stationId = stationOf(sectorId);
   const station = stationId ? term.stations?.[stationId] : null;
   const crew = buildingCrew(state.waifu, sectorId);
-  const strays = sectorId === 'warehouse' ? state.waifu.filter((w) => w.zone === 'warehouse' && !w.station) : [];
-  const bench = state.waifu.filter((w) => w.zone !== 'gym' && w.zone !== 'contract');
   const cost = sector ? upgradeCost(sector.level) : 0;
   const canUp = !!sector && sector.level < 20 && D(state.resources.coins).gte(cost);
 
@@ -139,11 +136,12 @@ function BuildingModal({ sectorId, onClose, onCard }: { sectorId: string; onClos
         {tab === 'overview' && (
           <div className="bmodal-body">
             <div className="bmodal-scene">
-              <HaulScene crew={crew} hideClerk backdrop={interiorArtUrl(sectorId)} idle="Здесь пока никого." />
+              <ArtSlot src={interiorArtUrl(sectorId)} alt="" fit="cover" className="interior-still" label={sector.name} />
             </div>
             <aside>
-              <p className="small">
-                <b>{status}</b>
+              <p className="pix-status">
+                <i />
+                {status}
               </p>
               {metrics.map((m) => (
                 <div className="row" key={m.label}>
@@ -170,7 +168,7 @@ function BuildingModal({ sectorId, onClose, onCard }: { sectorId: string; onClos
                     </button>
                   ))}
               </div>
-              <button className="btn primary" disabled={!canUp} onClick={() => act(() => api.terminalUpgrade(sectorId))}>
+              <button className="pix-upgrade" disabled={!canUp} onClick={() => act(() => api.terminalUpgrade(sectorId))}>
                 Улучшить · {fmt(cost)}
               </button>
             </aside>
@@ -197,51 +195,13 @@ function BuildingModal({ sectorId, onClose, onCard }: { sectorId: string; onClos
                     );
                   })}
                   {station.slots > 0 && station.crew.length < station.slots && (
-                    <button className="btn small primary" onClick={() => { setSlot(stationId); setPick(null); }}>
-                      Назначить
-                    </button>
+                    <p className="small muted">Коллекция на смену не выходит.</p>
                   )}
                   {station.slots === 0 && <p className="small muted">Места откроются, когда строение будет готово к работе.</p>}
                 </div>
               </>
             )}
-            {strays.length > 0 && term.stations && (
-              <div>
-                {strays.map((w) => (
-                  <div key={w.id} className="row" style={{ marginTop: 6 }}>
-                    <span className="small">{displayName(w)} — на складе, не на линии</span>
-                    <span className="spacer" />
-                    <button className="btn small primary" disabled={term.stations!.store.crew.length >= term.stations!.store.slots} onClick={() => act(() => api.terminalAssign(w.id, 'store'))}>
-                      Поставить на размещение
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-            {slot && (
-              <div className="panel" style={{ marginTop: 10 }}>
-                {bench.map((w) => (
-                  <div key={w.id} className="row" style={{ marginBottom: 6 }}>
-                    <span className="small">
-                      {displayName(w)}
-                      {w.jobClass ? ` · ${JOB_NAME[w.jobClass as TerminalJob] ?? w.jobClass}` : ''}
-                    </span>
-                    <span className="spacer" />
-                    <button className="btn small" onClick={() => run(async () => { const r = await api.terminalPreview(w.id, slot); apply(r.state); setPick({ id: w.id, preview: r.preview }); })}>
-                      Прикинуть
-                    </button>
-                  </div>
-                ))}
-                {pick && (
-                  <p className="small">
-                    {PREVIEW[pick.preview]}{' '}
-                    <button className="btn small primary" onClick={() => run(async () => { apply(await api.terminalAssign(pick.id, slot)); setSlot(null); setPick(null); })}>
-                      Поставить
-                    </button>
-                  </p>
-                )}
-              </div>
-            )}
+            <p className="small muted">Карточки коллекции на смену не выходят.</p>
           </div>
         )}
         {tab === 'upgrade' && (

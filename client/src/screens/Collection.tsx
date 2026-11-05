@@ -67,7 +67,7 @@ export function Collection() {
       ) : (
         <p className="muted">{t('c.empty')}</p>
       )}
-      {open && <WaifuDetail id={open} onClose={() => setOpen(null)} />}
+      {open && <WaifuDetail id={open} look={!!state.terminal?.live} onClose={() => setOpen(null)} />}
     </>
   );
 }

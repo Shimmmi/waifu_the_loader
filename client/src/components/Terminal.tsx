@@ -61,9 +61,7 @@ export function buildingPlace(station: string | null | undefined): string | null
 }
 
 export function buildingCrew(waifu: WaifuDTO[], sector: string): WaifuDTO[] {
-  if (sector === 'dorm') {
-    return waifu.filter((w) => w.zone !== 'gym' && w.zone !== 'contract' && (!w.station || w.fatigue >= 80));
-  }
+  if (sector === 'dorm') return [];
   const station = BUILDING_STATION[sector];
   if (!station) return [];
   const onStation = waifu.filter((w) => w.station === station && w.zone !== 'gym' && w.zone !== 'contract');

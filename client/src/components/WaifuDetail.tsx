@@ -36,7 +36,7 @@ function TalentRow({ t: tal, active }: { t: Talent; active: boolean }) {
   );
 }
 
-export function WaifuDetail({ id, onClose }: { id: string; onClose: () => void }) {
+export function WaifuDetail({ id, onClose, look = false }: { id: string; onClose: () => void; look?: boolean }) {
   const state = useStore((s) => s.state)!;
   const run = useStore((s) => s.run);
   const apply = useStore((s) => s.apply);
@@ -92,7 +92,7 @@ export function WaifuDetail({ id, onClose }: { id: string; onClose: () => void }
               <span className="tag">{JOB_NAME[w.jobClass as TerminalJob] ?? w.jobClass}</span>
             )}
           </div>
-          {state.terminal?.live && (
+          {state.terminal?.live && !look && (
             <div className="row" style={{ flexWrap: 'wrap', marginTop: 8 }}>
               {(Object.keys(JOB_NAME) as TerminalJob[]).map((job) => (
                 <button key={job} className={`btn small ${w.jobClass === job ? 'primary' : ''}`} disabled={busy || w.jobClass === job} onClick={() => act(() => api.terminalCourse(w.id, job))}>
@@ -141,7 +141,7 @@ export function WaifuDetail({ id, onClose }: { id: string; onClose: () => void }
             <TalentRow key={tal.id} t={tal} active={w.zone === 'warehouse' && talentActive(tal, crew)} />
           ))}
 
-          <div className="panel" style={{ marginTop: 12 }}>
+          {!look && <div className="panel" style={{ marginTop: 12 }}>
             <div className="row">
               <b>
                 {t('w.level')} {w.level}/{cap}
@@ -181,9 +181,9 @@ export function WaifuDetail({ id, onClose }: { id: string; onClose: () => void }
                 </>
               )}
             </div>
-          </div>
+          </div>}
 
-          <div className="row" style={{ marginTop: 12 }}>
+          {!look && <div className="row" style={{ marginTop: 12 }}>
             {state.terminal?.live ? (
               w.zone === 'gym' || w.zone === 'contract' ? (
                 <span className="tag">{t(w.zone === 'gym' ? 'w.busyGym' : 'w.busyContract')}</span>
@@ -247,7 +247,7 @@ export function WaifuDetail({ id, onClose }: { id: string; onClose: () => void }
                 ✏️ {t('w.rename')}
               </button>
             )}
-          </div>
+          </div>}
         </div>
       </div>
     </Modal>
