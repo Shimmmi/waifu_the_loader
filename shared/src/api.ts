@@ -174,6 +174,17 @@ export interface StateDTO {
   /** События автоматики и автозабора с прошлого запроса */
   notices?: NoticeDTO[];
   meta: MetaDTO;
+  /** Превью конвейера v2. Тик монет по-прежнему старый, пока флаг выключен. */
+  conveyor?: {
+    enabled: boolean;
+    tonsPerHour: number;
+    bottleneck: string;
+    hand: number;
+    move: number;
+    account: number;
+    tier: number;
+    forecast: string;
+  };
 }
 
 export interface MetaDTO {
@@ -211,6 +222,8 @@ export interface PullItemDTO {
   duplicate: boolean;
   shards: number;
   waifu: WaifuDTO;
+  /** Имя waifu, которая уже занимает этот архетип и редкость. Есть только у дубля. */
+  ownedName?: string | null;
 }
 
 export interface PullResponseDTO {
@@ -223,7 +236,7 @@ export interface PullResponseDTO {
 export interface GachaHistoryItemDTO {
   bannerId: string;
   createdAt: string;
-  items: { rarity: Rarity; name: string; archetype: string; duplicate: boolean; pity: PityKind }[];
+  items: { rarity: Rarity; name: string; archetype: string; duplicate: boolean; pity: PityKind; ownedName?: string | null }[];
 }
 
 export interface ApiError {

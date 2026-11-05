@@ -25,7 +25,7 @@ interface PullOutcome {
  * Призыв ×1/×10. Всё на сервере: криптографический RNG, pity по баннерам, лог.
  * Идемпотентность: повтор с тем же requestId возвращает сохранённый результат без списаний.
  */
-export async function pull(userId: string, bannerId: string, count: number, requestId: string, storage: Storage): Promise<PullOutcome> {
+export async function pull(userId: string, bannerId: string, count: number, requestId: string, storage: Storage, seekClass: string | null = null): Promise<PullOutcome> {
   const g = loadGacha();
   const econ = loadEconomy();
   const banner = g.banners.find((b) => b.id === bannerId);
@@ -53,11 +53,12 @@ export async function pull(userId: string, bannerId: string, count: number, requ
 
     const base = baseRates(econ);
     let state: PityState = { sinceSsr: pityRow.since_ssr, sinceSr: pityRow.since_sr };
-    const owned = new Set(
-      (await tx<{ archetype: string; rarity: string }[]>`SELECT archetype, rarity FROM waifu_instances WHERE user_id = ${userId}`).map(
-        (r) => `${r.archetype}:${r.rarity}`,
-      ),
-    );
+    const ownedRows = await tx<{ archetype: string; rarity: string; name: string; custom_name: string | null }[]>`
+      SELECT i.archetype, i.rarity, p.name, i.custom_name
+      FROM waifu_instances i JOIN waifu_pool p ON p.id = i.pool_id
+      WHERE i.user_id = ${userId}`;
+    const owned = new Set(ownedRows.map((r) => `${r.archetype}:${r.rarity}`));
+    const ownedNames = new Map(ownedRows.map((r) => [`${r.archetype}:${r.rarity}`, r.custom_name ?? r.name]));
 
     const items: PullItemDTO[] = [];
     let shardsTotal = 0;
@@ -66,17 +67,31 @@ export async function pull(userId: string, bannerId: string, count: number, requ
       state = roll.state;
       const featured =
         banner.featured_archetype && isSsrPlus(roll.rarity) && cryptoRandom() < banner.featured_share ? banner.featured_archetype : null;
-      const poolRow = await pickFromPool(tx, roll.rarity, featured, storage);
+      const poolRow = await pickFromPool(tx, roll.rarity, featured, storage, seekClass);
       const key = `${poolRow.archetype}:${poolRow.rarity}`;
-      // Дубликат = уже есть waifu того же архетипа и редкости → Осколки душ, запись остаётся в пуле
+      // Дубликат = уже есть waifu того же архетипа и редкости → Осколки душ, портрет берётся у неё, не у новой карточки пула
       if (owned.has(key)) {
         const shards = rarityConfig(econ, roll.rarity).shards_on_duplicate;
         shardsTotal += shards;
-        items.push({ rarity: roll.rarity, pity: roll.pity, duplicate: true, shards, waifu: poolToPreviewDTO(poolRow) });
+        const [canon] = await tx<{ portrait_url: string; thumb_url: string }[]>`
+          SELECT p.portrait_url, p.thumb_url
+          FROM waifu_instances i JOIN waifu_pool p ON p.id = i.pool_id
+          WHERE i.user_id = ${userId} AND i.archetype = ${poolRow.archetype} AND i.rarity = ${poolRow.rarity}
+          LIMIT 1`;
+        const face = canon ? { ...poolRow, portrait_url: canon.portrait_url, thumb_url: canon.thumb_url } : poolRow;
+        items.push({
+          rarity: roll.rarity,
+          pity: roll.pity,
+          duplicate: true,
+          shards,
+          ownedName: ownedNames.get(key) ?? null,
+          waifu: poolToPreviewDTO(face),
+        });
       } else {
         owned.add(key);
+        ownedNames.set(key, poolRow.name);
         const inst = await grantWaifu(tx, userId, poolRow);
-        items.push({ rarity: roll.rarity, pity: roll.pity, duplicate: false, shards: 0, waifu: toWaifuDTO(inst) });
+        items.push({ rarity: roll.rarity, pity: roll.pity, duplicate: false, shards: 0, ownedName: null, waifu: toWaifuDTO(inst) });
       }
     }
 
@@ -107,6 +122,13 @@ export async function history(userId: string, limit = 50): Promise<GachaHistoryI
   return rows.map((r) => ({
     bannerId: r.banner_id,
     createdAt: r.created_at.toISOString(),
-    items: r.results.map((i) => ({ rarity: i.rarity, name: i.waifu.name, archetype: i.waifu.archetype, duplicate: i.duplicate, pity: i.pity })),
+    items: r.results.map((i) => ({
+      rarity: i.rarity,
+      name: i.waifu.name,
+      archetype: i.waifu.archetype,
+      duplicate: i.duplicate,
+      pity: i.pity,
+      ownedName: i.ownedName ?? null,
+    })),
   }));
 }

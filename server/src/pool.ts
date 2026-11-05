@@ -5,6 +5,8 @@ import {
   levelCap,
   xpNeed,
   loadContent,
+  classFromStats,
+  classPickWeight,
   loadEconomy,
   pickStock,
   validateProfile,
@@ -35,6 +37,7 @@ export interface PoolRow {
   talents: Talent[];
   portrait_url: string;
   thumb_url: string;
+  native_class?: string | null;
 }
 
 export interface InstanceRow extends PoolRow {
@@ -102,7 +105,9 @@ export async function insertPoolRow(
     ON CONFLICT (reserve_id) DO NOTHING
     RETURNING id, rarity, archetype, name, age, bio, quote, appearance, stats, talents, portrait_url, thumb_url`;
   if (!row) throw new Error('pool insert conflict');
-  return row;
+  const job = classFromStats(p.stats);
+  await db`UPDATE waifu_pool SET native_class = ${job} WHERE id = ${row.id}`;
+  return { ...row, native_class: job };
 }
 
 /** Копирует стоковые портреты (20 на редкость) в Storage, если их ещё нет. */
@@ -176,17 +181,33 @@ export async function seedReserve(storage: Storage, assetsDir: string): Promise<
  * Берёт готовую waifu из пула. При пустом пуле — fallback: процедурный профиль
  * с базовым портретом архетипа (ТЗ 10.2), чтобы призыв никогда не падал.
  */
-export async function pickFromPool(tx: Tx, rarity: Rarity, archetype: string | null, storage: Storage): Promise<PoolRow> {
+export async function pickFromPool(tx: Tx, rarity: Rarity, archetype: string | null, storage: Storage, seekClass: string | null = null): Promise<PoolRow> {
   const rows = archetype
     ? await tx<PoolRow[]>`
-        SELECT id, rarity, archetype, name, age, bio, quote, appearance, stats, talents, portrait_url, thumb_url
+        SELECT id, rarity, archetype, name, age, bio, quote, appearance, stats, talents, portrait_url, thumb_url, native_class
         FROM waifu_pool WHERE status = 'ready' AND rarity = ${rarity} AND archetype = ${archetype}
-        ORDER BY (source = 'ai') DESC, random() LIMIT 1 FOR UPDATE SKIP LOCKED`
+        ORDER BY random() LIMIT 24`
     : await tx<PoolRow[]>`
-        SELECT id, rarity, archetype, name, age, bio, quote, appearance, stats, talents, portrait_url, thumb_url
+        SELECT id, rarity, archetype, name, age, bio, quote, appearance, stats, talents, portrait_url, thumb_url, native_class
         FROM waifu_pool WHERE status = 'ready' AND rarity = ${rarity}
-        ORDER BY (source = 'ai') DESC, random() LIMIT 1 FOR UPDATE SKIP LOCKED`;
-  if (rows[0]) return rows[0];
+        ORDER BY random() LIMIT 24`;
+  if (rows.length) {
+    const weights = rows.map((r) => classPickWeight((r.native_class as 'loader') || classFromStats(r.stats), (seekClass as 'loader') || null));
+    const sum = weights.reduce((a, b) => a + b, 0);
+    let ticket = Math.random() * sum;
+    let chosen = rows[0]!;
+    for (let i = 0; i < rows.length; i++) {
+      ticket -= weights[i]!;
+      if (ticket <= 0) {
+        chosen = rows[i]!;
+        break;
+      }
+    }
+    const [locked] = await tx<PoolRow[]>`
+      SELECT id, rarity, archetype, name, age, bio, quote, appearance, stats, talents, portrait_url, thumb_url, native_class
+      FROM waifu_pool WHERE id = ${chosen.id} AND status = 'ready' FOR UPDATE SKIP LOCKED`;
+    if (locked) return locked;
+  }
 
   const cfg = loadEconomy();
   const content = loadContent();

@@ -12,9 +12,13 @@ import {
   cargoMilestoneRewards,
   computeRates,
   dstr,
+  classFromStats,
+  contractForecast,
   loadEconomy,
   loadGacha,
+  megaportTier,
   effectiveSecondsBetween,
+  simulate,
   produce,
   settle,
   warehouseSlots,
@@ -358,5 +362,24 @@ export async function snapshot(
   if (extras.notices?.length) dto.notices = extras.notices;
   if (extras.offlineReport) dto.offlineReport = extras.offlineReport;
   if (extras.milestoneTickets) dto.milestoneTickets = extras.milestoneTickets;
+  const lineCrew = dto.waifu
+    .filter((w) => w.zone === 'warehouse' || w.zone === 'clerk')
+    .map((w) => {
+      const job = classFromStats(w.stats);
+      const zone = job === 'driver' ? 'fork' : job === 'crane' ? 'crane' : job === 'clerk' || w.zone === 'clerk' ? 'office' : 'ramp';
+      return { id: w.id, job, native: job, power: w.power, zone: zone as 'ramp' | 'fork' | 'crane' | 'office' };
+    });
+  const line = simulate(lineCrew, { heavyShare: 0.3 });
+  const forecast = contractForecast({ targetTons: 40, deadlineHours: 12, progressTons: 0, heavyShare: 0.3 }, line.tonsPerHour);
+  dto.conveyor = {
+    enabled: cfg.warehouse_v2.enabled,
+    tonsPerHour: line.tonsPerHour,
+    bottleneck: line.bottleneck,
+    hand: line.hand,
+    move: line.move,
+    account: line.account,
+    tier: megaportTier(Number(ps.cargo_total) / 1000),
+    forecast: forecast.makeIt ? 'успеем' : 'не успеем',
+  };
   return dto;
 }

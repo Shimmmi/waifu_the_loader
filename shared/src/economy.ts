@@ -119,6 +119,48 @@ export function starCost(rarity: Rarity, stars: number, cfg: EconomyConfig): num
   return Math.ceil(base * (cfg.stars.rarity_cost_mult[rarity] ?? 1));
 }
 
+/** Сколько Осколков уже потрачено, чтобы дойти до текущего числа звёзд. */
+export function shardsSpentOnStars(rarity: Rarity, stars: number, cfg: EconomyConfig): number {
+  let spent = 0;
+  for (let s = 0; s < stars; s++) spent += starCost(rarity, s, cfg) ?? 0;
+  return spent;
+}
+
+/** Монеты и протеин, вложенные в уровни с 1 до текущего. */
+export function levelInvest(rarity: Rarity, level: number, cfg: EconomyConfig): { coins: Decimal; protein: Decimal } {
+  let coins = D(0);
+  let protein = D(0);
+  for (let lv = 1; lv < level; lv++) {
+    const c = waifuLevelCost(rarity, lv, cfg);
+    coins = coins.add(c.coins);
+    protein = protein.add(c.protein);
+  }
+  return { coins, protein };
+}
+
+export interface DismissPayout {
+  shards: number;
+  coins: Decimal;
+  protein: Decimal;
+}
+
+/**
+ * Расчёт при увольнении. Осколков меньше, чем с дубля той же редкости,
+ * плюс доля уже вложенных монет, протеина и осколков на звёзды.
+ * Место архетипа+редкости после увольнения освобождается.
+ */
+export function dismissPayout(rarity: Rarity, level: number, stars: number, cfg: EconomyConfig): DismissPayout {
+  const d = cfg.dismiss;
+  const fromRarity = Math.max(d.min_shards, Math.floor(rarityConfig(cfg, rarity).shards_on_duplicate * d.shard_ratio));
+  const fromStars = Math.floor(shardsSpentOnStars(rarity, stars, cfg) * d.invest_refund);
+  const invested = levelInvest(rarity, level, cfg);
+  return {
+    shards: fromRarity + fromStars,
+    coins: invested.coins.mul(d.invest_refund).floor(),
+    protein: invested.protein.mul(d.invest_refund).floor(),
+  };
+}
+
 // ---------- Таланты ----------
 export function talentActive(t: Talent, brigade: Pick<WaifuView, 'archetype'>[]): boolean {
   const c = t.condition;

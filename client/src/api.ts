@@ -37,8 +37,8 @@ export const api = {
   assign: (id: string, zone: 'warehouse' | 'clerk' | null) => req<StateDTO>('POST', `/waifu/${id}/assign`, { zone }),
   rename: (id: string, name: string | null) => req<StateDTO>('POST', `/waifu/${id}/rename`, { name }),
   daily: () => req<{ reward: { tickets: number; coins: string }; state: StateDTO }>('POST', '/daily/claim', {}),
-  pull: (bannerId: string, count: number, requestId: string) =>
-    req<PullResponseDTO>('POST', `/gacha/${bannerId}/pull`, { count, requestId }),
+  pull: (bannerId: string, count: number, requestId: string, seekClass?: string | null) =>
+    req<PullResponseDTO>('POST', `/gacha/${bannerId}/pull`, { count, requestId, seekClass: seekClass || null }),
   history: () => req<{ items: GachaHistoryItemDTO[] }>('GET', '/gacha/history'),
   settings: (patch: Partial<UserSettings>) => req<{ settings: UserSettings }>('PATCH', '/settings', patch),
   nickname: (nickname: string) => req<{ ok: true }>('POST', '/profile/nickname', { nickname }),

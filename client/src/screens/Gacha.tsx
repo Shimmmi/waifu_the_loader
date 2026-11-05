@@ -193,13 +193,14 @@ export function Gacha() {
   const visible = state.banners.filter((b) => b.active || b.type !== 'newbie');
   const [sel, setSel] = useState<string>(() => visible.find((b) => b.type === 'newbie' && b.active)?.id ?? 'standard');
   const [result, setResult] = useState<PullItemDTO[] | null>(null);
+  const [seek, setSeek] = useState('');
   const banner = state.banners.find((b) => b.id === sel) ?? visible[0];
   const g = loadGacha();
   if (!banner) return null;
 
   const doPull = (count: number) =>
     run(async () => {
-      const r = await api.pull(banner.id, count, crypto.randomUUID());
+      const r = await api.pull(banner.id, count, crypto.randomUUID(), seek || null);
       setResult(r.items);
       apply(r.state);
     });
@@ -225,6 +226,18 @@ export function Gacha() {
           </p>
         )}
         <div className="big-box">📦</div>
+        <label className="small muted" style={{ display: 'block', marginTop: 12 }}>
+          Ищем класс
+          <select className="input" style={{ marginTop: 4 }} value={seek} onChange={(e) => setSeek(e.target.value)}>
+            <option value="">любой</option>
+            <option value="loader">грузчица</option>
+            <option value="driver">водитель</option>
+            <option value="crane">крановщица</option>
+            <option value="clerk">кладовщица</option>
+            <option value="foreman">бригадир</option>
+            <option value="mechanic">механик</option>
+          </select>
+        </label>
         <div className="row" style={{ marginTop: 16, position: 'relative' }}>
           {banner.pull_sizes.map((n) => {
             const cost = banner.cost_per_pull * n;

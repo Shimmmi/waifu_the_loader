@@ -4,6 +4,7 @@ import {
   buildingMaxAffordable,
   D,
   DEFAULT_SETTINGS,
+  dismissPayout,
   dstr,
   findForbidden,
   levelCap,

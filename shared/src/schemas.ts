@@ -116,7 +116,7 @@ export const FlavorSchema = z.object({
   offline_report: z.array(FlavorLineSchema).min(5),
   /** Реплики при открытии коробки призыва по редкостям */
   gacha_reveal: z.record(RaritySchema, z.array(FlavorLineSchema).min(3)),
-  /** Реплика при дубликате. {name} {shards} */
+  /** Реплика при дубликате. {name} — вытянутая, {owned} — уже в коллекции, {shards} */
   gacha_duplicate: z.array(FlavorLineSchema).min(3),
   /** Летающие подписи над сценой склада. {cargo} {kg} {name} */
   scene_popups: z.array(FlavorLineSchema).min(10),
@@ -129,6 +129,8 @@ export const FlavorSchema = z.object({
   /** Повышение уровня / звёзд. {name} */
   level_up: z.array(FlavorLineSchema).min(3),
   star_up: z.array(FlavorLineSchema).min(3),
+  /** Увольнение. {name} {shards} {coins} {protein} */
+  dismiss: z.array(FlavorLineSchema).min(3),
 });
 export type Flavor = z.infer<typeof FlavorSchema>;
 
@@ -327,6 +329,12 @@ export const EconomyConfigSchema = z.object({
     shard_cost: z.array(z.number().int().positive()),
     rarity_cost_mult: z.record(RaritySchema, z.number().positive()),
   }),
+  /** Увольнение: часть осколков дубля и возврат доли вложений в уровни и звёзды */
+  dismiss: z.object({
+    shard_ratio: z.number().min(0).max(1),
+    min_shards: z.number().int().min(0),
+    invest_refund: z.number().min(0).max(1),
+  }),
   offline: z.object({
     cap_hours: z.number().positive(),
     online_grace_sec: z.number().int().positive(),
@@ -363,6 +371,8 @@ export const EconomyConfigSchema = z.object({
   training: TrainingConfigSchema,
   contracts: ContractsConfigSchema,
   prestige: PrestigeConfigSchema,
+  /** Конвейер v2. Пока выключен, тик склада считается по-старому. */
+  warehouse_v2: z.object({ enabled: z.boolean() }).default({ enabled: false }),
 });
 export type EconomyConfig = z.infer<typeof EconomyConfigSchema>;
 

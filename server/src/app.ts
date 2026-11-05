@@ -201,8 +201,8 @@ export async function buildApp(opts: { storage: Storage; configVersion: string; 
 
         game.post('/gacha/:bannerId/pull', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, async (req): Promise<PullResponseDTO> => {
           const { bannerId } = z.object({ bannerId: z.string().max(64) }).parse(req.params);
-          const body = z.object({ count: z.number().int(), requestId: z.string().uuid() }).parse(req.body);
-          const r = await pull(req.userId, bannerId, body.count, body.requestId, storage);
+          const body = z.object({ count: z.number().int(), requestId: z.string().uuid(), seekClass: z.string().max(16).nullable().optional() }).parse(req.body);
+          const r = await pull(req.userId, bannerId, body.count, body.requestId, storage, body.seekClass ?? null);
           return { bannerId, requestId: body.requestId, items: r.items, state: await state(req.userId, r.adv) };
         });
         game.get('/gacha/history', async (req) => ({ items: await history(req.userId) }));

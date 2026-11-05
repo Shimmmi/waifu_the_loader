@@ -269,6 +269,19 @@ export function Warehouse() {
             )}
           </div>
         </div>
+        {state.conveyor && (
+          <div className="panel">
+            <h3 style={{ marginTop: 0 }}>Конвейер</h3>
+            <p className="small muted">
+              {state.conveyor.bottleneck === 'move' ? 'Узкое место: перемещение' : state.conveyor.bottleneck === 'account' ? 'Узкое место: учёт' : 'Узкое место: разгрузка'}
+              {' · '}
+              {state.conveyor.tonsPerHour.toFixed(2)} т/ч · 40 т за смену: {state.conveyor.forecast} · ступень {state.conveyor.tier}
+            </p>
+            <p className="small">
+              Разгрузка {state.conveyor.hand.toFixed(2)} · перемещение {state.conveyor.move.toFixed(2)} · учёт {state.conveyor.account.toFixed(2)}
+            </p>
+          </div>
+        )}
         <div className="panel taped">
           <h3>
             {t('wh.brigade')} ({crew.length + away.length}/{state.slots})
