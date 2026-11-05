@@ -51,6 +51,8 @@ export interface InstanceRow extends PoolRow {
   stat_bonus: StatBonus;
   fatigue: number;
   fatigue_at: Date;
+  current_class?: string | null;
+  station?: string | null;
 }
 
 export const basePortraitKey = (archetype: string) => `base/${archetype}.webp`;
@@ -231,7 +233,7 @@ export async function takePoolRow(tx: Tx, poolId: string, userId: string): Promi
 }
 
 export const INSTANCE_SELECT = `
-  i.id AS instance_id, i.custom_name, i.level, i.stars, i.zone, i.obtained_at, i.xp, i.stat_bonus, i.fatigue, i.fatigue_at,
+  i.id AS instance_id, i.custom_name, i.level, i.stars, i.zone, i.obtained_at, i.xp, i.stat_bonus, i.fatigue, i.fatigue_at, i.current_class, i.station,
   p.id, p.rarity, p.archetype, p.name, p.age, p.bio, p.quote, p.appearance, p.stats, p.talents, p.portrait_url, p.thumb_url`;
 
 export async function grantWaifu(tx: Tx, userId: string, pool: PoolRow, zone: 'warehouse' | null = null): Promise<InstanceRow> {

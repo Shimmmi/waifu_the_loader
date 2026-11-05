@@ -13,6 +13,23 @@ import { history, pull } from './gacha.js';
 import * as m4 from './management.js';
 import * as meta from './meta.js';
 import { GameError, snapshot } from './player.js';
+import {
+  ackTerminal,
+  assignStation,
+  beginShift,
+  cancelUpgrade,
+  demolishSector,
+  learnClass,
+  pickOffer,
+  previewAssign,
+  rerollOffer,
+  rollOffer,
+  setAuto,
+  setMode,
+  terminalAct,
+  triggerRush,
+  upgradeSector,
+} from './terminal.js';
 import { poolStats } from './pool.js';
 import type { Storage } from './storage.js';
 
@@ -104,6 +121,56 @@ export async function buildApp(opts: { storage: Storage; configVersion: string; 
           const { zone } = z.object({ zone: z.enum(['warehouse', 'clerk']).nullable() }).parse(req.body);
           return state(req.userId, await actions.assign(req.userId, id, zone));
         });
+        const stationBody = z.object({
+          waifuId: z.string().uuid(),
+          station: z.enum(['unload', 'move', 'store', 'support']),
+        });
+        game.post('/terminal/preview', async (req) => {
+          const b = stationBody.parse(req.body);
+          let preview: 'up' | 'same' | 'down' = 'same';
+          const extras = await terminalAct(req.userId, async (tx) => {
+            preview = await previewAssign(tx, req.userId, b.waifuId, b.station);
+          });
+          return { preview, state: await state(req.userId, extras) };
+        });
+        game.post('/terminal/assign', async (req) => {
+          const b = stationBody.extend({ station: z.enum(['unload', 'move', 'store', 'support']).nullable() }).parse(req.body);
+          return state(req.userId, await terminalAct(req.userId, (tx) => assignStation(tx, req.userId, b.waifuId, b.station)));
+        });
+        game.post('/terminal/expand', async (req) => state(req.userId, await terminalAct(req.userId, (tx) => rollOffer(tx, req.userId))));
+        game.post('/terminal/reroll', async (req) => state(req.userId, await terminalAct(req.userId, (tx, player) => rerollOffer(tx, player))));
+        game.post('/terminal/pick', async (req) => {
+          const { sector } = z.object({ sector: z.string().max(32) }).parse(req.body);
+          return state(req.userId, await terminalAct(req.userId, (tx, player) => pickOffer(tx, player, sector)));
+        });
+        game.post('/terminal/demolish', async (req) => {
+          const { sector } = z.object({ sector: z.string().max(32) }).parse(req.body);
+          return state(req.userId, await terminalAct(req.userId, (tx, player) => demolishSector(tx, player, sector)));
+        });
+        game.post('/terminal/upgrade', async (req) => {
+          const { sector } = z.object({ sector: z.string().max(32) }).parse(req.body);
+          return state(req.userId, await terminalAct(req.userId, (tx, player) => upgradeSector(tx, player, sector, new Date())));
+        });
+        game.post('/terminal/upgrade/cancel', async (req) => state(req.userId, await terminalAct(req.userId, (tx, player) => cancelUpgrade(tx, player))));
+        game.post('/terminal/mode', async (req) => {
+          const { mode } = z.object({ mode: z.enum(['easy', 'normal', 'hard']) }).parse(req.body);
+          return state(req.userId, await terminalAct(req.userId, (tx) => setMode(tx, req.userId, mode)));
+        });
+        game.post('/terminal/auto', async (req) => {
+          const { on } = z.object({ on: z.boolean() }).parse(req.body);
+          return state(req.userId, await terminalAct(req.userId, (tx) => setAuto(tx, req.userId, on)));
+        });
+        game.post('/terminal/rush', async (req) => state(req.userId, await terminalAct(req.userId, (tx) => triggerRush(tx, req.userId, new Date()))));
+        game.post('/terminal/shift', async (req) => state(req.userId, await terminalAct(req.userId, (tx) => beginShift(tx, req.userId, new Date()))));
+        game.post('/terminal/course', async (req) => {
+          const b = z.object({ waifuId: z.string().uuid(), job: z.string().max(16) }).parse(req.body);
+          return state(req.userId, await terminalAct(req.userId, (tx, player) => learnClass(tx, player, b.waifuId, b.job)));
+        });
+        game.post('/terminal/ack', async (req) => {
+          const { what } = z.object({ what: z.enum(['intro', 'report']) }).parse(req.body);
+          return state(req.userId, await terminalAct(req.userId, (tx) => ackTerminal(tx, req.userId, what)));
+        });
+
         game.post('/waifu/:id/rename', async (req) => {
           const { id } = waifuId.parse(req.params);
           const { name } = z.object({ name: z.string().max(80).nullable() }).parse(req.body);

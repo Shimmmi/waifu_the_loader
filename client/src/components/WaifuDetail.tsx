@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import {
   archetypeById,
+  JOB_NAME,
   levelCap,
   loadContent,
   loadEconomy,
@@ -10,6 +11,7 @@ import {
   talentActive,
   waifuLevelCost,
   type Talent,
+  type TerminalJob,
 } from '@wl/shared';
 import { api } from '../api';
 import { useFlavor, useFmt, useLive, useText } from '../hooks';
@@ -85,7 +87,19 @@ export function WaifuDetail({ id, onClose }: { id: string; onClose: () => void }
               {t('w.age')}: {w.age}
             </span>
             <span className="tag">💪 {fmt(w.power)}</span>
+            {state.terminal?.live && w.jobClass && (
+              <span className="tag">{JOB_NAME[w.jobClass as TerminalJob] ?? w.jobClass}</span>
+            )}
           </div>
+          {state.terminal?.live && (
+            <div className="row" style={{ flexWrap: 'wrap', marginTop: 8 }}>
+              {(Object.keys(JOB_NAME) as TerminalJob[]).map((job) => (
+                <button key={job} className={`btn small ${w.jobClass === job ? 'primary' : ''}`} disabled={busy || w.jobClass === job} onClick={() => act(() => api.terminalCourse(w.id, job))}>
+                  {JOB_NAME[job]}
+                </button>
+              ))}
+            </div>
+          )}
           <p className="quote">«{text(w.quote)}»</p>
           <p>{text(w.bio)}</p>
 

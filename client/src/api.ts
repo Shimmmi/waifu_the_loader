@@ -57,6 +57,22 @@ export const api = {
   buyCosmetic: (id: string) => req<StateDTO>('POST', `/shop/buy/${id}`, {}),
   equipCosmetic: (kind: 'frame' | 'title' | 'warehouse' | 'card' | 'summon', id: string | null) => req<StateDTO>('POST', '/shop/equip', { kind, id }),
   regenPortrait: (id: string) => req<StateDTO>('POST', `/waifu/${id}/regen`, {}),
+  terminalPreview: (waifuId: string, station: 'unload' | 'move' | 'store' | 'support') =>
+    req<{ preview: 'up' | 'same' | 'down'; state: StateDTO }>('POST', '/terminal/preview', { waifuId, station }),
+  terminalAssign: (waifuId: string, station: 'unload' | 'move' | 'store' | 'support' | null) =>
+    req<StateDTO>('POST', '/terminal/assign', { waifuId, station }),
+  terminalExpand: () => req<StateDTO>('POST', '/terminal/expand', {}),
+  terminalReroll: () => req<StateDTO>('POST', '/terminal/reroll', {}),
+  terminalPick: (sector: string) => req<StateDTO>('POST', '/terminal/pick', { sector }),
+  terminalDemolish: (sector: string) => req<StateDTO>('POST', '/terminal/demolish', { sector }),
+  terminalUpgrade: (sector: string) => req<StateDTO>('POST', '/terminal/upgrade', { sector }),
+  terminalCancel: () => req<StateDTO>('POST', '/terminal/upgrade/cancel', {}),
+  terminalMode: (mode: 'easy' | 'normal' | 'hard') => req<StateDTO>('POST', '/terminal/mode', { mode }),
+  terminalAuto: (on: boolean) => req<StateDTO>('POST', '/terminal/auto', { on }),
+  terminalRush: () => req<StateDTO>('POST', '/terminal/rush', {}),
+  terminalShift: () => req<StateDTO>('POST', '/terminal/shift', {}),
+  terminalCourse: (waifuId: string, job: string) => req<StateDTO>('POST', '/terminal/course', { waifuId, job }),
+  terminalAck: (what: 'intro' | 'report') => req<StateDTO>('POST', '/terminal/ack', { what }),
   track: (name: string, props: Record<string, unknown> = {}) => req<{ ok: true }>('POST', '/analytics', { name, props }).catch(() => undefined),
 };
 

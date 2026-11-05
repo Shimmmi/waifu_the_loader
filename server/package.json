@@ -9,6 +9,7 @@
     "start": "node dist/index.js",
     "migrate": "tsx src/cli/migrate.ts",
     "invite": "tsx src/cli/invite.ts",
+    "wipe:terminal": "tsx src/cli/wipe-terminal.ts",
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {

@@ -19,6 +19,9 @@ import {
   megaportTier,
   effectiveSecondsBetween,
   simulate,
+  jobFromStats,
+  elementOf,
+  psychoOf,
   produce,
   settle,
   warehouseSlots,
@@ -36,6 +39,20 @@ import {
 } from '@wl/shared';
 import { sql, type Sql, type Tx } from './db.js';
 import { claimDueWork, ensureBoard, loadPrestige, returnInstants, runAutomation } from './management.js';
+import {
+  addShiftTotals,
+  beginOnlineShift,
+  closeShift,
+  ensureTerminal,
+  finishDueBuilds,
+  ratesForLine,
+  startShiftIfIdle,
+  stopCargo,
+  termClock,
+  terminalLive,
+  terminalView,
+  loadTerm,
+} from './terminal.js';
 import { metaSnapshot } from './meta.js';
 import { INSTANCE_SELECT, toWaifuDTO, type InstanceRow } from './pool.js';
 
@@ -132,10 +149,19 @@ export async function advance(tx: Tx, userId: string, now = new Date()): Promise
   const mods = prestigeMods(prestige.upgrades, prestige.seals_earned, cfg);
   let rates = computeRates(brigade, buildings, cfg, mods, clerk?.stats.cha ?? null);
   const extraCap = offlineExtraHours(buildings, cfg, mods);
-
   const before: Resources = { cargo: D(row.cargo), cargoTotal: D(row.cargo_total), coins: D(row.coins), protein: D(row.protein) };
   const windowStart = row.last_tick_at.getTime();
   const nowMs = now.getTime();
+  const live = await terminalLive(tx);
+  const online = live && nowMs > windowStart && nowMs - windowStart <= cfg.offline.online_grace_sec;
+  if (live) {
+    await ensureTerminal(tx, userId);
+    await finishDueBuilds(tx, userId, row.last_tick_at);
+    if (online) await beginOnlineShift(tx, userId, now);
+    const clock = termClock(await loadTerm(tx, userId));
+    const shiftOn = clock.shiftEnd !== null && clock.shiftEnd > windowStart;
+    rates = shiftOn ? await ratesForLine(tx, userId, rates, false) : stopCargo(rates);
+  }
   const player: Player = { row, res: before, buildings, brigade, rates, mods };
   const workNotices: NoticeDTO[] = [];
 
@@ -146,23 +172,64 @@ export async function advance(tx: Tx, userId: string, now = new Date()): Promise
       brigade = await loadBrigade(tx, userId);
       clerk = await loadClerk(tx, userId);
       rates = computeRates(brigade, buildings, cfg, mods, clerk?.stats.cha ?? null);
+      if (live) {
+        const clock = termClock(await loadTerm(tx, userId));
+        rates = clock.shiftEnd !== null && clock.shiftEnd > windowStart ? await ratesForLine(tx, userId, rates, false) : stopCargo(rates);
+      }
       player.brigade = brigade;
       player.rates = rates;
     }
   }
 
   const cuts = [...new Set((await returnInstants(tx, userId, row.last_tick_at, now)).map((d) => d.getTime()))].sort((a, b) => a - b);
+  if (live) {
+    const clock = termClock(await loadTerm(tx, userId));
+    for (const t of [clock.shiftEnd, clock.buildEnd, online ? clock.rushStart : null, online ? clock.rushEnd : null]) {
+      if (t && t > windowStart && t < nowMs) cuts.push(t);
+    }
+    cuts.sort((a, b) => a - b);
+  }
   cuts.push(nowMs);
   let cursor = windowStart;
   for (const cut of cuts) {
+    if (live) {
+      const clock = termClock(await loadTerm(tx, userId));
+      const shiftOn = clock.shiftEnd !== null && cursor < clock.shiftEnd;
+      const rushing = online && clock.rushStart !== null && clock.rushEnd !== null && cursor >= clock.rushStart && cursor < clock.rushEnd;
+      const base = computeRates(brigade, buildings, cfg, mods, clerk?.stats.cha ?? null);
+      rates = shiftOn ? await ratesForLine(tx, userId, base, rushing) : stopCargo(base);
+      player.rates = rates;
+    }
+    const beforeSegCargo = player.res.cargoTotal;
+    const beforeSegCoins = player.res.coins;
     player.res = produce(player.res, rates, effectiveSecondsBetween(windowStart, cursor, cut, rates, cfg, extraCap));
+    if (live) {
+      const clock = termClock(await loadTerm(tx, userId));
+      if (clock.shiftEnd !== null && cursor < clock.shiftEnd) {
+        await addShiftTotals(tx, userId, player.res.cargoTotal.sub(beforeSegCargo), player.res.coins.sub(beforeSegCoins));
+      }
+    }
     cursor = cut;
+    if (live) {
+      const clock = termClock(await loadTerm(tx, userId));
+      if (clock.shiftEnd !== null && cut >= clock.shiftEnd && cut - clock.shiftEnd < 1) {
+        const notice = await closeShift(tx, userId);
+        if (notice) workNotices.push(notice);
+        if (online) await startShiftIfIdle(tx, userId, new Date(cut));
+      }
+      if (clock.buildEnd !== null && cut >= clock.buildEnd && cut - clock.buildEnd < 1) await finishDueBuilds(tx, userId, new Date(cut));
+    }
     if (cut < nowMs) {
       const back = await claimDueWork(tx, player, new Date(cut));
       workNotices.push(...back);
       brigade = await loadBrigade(tx, userId);
       clerk = await loadClerk(tx, userId);
       rates = computeRates(brigade, buildings, cfg, mods, clerk?.stats.cha ?? null);
+      if (live) {
+        const clock = termClock(await loadTerm(tx, userId));
+        const shiftOn = clock.shiftEnd !== null && cursor < clock.shiftEnd;
+        rates = shiftOn ? await ratesForLine(tx, userId, rates, false) : stopCargo(rates);
+      }
       player.brigade = brigade;
       player.rates = rates;
     }
@@ -312,7 +379,10 @@ export async function snapshot(
     rates: ratesDTO(rates),
     buildings,
     slots: warehouseSlots(buildings.warehouse ?? 1, cfg),
-    waifu: waifu.map((w) => ({ ...toWaifuDTO(w, { buildings, nowMs }), homeZone: homes.get(w.instance_id) ?? null })),
+    waifu: waifu.map((w) => {
+      const dto = { ...toWaifuDTO(w, { buildings, nowMs }), homeZone: homes.get(w.instance_id) ?? null };
+      return dto;
+    }),
     banners,
     dailyAvailable: ps.last_daily_on !== todayIn(cfg.daily.timezone),
     cargoMilestone: ps.cargo_milestone,
@@ -358,7 +428,23 @@ export async function snapshot(
       unlocked: { autoClaim: mods.autoClaim, autoBuildings: mods.autoBuildings },
     },
     meta: await metaSnapshot(userId),
+    terminal: { live: false },
   };
+  const liveTerminal = await terminalLive(sql);
+  dto.terminal = liveTerminal ? await terminalView(sql, userId) : { live: false };
+  if (liveTerminal) {
+    dto.waifu = dto.waifu.map((w, i) => {
+      const row = waifu[i]!;
+      const stats = w.stats;
+      return {
+        ...w,
+        jobClass: row.current_class ?? jobFromStats(stats),
+        station: row.station ?? null,
+        element: elementOf(row.instance_id),
+        psycho: psychoOf(row.instance_id),
+      };
+    });
+  }
   if (extras.notices?.length) dto.notices = extras.notices;
   if (extras.offlineReport) dto.offlineReport = extras.offlineReport;
   if (extras.milestoneTickets) dto.milestoneTickets = extras.milestoneTickets;

@@ -4,6 +4,7 @@ export * from './validate.js';
 export * from './bignum.js';
 export * from './economy.js';
 export * from './warehouse.js';
+export * from './terminal.js';
 export * from './gacha.js';
 export * from './content.js';
 export * from './procedural.js';

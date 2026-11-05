@@ -80,6 +80,37 @@ export interface WaifuDTO {
   xpNeed: number;
   /** Текущая усталость 0..100 */
   fatigue: number;
+  /** Класс терминала. Пусто, пока вайп не включил линию. */
+  jobClass?: string | null;
+  station?: string | null;
+  element?: string;
+  psycho?: string;
+}
+
+export interface TerminalDTO {
+  live: boolean;
+  intro?: string;
+  sectors?: { id: string; name: string; level: number }[];
+  neighbors?: string[];
+  offer?: { id: string; name: string }[];
+  rerolls?: number;
+  rerollCost?: number;
+  expandCost?: number;
+  building?: { sector: string; name: string; until: string } | null;
+  stations?: {
+    unload: { name: string; rate: number; slots: number; crew: string[] };
+    move: { name: string; rate: number; slots: number; crew: string[] };
+    store: { name: string; rate: number; slots: number; crew: string[] };
+    support: { name: string; open: boolean; slots: number; crew: string[] };
+  };
+  bottleneck?: 'unload' | 'move' | 'store' | string;
+  tonsPerMin?: number;
+  shift?: { active: boolean; endsAt: string | null; mode: string; trial: boolean };
+  rush?: { until: string | null; readyAt: string | null };
+  report?: { grade: string; tons: number; coins: string; defect: number; best: string; joke: string; conflict: boolean } | null;
+  morale?: number;
+  autoShift?: boolean;
+  dispatch?: boolean;
 }
 
 export type WaifuZone = 'warehouse' | 'gym' | 'contract' | 'clerk' | null;
@@ -174,6 +205,8 @@ export interface StateDTO {
   /** События автоматики и автозабора с прошлого запроса */
   notices?: NoticeDTO[];
   meta: MetaDTO;
+  /** Линия терминала. live=false, пока скрипт вайпа не включил флаг. */
+  terminal?: TerminalDTO;
   /** Превью конвейера v2. Тик монет по-прежнему старый, пока флаг выключен. */
   conveyor?: {
     enabled: boolean;

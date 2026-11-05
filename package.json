@@ -21,7 +21,8 @@
     "test": "vitest run",
     "sim:gacha": "npm run gacha -w scripts",
     "sim:progress": "npm run progress -w scripts",
-    "invite": "npm run invite -w server --"
+    "invite": "npm run invite -w server --",
+    "wipe:terminal": "npm run wipe:terminal -w server"
   },
   "devDependencies": {
     "@eslint/js": "^9.12.0",

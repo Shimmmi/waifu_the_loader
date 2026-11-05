@@ -1,0 +1,10 @@
+{
+  "shiftSec": 300,
+  "trialShiftSec": 90,
+  "rushSec": 10,
+  "rushCooldownSec": 45,
+  "rushBoost": 0.5,
+  "auto": { "unload": 3, "move": 4, "store": 4 },
+  "base": { "unload": 12, "move": 18, "store": 15 },
+  "kgPerTon": 1000
+}

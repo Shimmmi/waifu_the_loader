@@ -6,6 +6,7 @@ import { useT } from '../i18n';
 import { useStore } from '../store';
 import { displayName, Modal, rarityStyle, WaifuCard } from '../components/ui';
 import { WaifuDetail } from '../components/WaifuDetail';
+import { TerminalPanel } from '../components/Terminal';
 
 interface Bubble {
   id: number;
@@ -269,6 +270,7 @@ export function Warehouse() {
             )}
           </div>
         </div>
+        {state.terminal?.live && <TerminalPanel />}
         {state.conveyor && (
           <div className="panel">
             <h3 style={{ marginTop: 0 }}>Конвейер</h3>

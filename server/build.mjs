@@ -5,7 +5,7 @@ const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 
 const external = Object.keys(pkg.dependencies ?? {}).filter((d) => !d.startsWith('@wl/'));
 
 await build({
-  entryPoints: { index: 'src/index.ts', migrate: 'src/cli/migrate.ts', invite: 'src/cli/invite.ts' },
+  entryPoints: { index: 'src/index.ts', migrate: 'src/cli/migrate.ts', invite: 'src/cli/invite.ts', 'wipe-terminal': 'src/cli/wipe-terminal.ts' },
   outdir: 'dist',
   bundle: true,
   platform: 'node',
