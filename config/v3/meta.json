@@ -1,0 +1,142 @@
+[
+  {
+    "id": "meta_start_credits",
+    "name_ru": "Выходное пособие",
+    "effect_ru": "+1 000 стартовых кредитов",
+    "per_level": 1000,
+    "max_level": 5,
+    "costs": [
+      1,
+      2,
+      3,
+      5,
+      8
+    ]
+  },
+  {
+    "id": "meta_extra_roll",
+    "name_ru": "Связи в HR",
+    "effect_ru": "+1 бесплатный ролл на первом перерождении",
+    "per_level": 1,
+    "max_level": 5,
+    "costs": [
+      1,
+      2,
+      3,
+      5,
+      8
+    ]
+  },
+  {
+    "id": "meta_card_reroll",
+    "name_ru": "Хороший нюх",
+    "effect_ru": "+1 бесплатный реролл карточек за базу",
+    "per_level": 1,
+    "max_level": 5,
+    "costs": [
+      1,
+      2,
+      3,
+      5,
+      8
+    ]
+  },
+  {
+    "id": "meta_base_choice",
+    "name_ru": "Рынок недвижимости",
+    "effect_ru": "+5% шанс эпической базы",
+    "per_level": 0.05,
+    "max_level": 5,
+    "costs": [
+      1,
+      2,
+      3,
+      5,
+      8
+    ]
+  },
+  {
+    "id": "meta_cheaper_expand",
+    "name_ru": "Знакомый прораб",
+    "effect_ru": "Расширения −3%",
+    "per_level": 0.03,
+    "max_level": 5,
+    "costs": [
+      1,
+      2,
+      3,
+      5,
+      8
+    ]
+  },
+  {
+    "id": "meta_offline",
+    "name_ru": "Дежурный диспетчер",
+    "effect_ru": "Оффлайн-прогресс +5%",
+    "per_level": 0.05,
+    "max_level": 5,
+    "costs": [
+      1,
+      2,
+      3,
+      5,
+      8
+    ]
+  },
+  {
+    "id": "meta_crew_slots",
+    "name_ru": "Тесные нары",
+    "effect_ru": "+1 резервное место",
+    "per_level": 1,
+    "max_level": 5,
+    "costs": [
+      1,
+      2,
+      3,
+      5,
+      8
+    ]
+  },
+  {
+    "id": "meta_xp",
+    "name_ru": "Школа жизни",
+    "effect_ru": "+4% опыта",
+    "per_level": 0.04,
+    "max_level": 5,
+    "costs": [
+      1,
+      2,
+      3,
+      5,
+      8
+    ]
+  },
+  {
+    "id": "meta_pity",
+    "name_ru": "Счастливая звезда",
+    "effect_ru": "Гарантия редкой на ролл раньше",
+    "per_level": 1,
+    "max_level": 5,
+    "costs": [
+      1,
+      2,
+      3,
+      5,
+      8
+    ]
+  },
+  {
+    "id": "meta_story",
+    "name_ru": "Мемуары",
+    "effect_ru": "Дополнительные сюжетные реплики",
+    "per_level": 1,
+    "max_level": 5,
+    "costs": [
+      1,
+      2,
+      3,
+      5,
+      8
+    ]
+  }
+]

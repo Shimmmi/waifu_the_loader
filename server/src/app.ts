@@ -32,8 +32,11 @@ import {
 } from './terminal.js';
 import { poolStats } from './pool.js';
 import type { Storage } from './storage.js';
+import { registerV3 } from './v3.js';
+import { v3 } from '@wl/shared';
 
 export async function buildApp(opts: { storage: Storage; configVersion: string; redis?: Redis }): Promise<FastifyInstance> {
+  v3.loadV3();
   const app = Fastify({
     logger: { level: env.production ? 'info' : 'debug' },
     trustProxy: true,
@@ -297,6 +300,8 @@ export async function buildApp(opts: { storage: Storage; configVersion: string; 
         game.post('/profile/recovery', { config: { rateLimit: { max: 5, timeWindow: '10 minutes' } } }, async (req) => ({
           recoveryCode: await rotateRecovery(req.userId),
         }));
+        registerV3(game, sql);
+
         game.post('/analytics', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, async (req) => {
           const { name, props } = z.object({ name: z.string().regex(/^[a-z_]{2,40}$/), props: z.record(z.unknown()).default({}) }).parse(req.body);
           await sql`INSERT INTO analytics_events (user_id, name, props) VALUES (${req.userId}, ${name}, ${sql.json(props as never)})`;

@@ -1,0 +1,23 @@
+{
+  "shard_to_star": 1,
+  "rarity": {
+    "N": "common",
+    "R": "uncommon",
+    "SR": "rare",
+    "SSR": "epic",
+    "UR": "legendary"
+  },
+  "archetype_class": {
+    "fridge_quiet": "stocker",
+    "goth_packer": "stocker",
+    "gymnast_rigger": "loader",
+    "gym_philosopher": "loader",
+    "sleepy_piano": "medic_cook",
+    "retired_waitress": "medic_cook",
+    "shout_commander": "dispatcher",
+    "dreamy_courier": "forklift",
+    "forklift_accountant": "forklift",
+    "tape_maniac": "mechanic"
+  },
+  "default_race": "terran"
+}

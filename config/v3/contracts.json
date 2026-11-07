@@ -1,0 +1,10 @@
+[
+  {
+    "id": "first_client",
+    "name_ru": "Пьяный курьер",
+    "seconds": 900,
+    "credits": 800,
+    "stars": 20,
+    "starter": true
+  }
+]

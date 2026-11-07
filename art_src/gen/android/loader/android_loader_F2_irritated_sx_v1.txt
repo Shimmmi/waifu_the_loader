@@ -1,0 +1,24 @@
+# CHARACTER_CARD
+race: android
+class: loader
+format: F2
+emotion: irritated
+archetype: grumbler
+seed: x
+version: v1
+service: Cursor GenerateImage
+slots:
+  HAIR_STYLE: shoulder-length hair with side-swept bangs
+  LED_COLOR: cyan
+  OUTFIT_COLOR: blue (#306082)
+  RACE_PALETTE: graphite (#4a4f57)
+  (unused for android) SKIN_TONE: golden tan
+  (unused for android) HAIR_COLOR: ash blonde
+  (unused for android) EYE_SHAPE: sleepy half-lidded
+  (unused for android) EYE_COLOR: violet
+
+# POSITIVE
+pixel art illustration of an original anime-style character, woman who looks 18 to 28 years old, cute face, large expressive eyes with one bright highlight, tiny nose shown only by a small shadow, expressive eyebrows, clean 1-pixel dark outline, crisp hard-edged pixels, no anti-aliasing, limited palette of 16 to 24 colors inspired by the DawnBringer 32 palette, flat cel shading with three tones (shadow, base, light), consistent light from the upper left, readable silhouette, cheerful professional mood, sci-fi cargo terminal worker, plain solid flat light gray background (#D0D0D0), no scenery, no floor shadow, no props except those described, no text, no watermark, no logo, no frame, no border, in practical work clothing, modest and professional look, relaxed neutral posture, camera at eye level, strictly front view or side profile, no dramatic angles, full-body standing character, front view, relaxed idle pose with arms at the sides, both feet visible, centered with a small margin, chibi-plus proportions about three heads tall (large head, compact body), vertical canvas 2:3, Android woman with a friendly human face, matte porcelain-ceramic skin in graphite (#4a4f57), thin panel seam lines at the wrists and neck, sensor antenna ears shaped like small headphones, a small glowing status LED on the collar or wrist, shoulder-length hair with side-swept bangs hair with one glowing fiber-optic strand and softly glowing tips in cyan, large eyes with a ring-shaped interface pupil inside the iris, all panels closed and clean, cargo terminal loader, wearing a durable utility vest over a long-sleeved shirt in blue (#306082), work trousers, sturdy boots, thick work gloves, a work cap, holding a small cargo crate in both hands, strong and cheerful posture, irritated expression, furrowed eyebrows, puffed cheek, pressed lips, side glance, arms crossed, puffed cheeks, pouting expression, eyes looking slightly away, mild annoyed attitude, cap with small openings for the antenna ears, seam lines visible at the wrists
+
+# NEGATIVE
+photo, photorealistic, 3d render, blurry, anti-aliasing, smooth gradient shading, airbrush, jpeg artifacts, text, letters, numbers, watermark, signature, logo, frame, border, extra fingers, extra limbs, deformed hands, fused fingers, cropped head, cropped feet, multiple characters (except on sheets), exposed wires, exposed mechanical skeleton, cyborg face, robot mask, metal face plates, visible gears, hanging cables, glowing red eyes, menacing look, forklift, crane, heavy machinery in the frame, oversized crate hiding the body, barbell, weapon

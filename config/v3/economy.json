@@ -1,0 +1,190 @@
+{
+  "version": "v3-0.1.0",
+  "output_scale": 0.02,
+  "credits_per_ton": 8,
+  "start_credits": 0,
+  "daily_stars": 15,
+  "offline_hours": 8,
+  "offline_rate": 0.5,
+  "online_grace_sec": 90,
+  "base_crew_slots": 1,
+  "level_cost_growth": 1.28,
+  "level_cap_building": 30,
+  "milestone_levels": [
+    10,
+    20,
+    30
+  ],
+  "expand_base": 800,
+  "expand_growth": 1.45,
+  "max_cells_per_floor": 5,
+  "second_copy": 0.6,
+  "adjacency": 0.05,
+  "skip_refund": 0.1,
+  "reroll_base": 100,
+  "reroll_growth": 2,
+  "base_reroll_stars": 40,
+  "rebirth_base": 500000,
+  "rebirth_growth": 4,
+  "rebirth_refund": 0.15,
+  "rebirth_floor": 1000,
+  "contracts_offer": {
+    "kind_weights": { "credits": 40, "stars": 25, "hybrid": 35 },
+    "rarity_weights": { "common": 62, "uncommon": 24, "rare": 10, "epic": 3.2, "legendary": 0.8 },
+    "seconds": { "common": 1800, "uncommon": 3600, "rare": 5400, "epic": 7200, "legendary": 10800 },
+    "credits_per_hour": 2000,
+    "stars_per_hour": 12,
+    "rarity_mult": { "common": 1, "uncommon": 1.15, "rare": 1.35, "epic": 1.65, "legendary": 2 },
+    "hybrid_splits": [0.3, 0.5, 0.7],
+    "titles": {
+      "credits": [
+        "Ящики без маркировки",
+        "Мука мимо таможни",
+        "Пианино на бок",
+        "Холодильник вверх ногами",
+        "Почта сектора",
+        "Ночной фургон",
+        "Груз для бара",
+        "Контейнер Омникона"
+      ],
+      "stars": [
+        "Чаевые курьера",
+        "Ночная благодарность",
+        "Звёздный бонус смены",
+        "Пьяный клиент доплатил",
+        "Премия за тишину",
+        "Конверт от диспетчера",
+        "Блестящая мелочь",
+        "Знак профсоюза"
+      ],
+      "hybrid": [
+        "Груз и чаевые",
+        "Ящики плюс конверт",
+        "Смена с доплатой",
+        "Контрабанда и премия",
+        "Доставка в бар",
+        "Тихий рейс",
+        "Двойной счёт",
+        "Секторный заказ"
+      ]
+    }
+  },
+  "legacy_tons": 10000,
+  "star_stat": 0.04,
+  "star_cap": 5,
+  "xp_base": 40,
+  "xp_growth": 1.3,
+  "duplicate_stars": {
+    "common": 10,
+    "uncommon": 20,
+    "rare": 50,
+    "epic": 150,
+    "legendary": 500
+  },
+  "rarity_mult": {
+    "common": 1,
+    "uncommon": 1.15,
+    "rare": 1.35,
+    "epic": 1.65,
+    "legendary": 2
+  },
+  "level_cap": {
+    "common": 10,
+    "uncommon": 15,
+    "rare": 20,
+    "epic": 30,
+    "legendary": 40
+  },
+  "r_window": {
+    "common": {
+      "max": 2.49
+    },
+    "uncommon": {
+      "min": 2.5,
+      "max": 4.4
+    },
+    "rare": {
+      "min": 4.5,
+      "max": 6.4
+    },
+    "epic": {
+      "min": 6.5,
+      "max": 8.9
+    },
+    "legendary": {
+      "min": 9
+    }
+  },
+  "trait_slots": {
+    "common": {
+      "min": 1,
+      "max": 2
+    },
+    "uncommon": {
+      "min": 2,
+      "max": 3
+    },
+    "rare": {
+      "min": 3,
+      "max": 3
+    },
+    "epic": {
+      "min": 4,
+      "max": 4
+    },
+    "legendary": {
+      "min": 4,
+      "max": 5
+    }
+  },
+  "tag_sets": {
+    "logistics": [
+      {
+        "type": "tonnage_mult",
+        "value": 0.1
+      }
+    ],
+    "production": [
+      {
+        "type": "tag_mult",
+        "tag": "production",
+        "value": 0.1
+      }
+    ],
+    "comfort": [
+      {
+        "type": "morale",
+        "value": 5
+      },
+      {
+        "type": "stamina_regen",
+        "value": 0.1
+      }
+    ],
+    "office": [
+      {
+        "type": "contract_mult",
+        "value": 0.1
+      }
+    ],
+    "security": [
+      {
+        "type": "theft_mult",
+        "value": -0.2
+      }
+    ],
+    "social": [
+      {
+        "type": "xp_mult",
+        "value": 0.1
+      }
+    ],
+    "gacha": [
+      {
+        "type": "grant",
+        "key": "free_roll",
+        "amount": 1
+      }
+    ]
+  }
+}

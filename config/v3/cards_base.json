@@ -1,0 +1,1306 @@
+[
+  {
+    "id": "rusty_hangar",
+    "name_ru": "Ржавый ангар «Как есть»",
+    "rarity": "common",
+    "risk": "low",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "dock",
+        "level": 2
+      }
+    ],
+    "buffs": [
+      {
+        "type": "tonnage_mult",
+        "value": 0.1
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "slot_add",
+        "key": "crew",
+        "value": -1
+      }
+    ],
+    "flavor_ru": "Док есть, коек нет.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "smuggler_warehouse",
+    "name_ru": "Склад контрабандиста",
+    "rarity": "common",
+    "risk": "medium",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "warehouse",
+        "level": 2
+      }
+    ],
+    "buffs": [
+      {
+        "type": "tag_mult",
+        "tag": "logistics",
+        "value": 1
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "event_mod",
+        "value": 0.05
+      }
+    ],
+    "flavor_ru": "Места много, гости сами приходят.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "old_office",
+    "name_ru": "Бывший офис корпорации",
+    "rarity": "common",
+    "risk": "low",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "dispatch",
+        "level": 3
+      }
+    ],
+    "buffs": [
+      {
+        "type": "tag_mult",
+        "tag": "office",
+        "value": 0.2
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "tonnage_mult",
+        "value": -0.1
+      }
+    ],
+    "flavor_ru": "Таблицы на месте, док хромает.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "abandoned_greenhouse",
+    "name_ru": "Заброшенная оранжерея",
+    "rarity": "common",
+    "risk": "low",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "greenhouse",
+        "level": 3
+      }
+    ],
+    "buffs": [
+      {
+        "type": "passive_credits",
+        "value": 30
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "tag_mult",
+        "tag": "logistics",
+        "value": -0.15
+      }
+    ],
+    "flavor_ru": "Паёк растёт сам.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "hostel",
+    "name_ru": "Хостел «Три койки»",
+    "rarity": "common",
+    "risk": "low",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "dorm",
+        "level": 2
+      }
+    ],
+    "buffs": [
+      {
+        "type": "slot_add",
+        "key": "crew",
+        "value": 4
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "cost_mult",
+        "value": 0.3,
+        "target": "workshop"
+      }
+    ],
+    "flavor_ru": "Спать есть где.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "scrapyard",
+    "name_ru": "Планета-свалка",
+    "rarity": "common",
+    "risk": "medium",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "workshop",
+        "level": 1
+      }
+    ],
+    "buffs": [
+      {
+        "type": "event_mod",
+        "value": 0.1
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "flag",
+        "key": "no_medbay",
+        "value": 1
+      }
+    ],
+    "flavor_ru": "Медблока нет.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "caravan",
+    "name_ru": "Караван-база",
+    "rarity": "common",
+    "risk": "low",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "dock",
+        "level": 1
+      }
+    ],
+    "buffs": [
+      {
+        "type": "cost_mult",
+        "target": "expand",
+        "value": -0.3
+      }
+    ],
+    "debuffs": [],
+    "flavor_ru": "Не больше восьми мест.",
+    "min_rebirth": 1,
+    "weight": 10,
+    "cell_cap": 8
+  },
+  {
+    "id": "orbit_station",
+    "name_ru": "Станция «Сквозняк»",
+    "rarity": "common",
+    "risk": "medium",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "dock",
+        "level": 1
+      }
+    ],
+    "buffs": [
+      {
+        "type": "tag_mult",
+        "tag": "logistics",
+        "value": 0.25
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "tag_mult",
+        "tag": "comfort",
+        "value": -0.15
+      }
+    ],
+    "flavor_ru": "Дует, зато груз идёт.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "ice_outpost",
+    "name_ru": "Ледяной аванпост",
+    "rarity": "common",
+    "risk": "medium",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "warehouse",
+        "level": 1
+      }
+    ],
+    "buffs": [
+      {
+        "type": "loss_mult",
+        "value": -1
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "tag_mult",
+        "tag": "comfort",
+        "value": -0.2
+      }
+    ],
+    "flavor_ru": "Груз не портится.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "gym_basement",
+    "name_ru": "Подвал спортзала",
+    "rarity": "common",
+    "risk": "low",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "gym",
+        "level": 3
+      }
+    ],
+    "buffs": [
+      {
+        "type": "xp_mult",
+        "value": 0.15
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "tag_mult",
+        "tag": "logistics",
+        "value": -0.1
+      }
+    ],
+    "flavor_ru": "Качаются быстрее, чем грузят.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "old_market",
+    "name_ru": "Старый рынок",
+    "rarity": "common",
+    "risk": "medium",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "comms",
+        "level": 1
+      }
+    ],
+    "buffs": [
+      {
+        "type": "contract_mult",
+        "value": 0.1
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "theft_mult",
+        "value": 0.1
+      }
+    ],
+    "flavor_ru": "Цены хорошие, карманы дырявые.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "tourist_trap",
+    "name_ru": "Туристическая ловушка",
+    "rarity": "common",
+    "risk": "low",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "bar",
+        "level": 2
+      }
+    ],
+    "buffs": [
+      {
+        "type": "event_mod",
+        "value": 0.15
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "tag_mult",
+        "tag": "production",
+        "value": -0.1
+      }
+    ],
+    "flavor_ru": "Гости шумят.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "ghost_factory",
+    "name_ru": "Фабрика-призрак",
+    "rarity": "rare",
+    "risk": "medium",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "workshop",
+        "level": 2
+      },
+      {
+        "type": "reactor",
+        "level": 1
+      }
+    ],
+    "buffs": [
+      {
+        "type": "tag_mult",
+        "tag": "production",
+        "value": 0.3
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "tag_mult",
+        "tag": "comfort",
+        "value": -0.2
+      }
+    ],
+    "flavor_ru": "Станки ещё помнят смену.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "bunker",
+    "name_ru": "Подземный бункер",
+    "rarity": "rare",
+    "risk": "low",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "security",
+        "level": 2
+      }
+    ],
+    "buffs": [
+      {
+        "type": "tag_mult",
+        "tag": "security",
+        "value": 0.3
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "cost_mult",
+        "value": 0.1
+      }
+    ],
+    "flavor_ru": "Тихо и дорого.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "beach_resort",
+    "name_ru": "Курорт «Три пальмы»",
+    "rarity": "rare",
+    "risk": "low",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "canteen",
+        "level": 2
+      },
+      {
+        "type": "dorm",
+        "level": 1
+      }
+    ],
+    "buffs": [
+      {
+        "type": "tag_mult",
+        "tag": "comfort",
+        "value": 0.3
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "tag_mult",
+        "tag": "production",
+        "value": -0.15
+      }
+    ],
+    "flavor_ru": "Мораль высокая, станки ржавеют.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "casino_station",
+    "name_ru": "Станция-казино «Джекпот»",
+    "rarity": "rare",
+    "risk": "medium",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "bar",
+        "level": 1
+      },
+      {
+        "type": "hr_office",
+        "level": 1
+      }
+    ],
+    "buffs": [
+      {
+        "type": "grant",
+        "key": "free_roll",
+        "amount": 1
+      },
+      {
+        "type": "stat_mult",
+        "stat": "lck",
+        "value": 0.1
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "contract_mult",
+        "value": -0.05
+      }
+    ],
+    "flavor_ru": "Удача любит чаевые.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "science_town",
+    "name_ru": "Научный городок",
+    "rarity": "rare",
+    "risk": "low",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "workshop",
+        "level": 2
+      },
+      {
+        "type": "gym",
+        "level": 1
+      }
+    ],
+    "buffs": [
+      {
+        "type": "xp_mult",
+        "value": 0.15
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "tag_mult",
+        "tag": "logistics",
+        "value": -0.1
+      }
+    ],
+    "flavor_ru": "Опыт капает.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "gravity_well",
+    "name_ru": "Гравитационный колодец",
+    "rarity": "rare",
+    "risk": "medium",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "dock",
+        "level": 2
+      }
+    ],
+    "buffs": [
+      {
+        "type": "stat_mult",
+        "stat": "str",
+        "value": 0.15
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "stat_mult",
+        "stat": "end",
+        "value": -0.1
+      }
+    ],
+    "flavor_ru": "Ящики тяжёлые даже пустые.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "smuggler_nest",
+    "name_ru": "Гнездо контрабандистов",
+    "rarity": "rare",
+    "risk": "high",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "comms",
+        "level": 1
+      }
+    ],
+    "buffs": [
+      {
+        "type": "contract_mult",
+        "value": 0.4
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "event_mod",
+        "value": 0.1
+      }
+    ],
+    "flavor_ru": "Серые контракты жирнее.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "union_branch",
+    "name_ru": "Филиал профсоюза",
+    "rarity": "rare",
+    "risk": "low",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "dispatch",
+        "level": 1
+      },
+      {
+        "type": "canteen",
+        "level": 1
+      }
+    ],
+    "buffs": [
+      {
+        "type": "morale",
+        "value": 10
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "cost_mult",
+        "value": 0.1
+      }
+    ],
+    "flavor_ru": "Плакаты уже висят.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "military_base",
+    "name_ru": "Бывшая военная база",
+    "rarity": "rare",
+    "risk": "medium",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "security",
+        "level": 3
+      }
+    ],
+    "buffs": [
+      {
+        "type": "tag_mult",
+        "tag": "security",
+        "value": 0.4
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "tag_mult",
+        "tag": "comfort",
+        "value": -0.15
+      }
+    ],
+    "flavor_ru": "КПП на месте.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "amusement_ruins",
+    "name_ru": "Парк аттракционов-призрак",
+    "rarity": "rare",
+    "risk": "medium",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "bar",
+        "level": 1
+      },
+      {
+        "type": "gym",
+        "level": 1
+      }
+    ],
+    "buffs": [
+      {
+        "type": "tag_mult",
+        "tag": "social",
+        "value": 0.25
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "tag_mult",
+        "tag": "logistics",
+        "value": -0.1
+      }
+    ],
+    "flavor_ru": "Карусель скрипит.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "mall",
+    "name_ru": "Торговая площадь",
+    "rarity": "rare",
+    "risk": "low",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "comms",
+        "level": 2
+      }
+    ],
+    "buffs": [
+      {
+        "type": "contract_mult",
+        "value": 0.15
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "tag_mult",
+        "tag": "logistics",
+        "value": -0.1
+      }
+    ],
+    "flavor_ru": "Витрины вместо стеллажей.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "whale_port",
+    "name_ru": "Порт на космическом ките",
+    "rarity": "rare",
+    "risk": "high",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "dock",
+        "level": 1
+      }
+    ],
+    "buffs": [
+      {
+        "type": "timed_burst",
+        "value": 0.25
+      }
+    ],
+    "debuffs": [],
+    "flavor_ru": "Каждую смену везёт по-разному.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "prison_asteroid",
+    "name_ru": "Тюремный астероид",
+    "rarity": "epic",
+    "risk": "high",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "dorm",
+        "level": 2
+      },
+      {
+        "type": "security",
+        "level": 1
+      }
+    ],
+    "buffs": [
+      {
+        "type": "cost_mult",
+        "value": -0.4
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "morale",
+        "value": -20
+      }
+    ],
+    "flavor_ru": "Зарплата низкая, лица кислые.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "glass_tower",
+    "name_ru": "Стеклянная башня",
+    "rarity": "epic",
+    "risk": "medium",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "dispatch",
+        "level": 4
+      }
+    ],
+    "buffs": [
+      {
+        "type": "contract_mult",
+        "value": 0.03
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "tag_mult",
+        "tag": "logistics",
+        "value": -0.2
+      }
+    ],
+    "flavor_ru": "Диспетчеры любят высоту.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "co_op",
+    "name_ru": "Кооператив",
+    "rarity": "epic",
+    "risk": "low",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "dorm",
+        "level": 2
+      },
+      {
+        "type": "canteen",
+        "level": 1
+      }
+    ],
+    "buffs": [
+      {
+        "type": "crew_mult",
+        "value": 0.08
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "contract_mult",
+        "value": -0.05
+      }
+    ],
+    "flavor_ru": "Все свои.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "floating_platform",
+    "name_ru": "Плавучая платформа",
+    "rarity": "epic",
+    "risk": "medium",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "dock",
+        "level": 2
+      },
+      {
+        "type": "medbay",
+        "level": 1
+      }
+    ],
+    "buffs": [
+      {
+        "type": "output_add",
+        "value": 0.1
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "output_add",
+        "value": -0.05
+      }
+    ],
+    "flavor_ru": "Аквалям тут легче.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "luxury_moon",
+    "name_ru": "Лунный курорт для богатых",
+    "rarity": "epic",
+    "risk": "medium",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "bar",
+        "level": 2
+      }
+    ],
+    "buffs": [
+      {
+        "type": "contract_mult",
+        "value": 0.5
+      }
+    ],
+    "debuffs": [],
+    "flavor_ru": "VIP платят, если бар жив.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "dead_city",
+    "name_ru": "Мёртвый город",
+    "rarity": "epic",
+    "risk": "high",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "dock",
+        "level": 1
+      }
+    ],
+    "buffs": [
+      {
+        "type": "cost_mult",
+        "value": -0.7
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "grant",
+        "key": "credits",
+        "amount": 0
+      }
+    ],
+    "flavor_ru": "Ремонт дешёвый, касса пустая.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "rival_base",
+    "name_ru": "База «БыстроГруза»",
+    "rarity": "epic",
+    "risk": "high",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "dock",
+        "level": 3
+      },
+      {
+        "type": "warehouse",
+        "level": 3
+      }
+    ],
+    "buffs": [
+      {
+        "type": "tonnage_mult",
+        "value": 0.2
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "event_mod",
+        "value": 0.15
+      }
+    ],
+    "flavor_ru": "Чужой логотип ещё читается.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "old_ark",
+    "name_ru": "Корабль-ковчег",
+    "rarity": "legendary",
+    "risk": "medium",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "dock",
+        "level": 2
+      },
+      {
+        "type": "dorm",
+        "level": 2
+      },
+      {
+        "type": "warehouse",
+        "level": 2
+      }
+    ],
+    "buffs": [
+      {
+        "type": "slot_add",
+        "key": "crew",
+        "value": 2
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "cost_mult",
+        "value": 0.5
+      }
+    ],
+    "flavor_ru": "Сразу три палубы.",
+    "min_rebirth": 1,
+    "weight": 10,
+    "floors": 3
+  },
+  {
+    "id": "golden_fund",
+    "name_ru": "«Золотой фонд»",
+    "rarity": "legendary",
+    "risk": "low",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "dock",
+        "level": 1
+      }
+    ],
+    "buffs": [
+      {
+        "type": "meta_mod",
+        "key": "legacy",
+        "value": 0.2
+      }
+    ],
+    "debuffs": [],
+    "flavor_ru": "Пусто, зато пенсия жирнее.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "insurance_scam",
+    "name_ru": "Страховая афера",
+    "rarity": "legendary",
+    "risk": "high",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "dock",
+        "level": 1
+      }
+    ],
+    "buffs": [
+      {
+        "type": "grant",
+        "key": "credits",
+        "amount": 20000
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "contract_mult",
+        "value": -0.05
+      }
+    ],
+    "flavor_ru": "Долг висит на договоре.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "last_station",
+    "name_ru": "Станция на последнем издыхании",
+    "rarity": "legendary",
+    "risk": "high",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "reactor",
+        "level": 1
+      }
+    ],
+    "buffs": [
+      {
+        "type": "global_mult",
+        "value": 0.6
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "event_mod",
+        "value": 0.1
+      }
+    ],
+    "flavor_ru": "Всё орёт и светится.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "omnicon_branch",
+    "name_ru": "Филиал «Омникона»",
+    "rarity": "legendary",
+    "risk": "medium",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "dispatch",
+        "level": 3
+      },
+      {
+        "type": "comms",
+        "level": 2
+      }
+    ],
+    "buffs": [
+      {
+        "type": "tag_mult",
+        "tag": "office",
+        "value": 0.5
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "event_mod",
+        "value": 0.1
+      }
+    ],
+    "flavor_ru": "Бланки знакомые.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "race_quarter_terran",
+    "name_ru": "Квартал расы terran",
+    "rarity": "epic",
+    "risk": "medium",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "dorm",
+        "level": 2
+      }
+    ],
+    "buffs": [
+      {
+        "type": "output_add",
+        "value": 0.25
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "output_add",
+        "value": -0.05
+      }
+    ],
+    "flavor_ru": "Свой квартал: terran.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "race_quarter_felid",
+    "name_ru": "Квартал расы felid",
+    "rarity": "epic",
+    "risk": "medium",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "dorm",
+        "level": 2
+      }
+    ],
+    "buffs": [
+      {
+        "type": "output_add",
+        "value": 0.25
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "output_add",
+        "value": -0.05
+      }
+    ],
+    "flavor_ru": "Свой квартал: felid.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "race_quarter_kitsune",
+    "name_ru": "Квартал расы kitsune",
+    "rarity": "epic",
+    "risk": "medium",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "dorm",
+        "level": 2
+      }
+    ],
+    "buffs": [
+      {
+        "type": "output_add",
+        "value": 0.25
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "output_add",
+        "value": -0.05
+      }
+    ],
+    "flavor_ru": "Свой квартал: kitsune.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "race_quarter_astrel",
+    "name_ru": "Квартал расы astrel",
+    "rarity": "epic",
+    "risk": "medium",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "dorm",
+        "level": 2
+      }
+    ],
+    "buffs": [
+      {
+        "type": "output_add",
+        "value": 0.25
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "output_add",
+        "value": -0.05
+      }
+    ],
+    "flavor_ru": "Свой квартал: astrel.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "race_quarter_drakei",
+    "name_ru": "Квартал расы drakei",
+    "rarity": "epic",
+    "risk": "medium",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "dorm",
+        "level": 2
+      }
+    ],
+    "buffs": [
+      {
+        "type": "output_add",
+        "value": 0.25
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "output_add",
+        "value": -0.05
+      }
+    ],
+    "flavor_ru": "Свой квартал: drakei.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "race_quarter_synth",
+    "name_ru": "Квартал расы synth",
+    "rarity": "epic",
+    "risk": "medium",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "dorm",
+        "level": 2
+      }
+    ],
+    "buffs": [
+      {
+        "type": "output_add",
+        "value": 0.25
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "output_add",
+        "value": -0.05
+      }
+    ],
+    "flavor_ru": "Свой квартал: synth.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "race_quarter_aquali",
+    "name_ru": "Квартал расы aquali",
+    "rarity": "epic",
+    "risk": "medium",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "dorm",
+        "level": 2
+      }
+    ],
+    "buffs": [
+      {
+        "type": "output_add",
+        "value": 0.25
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "output_add",
+        "value": -0.05
+      }
+    ],
+    "flavor_ru": "Свой квартал: aquali.",
+    "min_rebirth": 1,
+    "weight": 10
+  },
+  {
+    "id": "race_quarter_inferni",
+    "name_ru": "Квартал расы inferni",
+    "rarity": "epic",
+    "risk": "medium",
+    "layout_type": "shaft",
+    "start_buildings": [
+      {
+        "type": "dorm",
+        "level": 2
+      }
+    ],
+    "buffs": [
+      {
+        "type": "output_add",
+        "value": 0.25
+      }
+    ],
+    "debuffs": [
+      {
+        "type": "output_add",
+        "value": -0.05
+      }
+    ],
+    "flavor_ru": "Свой квартал: inferni.",
+    "min_rebirth": 1,
+    "weight": 10
+  }
+]

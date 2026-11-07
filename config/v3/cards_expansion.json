@@ -1,0 +1,1095 @@
+[
+  {
+    "id": "rusty_oil",
+    "name_ru": "Ржавая смазка",
+    "rarity": "common",
+    "tags": [
+      "production"
+    ],
+    "effects": [
+      {
+        "type": "tag_mult",
+        "tag": "production",
+        "value": 0.08
+      }
+    ],
+    "curse": null,
+    "max_stacks": 3,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [
+      "workshop",
+      "reactor"
+    ],
+    "text_ru": "Производство +8%",
+    "curse_ru": null
+  },
+  {
+    "id": "extra_rack",
+    "name_ru": "Лишний стеллаж",
+    "rarity": "common",
+    "tags": [
+      "logistics"
+    ],
+    "effects": [
+      {
+        "type": "tag_mult",
+        "tag": "logistics",
+        "value": 0.15
+      }
+    ],
+    "curse": null,
+    "max_stacks": 3,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [
+      "warehouse"
+    ],
+    "text_ru": "Логистика +15%",
+    "curse_ru": null
+  },
+  {
+    "id": "coffee_machine",
+    "name_ru": "Кофемат",
+    "rarity": "common",
+    "tags": [
+      "comfort"
+    ],
+    "effects": [
+      {
+        "type": "stamina_regen",
+        "value": 0.1
+      }
+    ],
+    "curse": null,
+    "max_stacks": 3,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [
+      "dorm",
+      "canteen",
+      "medbay"
+    ],
+    "text_ru": "Восстановление выносливости +10%",
+    "curse_ru": null
+  },
+  {
+    "id": "foreman_discount",
+    "name_ru": "Скидка от прораба",
+    "rarity": "common",
+    "tags": [
+      "any"
+    ],
+    "effects": [
+      {
+        "type": "cost_mult",
+        "value": -0.15
+      }
+    ],
+    "curse": null,
+    "max_stacks": 3,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [],
+    "text_ru": "Следующие цены −15%",
+    "curse_ru": null
+  },
+  {
+    "id": "lunch_vouchers",
+    "name_ru": "Талоны на обед",
+    "rarity": "common",
+    "tags": [
+      "comfort"
+    ],
+    "effects": [
+      {
+        "type": "morale",
+        "value": 5
+      }
+    ],
+    "curse": null,
+    "max_stacks": 3,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [
+      "dorm",
+      "canteen"
+    ],
+    "text_ru": "Мораль +5",
+    "curse_ru": null
+  },
+  {
+    "id": "spare_lantern",
+    "name_ru": "Запасной фонарь",
+    "rarity": "common",
+    "tags": [
+      "logistics"
+    ],
+    "effects": [
+      {
+        "type": "loss_mult",
+        "value": -0.1,
+        "cond": "night"
+      }
+    ],
+    "curse": null,
+    "max_stacks": 3,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [
+      "dock"
+    ],
+    "text_ru": "Ночные потери −10%",
+    "curse_ru": null
+  },
+  {
+    "id": "notice_board",
+    "name_ru": "Доска объявлений",
+    "rarity": "common",
+    "tags": [
+      "office"
+    ],
+    "effects": [
+      {
+        "type": "slot_add",
+        "key": "contract_board",
+        "value": 1
+      }
+    ],
+    "curse": null,
+    "max_stacks": 3,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [
+      "dispatch",
+      "comms"
+    ],
+    "text_ru": "+1 контракт в списке",
+    "curse_ru": null
+  },
+  {
+    "id": "intern_kit",
+    "name_ru": "Стажёрский набор",
+    "rarity": "common",
+    "tags": [
+      "social"
+    ],
+    "effects": [
+      {
+        "type": "xp_mult",
+        "value": 0.1
+      }
+    ],
+    "curse": null,
+    "max_stacks": 3,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [
+      "gym"
+    ],
+    "text_ru": "Опыт новичков +10%",
+    "curse_ru": null
+  },
+  {
+    "id": "scooter_cart",
+    "name_ru": "Тележка-самокат",
+    "rarity": "common",
+    "tags": [
+      "logistics"
+    ],
+    "effects": [
+      {
+        "type": "stat_mult",
+        "stat": "spd",
+        "value": 0.03
+      }
+    ],
+    "curse": null,
+    "max_stacks": 3,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [
+      "dock"
+    ],
+    "text_ru": "Скорость всех +3%",
+    "curse_ru": null
+  },
+  {
+    "id": "seals",
+    "name_ru": "Пломбы",
+    "rarity": "common",
+    "tags": [
+      "security"
+    ],
+    "effects": [
+      {
+        "type": "theft_mult",
+        "value": -0.1
+      }
+    ],
+    "curse": null,
+    "max_stacks": 3,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [
+      "warehouse",
+      "security"
+    ],
+    "text_ru": "Кражи −10%",
+    "curse_ru": null
+  },
+  {
+    "id": "warm_floor",
+    "name_ru": "Тёплый пол",
+    "rarity": "common",
+    "tags": [
+      "comfort"
+    ],
+    "effects": [
+      {
+        "type": "tag_mult",
+        "tag": "comfort",
+        "value": 0.08
+      }
+    ],
+    "curse": null,
+    "max_stacks": 3,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [
+      "dorm",
+      "canteen",
+      "greenhouse"
+    ],
+    "text_ru": "Уют +8%",
+    "curse_ru": null
+  },
+  {
+    "id": "supplier_list",
+    "name_ru": "Список поставщиков",
+    "rarity": "common",
+    "tags": [
+      "office"
+    ],
+    "effects": [
+      {
+        "type": "contract_mult",
+        "value": 0.05
+      }
+    ],
+    "curse": null,
+    "max_stacks": 3,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [
+      "dispatch",
+      "comms"
+    ],
+    "text_ru": "Цены контрактов +5%",
+    "curse_ru": null
+  },
+  {
+    "id": "vending",
+    "name_ru": "Автомат со снеками",
+    "rarity": "common",
+    "tags": [
+      "production"
+    ],
+    "effects": [
+      {
+        "type": "passive_credits",
+        "value": 50
+      }
+    ],
+    "curse": null,
+    "max_stacks": 3,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [
+      "greenhouse",
+      "canteen"
+    ],
+    "text_ru": "Пассивные кредиты",
+    "curse_ru": null
+  },
+  {
+    "id": "night_lamp",
+    "name_ru": "Ночные лампы",
+    "rarity": "common",
+    "tags": [
+      "logistics"
+    ],
+    "effects": [
+      {
+        "type": "output_add",
+        "value": 0.08,
+        "cond": "night"
+      }
+    ],
+    "curse": null,
+    "max_stacks": 3,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [
+      "dock"
+    ],
+    "text_ru": "Ночные смены +8%",
+    "curse_ru": null
+  },
+  {
+    "id": "feng_shui",
+    "name_ru": "Фэн-шуй по-грузчицки",
+    "rarity": "rare",
+    "tags": [
+      "any"
+    ],
+    "effects": [
+      {
+        "type": "adjacency_bonus",
+        "value": 0.05
+      }
+    ],
+    "curse": null,
+    "max_stacks": 2,
+    "weight": 10,
+    "min_expansion_index": 3,
+    "requires": [],
+    "persist": false,
+    "buildings": [],
+    "text_ru": "Соседство комнат сильнее",
+    "curse_ru": null
+  },
+  {
+    "id": "love_overtime",
+    "name_ru": "Сверхурочные по любви",
+    "rarity": "rare",
+    "tags": [
+      "logistics"
+    ],
+    "effects": [
+      {
+        "type": "output_add",
+        "value": 0.2
+      }
+    ],
+    "curse": [
+      {
+        "type": "morale",
+        "value": -5
+      }
+    ],
+    "max_stacks": 2,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [
+      "dock"
+    ],
+    "text_ru": "Выработка +20%",
+    "curse_ru": "Мораль −5"
+  },
+  {
+    "id": "crew_contract",
+    "name_ru": "Бригадный подряд",
+    "rarity": "rare",
+    "tags": [
+      "social"
+    ],
+    "effects": [
+      {
+        "type": "crew_mult",
+        "value": 0.12
+      }
+    ],
+    "curse": null,
+    "max_stacks": 2,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [],
+    "text_ru": "Бригада одной расы +12%",
+    "curse_ru": null
+  },
+  {
+    "id": "xray_gate",
+    "name_ru": "Рентген на въезде",
+    "rarity": "rare",
+    "tags": [
+      "security"
+    ],
+    "effects": [
+      {
+        "type": "theft_mult",
+        "value": -0.25
+      }
+    ],
+    "curse": null,
+    "max_stacks": 2,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [
+      "security"
+    ],
+    "text_ru": "Кражи −25%",
+    "curse_ru": null
+  },
+  {
+    "id": "comm_channels",
+    "name_ru": "Каналы связи",
+    "rarity": "rare",
+    "tags": [
+      "office"
+    ],
+    "effects": [
+      {
+        "type": "contract_mult",
+        "value": 0.12
+      }
+    ],
+    "curse": null,
+    "max_stacks": 2,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [
+      "dispatch",
+      "comms"
+    ],
+    "text_ru": "Цены контрактов +12%",
+    "curse_ru": null
+  },
+  {
+    "id": "basement_gym",
+    "name_ru": "Тренажёрка в подвале",
+    "rarity": "rare",
+    "tags": [
+      "social"
+    ],
+    "effects": [
+      {
+        "type": "xp_mult",
+        "value": 0.2
+      }
+    ],
+    "curse": [
+      {
+        "type": "stat_mult",
+        "stat": "end",
+        "value": -0.05
+      }
+    ],
+    "max_stacks": 2,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [
+      "gym"
+    ],
+    "text_ru": "Опыт +20%",
+    "curse_ru": "Выносливость −5%"
+  },
+  {
+    "id": "collector",
+    "name_ru": "Коллекционер",
+    "rarity": "rare",
+    "tags": [
+      "gacha"
+    ],
+    "effects": [
+      {
+        "type": "gacha_mod",
+        "key": "dup_stars",
+        "value": 0.25
+      }
+    ],
+    "curse": null,
+    "max_stacks": 2,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [
+      "hr_office"
+    ],
+    "text_ru": "Звёзды за дубликаты +25%",
+    "curse_ru": null
+  },
+  {
+    "id": "happy_hour",
+    "name_ru": "Счастливый час",
+    "rarity": "rare",
+    "tags": [
+      "comfort"
+    ],
+    "effects": [
+      {
+        "type": "tag_mult",
+        "tag": "comfort",
+        "value": 0.25
+      }
+    ],
+    "curse": null,
+    "max_stacks": 2,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [
+      "canteen",
+      "bar"
+    ],
+    "text_ru": "Кантина и бар +25%",
+    "curse_ru": null
+  },
+  {
+    "id": "spare_parts",
+    "name_ru": "Склад запчастей",
+    "rarity": "rare",
+    "tags": [
+      "production"
+    ],
+    "effects": [
+      {
+        "type": "loss_mult",
+        "value": -0.3
+      }
+    ],
+    "curse": null,
+    "max_stacks": 2,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [
+      "workshop"
+    ],
+    "text_ru": "Поломки −30%",
+    "curse_ru": null
+  },
+  {
+    "id": "night_union",
+    "name_ru": "Ночной профсоюз",
+    "rarity": "rare",
+    "tags": [
+      "social"
+    ],
+    "effects": [
+      {
+        "type": "output_add",
+        "value": 0.25,
+        "cond": "night"
+      }
+    ],
+    "curse": null,
+    "max_stacks": 2,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [
+      "bar"
+    ],
+    "text_ru": "Ночью выработка +25%",
+    "curse_ru": null
+  },
+  {
+    "id": "hr_tricks",
+    "name_ru": "Кадровые уловки",
+    "rarity": "rare",
+    "tags": [
+      "gacha"
+    ],
+    "effects": [
+      {
+        "type": "gacha_mod",
+        "value": -0.08
+      }
+    ],
+    "curse": null,
+    "max_stacks": 2,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [
+      "hr_office"
+    ],
+    "text_ru": "Цена ролла −8%",
+    "curse_ru": null
+  },
+  {
+    "id": "spec_cargo",
+    "name_ru": "Спецгрузы",
+    "rarity": "rare",
+    "tags": [
+      "logistics"
+    ],
+    "effects": [
+      {
+        "type": "contract_mult",
+        "value": 0.15
+      }
+    ],
+    "curse": null,
+    "max_stacks": 2,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [
+      "dock"
+    ],
+    "text_ru": "Редкие грузы +15%",
+    "curse_ru": null
+  },
+  {
+    "id": "overstock",
+    "name_ru": "Затоваривание",
+    "rarity": "rare",
+    "tags": [
+      "logistics"
+    ],
+    "effects": [
+      {
+        "type": "tag_mult",
+        "tag": "logistics",
+        "value": 0.4
+      }
+    ],
+    "curse": [
+      {
+        "type": "loss_mult",
+        "value": 0.05
+      }
+    ],
+    "max_stacks": 2,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [
+      "warehouse"
+    ],
+    "text_ru": "Вместимость склада +40%",
+    "curse_ru": "Потери +5%"
+  },
+  {
+    "id": "inspector_friend",
+    "name_ru": "Знакомый инспектор",
+    "rarity": "rare",
+    "tags": [
+      "office"
+    ],
+    "effects": [
+      {
+        "type": "cost_mult",
+        "value": -0.5,
+        "target": "fine"
+      }
+    ],
+    "curse": null,
+    "max_stacks": 2,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [
+      "dispatch",
+      "comms"
+    ],
+    "text_ru": "Штраф проверки −50%",
+    "curse_ru": null
+  },
+  {
+    "id": "goldberg",
+    "name_ru": "Конвейер Голдберга",
+    "rarity": "epic",
+    "tags": [
+      "production"
+    ],
+    "effects": [
+      {
+        "type": "timed_burst",
+        "value": 2
+      }
+    ],
+    "curse": null,
+    "max_stacks": 1,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [
+      "workshop"
+    ],
+    "text_ru": "Каждая 10-я смена ×2",
+    "curse_ru": null
+  },
+  {
+    "id": "corp_culture",
+    "name_ru": "Корпоративная культура",
+    "rarity": "epic",
+    "tags": [
+      "social"
+    ],
+    "effects": [
+      {
+        "type": "crew_mult",
+        "value": 0.01
+      }
+    ],
+    "curse": null,
+    "max_stacks": 1,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [],
+    "text_ru": "+1% выработки за грузчицу",
+    "curse_ru": null
+  },
+  {
+    "id": "black_cash",
+    "name_ru": "Чёрная касса",
+    "rarity": "epic",
+    "tags": [
+      "office"
+    ],
+    "effects": [
+      {
+        "type": "contract_mult",
+        "value": 0.3
+      }
+    ],
+    "curse": [
+      {
+        "type": "event_mod",
+        "value": 1
+      }
+    ],
+    "max_stacks": 1,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [
+      "dispatch",
+      "comms"
+    ],
+    "text_ru": "Кредиты с контрактов +30%",
+    "curse_ru": "Проверки вдвое чаще"
+  },
+  {
+    "id": "locker_lottery",
+    "name_ru": "Лотерея в раздевалке",
+    "rarity": "epic",
+    "tags": [
+      "gacha"
+    ],
+    "effects": [
+      {
+        "type": "grant",
+        "key": "free_roll",
+        "amount": 1
+      }
+    ],
+    "curse": null,
+    "max_stacks": 1,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [
+      "hr_office"
+    ],
+    "text_ru": "Бесплатный ролл раз в 10 смен",
+    "curse_ru": null
+  },
+  {
+    "id": "race_union",
+    "name_ru": "Союз рас",
+    "rarity": "epic",
+    "tags": [
+      "social"
+    ],
+    "effects": [
+      {
+        "type": "output_add",
+        "value": 0.04
+      }
+    ],
+    "curse": null,
+    "max_stacks": 1,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [],
+    "text_ru": "+4% за каждую расу в бригаде",
+    "curse_ru": null
+  },
+  {
+    "id": "deep_shaft",
+    "name_ru": "Глубокая шахта",
+    "rarity": "epic",
+    "tags": [
+      "any"
+    ],
+    "effects": [
+      {
+        "type": "cost_mult",
+        "target": "expand",
+        "value": -0.2
+      }
+    ],
+    "curse": null,
+    "max_stacks": 1,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [],
+    "text_ru": "Расширения дешевле на 20%",
+    "curse_ru": null
+  },
+  {
+    "id": "reactor_overclock",
+    "name_ru": "Разгон реактора",
+    "rarity": "epic",
+    "tags": [
+      "production"
+    ],
+    "effects": [
+      {
+        "type": "tag_mult",
+        "tag": "production",
+        "value": 0.5
+      }
+    ],
+    "curse": [
+      {
+        "type": "event_mod",
+        "value": 0.05
+      }
+    ],
+    "max_stacks": 1,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [
+      "reactor"
+    ],
+    "text_ru": "Реактор в полтора раза сильнее",
+    "curse_ru": "Иногда авария"
+  },
+  {
+    "id": "safe_hands",
+    "name_ru": "Надёжные руки",
+    "rarity": "epic",
+    "tags": [
+      "security"
+    ],
+    "effects": [
+      {
+        "type": "tag_mult",
+        "tag": "security",
+        "value": 0.15
+      }
+    ],
+    "curse": null,
+    "max_stacks": 1,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [
+      "security"
+    ],
+    "text_ru": "Охрана и мастерская усиливают друг друга",
+    "curse_ru": null
+  },
+  {
+    "id": "vip_clients",
+    "name_ru": "VIP-клиенты",
+    "rarity": "epic",
+    "tags": [
+      "office"
+    ],
+    "effects": [
+      {
+        "type": "contract_mult",
+        "value": 0.4
+      }
+    ],
+    "curse": null,
+    "max_stacks": 1,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [
+      "dispatch",
+      "comms"
+    ],
+    "text_ru": "Дорогие контракты +40%",
+    "curse_ru": null
+  },
+  {
+    "id": "golden_parachute",
+    "name_ru": "Золотой парашют",
+    "rarity": "legendary",
+    "tags": [
+      "any"
+    ],
+    "effects": [
+      {
+        "type": "grant",
+        "key": "credits",
+        "amount": 1
+      }
+    ],
+    "curse": null,
+    "max_stacks": 1,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [],
+    "text_ru": "Разовая выплата от тоннажа",
+    "curse_ru": null
+  },
+  {
+    "id": "red_button",
+    "name_ru": "Красная кнопка",
+    "rarity": "legendary",
+    "tags": [
+      "logistics"
+    ],
+    "effects": [
+      {
+        "type": "timed_burst",
+        "value": 3
+      }
+    ],
+    "curse": null,
+    "max_stacks": 1,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [
+      "dock"
+    ],
+    "text_ru": "Раз за смену выработка ×3",
+    "curse_ru": null
+  },
+  {
+    "id": "pension_fund",
+    "name_ru": "Пенсионный фонд",
+    "rarity": "legendary",
+    "tags": [
+      "meta"
+    ],
+    "effects": [
+      {
+        "type": "meta_mod",
+        "key": "legacy",
+        "value": 0.25
+      }
+    ],
+    "curse": null,
+    "max_stacks": 1,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": true,
+    "buildings": [],
+    "text_ru": "+25% наследия при перерождении",
+    "curse_ru": null
+  },
+  {
+    "id": "omnicon_leak",
+    "name_ru": "Утечка из «Омникона»",
+    "rarity": "legendary",
+    "tags": [
+      "meta"
+    ],
+    "effects": [
+      {
+        "type": "meta_mod",
+        "key": "choices",
+        "value": 5
+      }
+    ],
+    "curse": null,
+    "max_stacks": 1,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": true,
+    "buildings": [],
+    "text_ru": "Выбор из 5 карточек вместо 3",
+    "curse_ru": null
+  },
+  {
+    "id": "second_wind",
+    "name_ru": "Второе дыхание",
+    "rarity": "legendary",
+    "tags": [
+      "comfort"
+    ],
+    "effects": [
+      {
+        "type": "stamina_regen",
+        "value": 0.3
+      }
+    ],
+    "curse": null,
+    "max_stacks": 1,
+    "weight": 10,
+    "min_expansion_index": 0,
+    "requires": [],
+    "persist": false,
+    "buildings": [
+      "dorm",
+      "medbay"
+    ],
+    "text_ru": "Выносливость не падает ниже трети",
+    "curse_ru": null
+  }
+]

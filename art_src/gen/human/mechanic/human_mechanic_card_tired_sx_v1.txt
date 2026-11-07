@@ -1,0 +1,19 @@
+# CHARACTER_CARD
+race: human
+class: mechanic
+format: card (3:4, mid-thigh, scene background)
+emotion: tired
+archetype: workaholic
+seed: x
+version: v1
+service: Cursor GenerateImage
+style: live card style from shared/src/ai.ts (seasonal anime cel), not PROMPTS_LOADERS gray sprite sheet
+scene: terminal workshop bay, tool chest, warm lamp
+slots:
+  SKIN_TONE: golden tan
+  HAIR_STYLE: bob cut
+  HAIR_COLOR: violet
+  EYE_SHAPE: sleepy half-lidded
+  EYE_COLOR: gold
+  OUTFIT_COLOR: rust (#a8552f)
+note: style reference was stock fridge_quiet_0; the generator also copied a crate on the shoulder. Head portrait was redrawn from this card.

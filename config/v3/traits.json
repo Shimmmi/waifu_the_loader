@@ -1,0 +1,565 @@
+[
+  {
+    "id": "iron_back",
+    "name_ru": "Стальная спина",
+    "sign": "+",
+    "tier": 1,
+    "kind": "skill",
+    "effects": [
+      {
+        "type": "mult",
+        "stat": "str",
+        "value": 1.1
+      }
+    ],
+    "conflicts": [],
+    "tags": [
+      "work"
+    ],
+    "weight": 10,
+    "min_rarity": "common"
+  },
+  {
+    "id": "quick_hands",
+    "name_ru": "Быстрые руки",
+    "sign": "+",
+    "tier": 1,
+    "kind": "skill",
+    "effects": [
+      {
+        "type": "mult",
+        "stat": "spd",
+        "value": 1.1
+      }
+    ],
+    "conflicts": [],
+    "tags": [
+      "work"
+    ],
+    "weight": 10,
+    "min_rarity": "common"
+  },
+  {
+    "id": "eagle_eye",
+    "name_ru": "Орлиный глаз",
+    "sign": "+",
+    "tier": 1,
+    "kind": "skill",
+    "effects": [
+      {
+        "type": "mult",
+        "stat": "acc",
+        "value": 1.1
+      }
+    ],
+    "conflicts": [],
+    "tags": [
+      "work"
+    ],
+    "weight": 10,
+    "min_rarity": "common"
+  },
+  {
+    "id": "thrifty",
+    "name_ru": "Хозяйственная",
+    "sign": "+",
+    "tier": 1,
+    "kind": "character",
+    "effects": [
+      {
+        "type": "cost_mult",
+        "value": -0.1
+      }
+    ],
+    "conflicts": [],
+    "tags": [
+      "money"
+    ],
+    "weight": 8,
+    "min_rarity": "common"
+  },
+  {
+    "id": "iron_stomach",
+    "name_ru": "Железный желудок",
+    "sign": "+",
+    "tier": 1,
+    "kind": "quirk",
+    "effects": [
+      {
+        "type": "flag",
+        "key": "poison_immune",
+        "value": 1
+      }
+    ],
+    "conflicts": [],
+    "tags": [
+      "food"
+    ],
+    "weight": 6,
+    "min_rarity": "common"
+  },
+  {
+    "id": "night_owl",
+    "name_ru": "Сова",
+    "sign": "+",
+    "tier": 1,
+    "kind": "quirk",
+    "effects": [
+      {
+        "type": "mult",
+        "stat": "output",
+        "value": 1.15,
+        "cond": "night"
+      }
+    ],
+    "conflicts": [
+      "dark_fear"
+    ],
+    "tags": [
+      "night"
+    ],
+    "weight": 8,
+    "min_rarity": "common"
+  },
+  {
+    "id": "team_player",
+    "name_ru": "Командная",
+    "sign": "+",
+    "tier": 2,
+    "kind": "character",
+    "effects": [
+      {
+        "type": "output_add",
+        "value": 0.05,
+        "cond": "crew_gte_3"
+      }
+    ],
+    "conflicts": [],
+    "tags": [
+      "work"
+    ],
+    "weight": 8,
+    "min_rarity": "uncommon"
+  },
+  {
+    "id": "lucky",
+    "name_ru": "Везучая",
+    "sign": "+",
+    "tier": 2,
+    "kind": "character",
+    "effects": [
+      {
+        "type": "mult",
+        "stat": "lck",
+        "value": 1.1
+      }
+    ],
+    "conflicts": [],
+    "tags": [
+      "luck"
+    ],
+    "weight": 8,
+    "min_rarity": "uncommon"
+  },
+  {
+    "id": "big_heart",
+    "name_ru": "Душа компании",
+    "sign": "+",
+    "tier": 2,
+    "kind": "character",
+    "effects": [
+      {
+        "type": "morale",
+        "value": 8
+      }
+    ],
+    "conflicts": [],
+    "tags": [
+      "social"
+    ],
+    "weight": 8,
+    "min_rarity": "uncommon"
+  },
+  {
+    "id": "caffeinated",
+    "name_ru": "Кофеиновая",
+    "sign": "+",
+    "tier": 2,
+    "kind": "quirk",
+    "effects": [
+      {
+        "type": "output_add",
+        "value": 0.2,
+        "cond": "shift_start"
+      }
+    ],
+    "conflicts": [],
+    "tags": [
+      "food"
+    ],
+    "weight": 6,
+    "min_rarity": "uncommon"
+  },
+  {
+    "id": "mentor",
+    "name_ru": "Наставница",
+    "sign": "+",
+    "tier": 2,
+    "kind": "skill",
+    "effects": [
+      {
+        "type": "xp_mult",
+        "value": 0.2
+      }
+    ],
+    "conflicts": [],
+    "tags": [
+      "social"
+    ],
+    "weight": 6,
+    "min_rarity": "uncommon"
+  },
+  {
+    "id": "perfectionist",
+    "name_ru": "Перфекционистка",
+    "sign": "+",
+    "tier": 2,
+    "kind": "skill",
+    "effects": [
+      {
+        "type": "loss_mult",
+        "value": -0.2
+      }
+    ],
+    "conflicts": [],
+    "tags": [
+      "work"
+    ],
+    "weight": 6,
+    "min_rarity": "uncommon"
+  },
+  {
+    "id": "workaholic",
+    "name_ru": "Трудоголичка",
+    "sign": "+",
+    "tier": 3,
+    "kind": "skill",
+    "effects": [
+      {
+        "type": "mult",
+        "stat": "output",
+        "value": 1.25,
+        "cond": "stamina_gt_50"
+      }
+    ],
+    "conflicts": [
+      "procrastinator"
+    ],
+    "tags": [
+      "work"
+    ],
+    "weight": 5,
+    "min_rarity": "rare"
+  },
+  {
+    "id": "dock_legend",
+    "name_ru": "Легенда дока",
+    "sign": "+",
+    "tier": 3,
+    "kind": "skill",
+    "effects": [
+      {
+        "type": "output_add",
+        "value": 0.15
+      }
+    ],
+    "conflicts": [],
+    "tags": [
+      "work"
+    ],
+    "weight": 4,
+    "min_rarity": "rare"
+  },
+  {
+    "id": "union_boss",
+    "name_ru": "Профорг",
+    "sign": "+",
+    "tier": 3,
+    "kind": "character",
+    "effects": [
+      {
+        "type": "contract_mult",
+        "value": 0.1
+      }
+    ],
+    "conflicts": [],
+    "tags": [
+      "social"
+    ],
+    "weight": 4,
+    "min_rarity": "rare"
+  },
+  {
+    "id": "golden_hands",
+    "name_ru": "Золотые руки",
+    "sign": "+",
+    "tier": 3,
+    "kind": "skill",
+    "effects": [
+      {
+        "type": "tonnage_mult",
+        "value": 0.25
+      }
+    ],
+    "conflicts": [],
+    "tags": [
+      "work"
+    ],
+    "weight": 4,
+    "min_rarity": "rare"
+  },
+  {
+    "id": "sleepyhead",
+    "name_ru": "Сонная",
+    "sign": "-",
+    "tier": 1,
+    "kind": "quirk",
+    "effects": [
+      {
+        "type": "mult",
+        "stat": "spd",
+        "value": 0.9,
+        "cond": "morning"
+      }
+    ],
+    "conflicts": [],
+    "tags": [
+      "night"
+    ],
+    "weight": 10,
+    "min_rarity": "common"
+  },
+  {
+    "id": "clumsy",
+    "name_ru": "Неуклюжая",
+    "sign": "-",
+    "tier": 1,
+    "kind": "quirk",
+    "effects": [
+      {
+        "type": "loss_mult",
+        "value": 0.05
+      }
+    ],
+    "conflicts": [],
+    "tags": [
+      "work"
+    ],
+    "weight": 10,
+    "min_rarity": "common"
+  },
+  {
+    "id": "gossip",
+    "name_ru": "Сплетница",
+    "sign": "-",
+    "tier": 1,
+    "kind": "character",
+    "effects": [
+      {
+        "type": "morale",
+        "value": -3
+      }
+    ],
+    "conflicts": [],
+    "tags": [
+      "social"
+    ],
+    "weight": 8,
+    "min_rarity": "common"
+  },
+  {
+    "id": "picky",
+    "name_ru": "Привередливая",
+    "sign": "-",
+    "tier": 1,
+    "kind": "character",
+    "effects": [
+      {
+        "type": "flag",
+        "key": "refuses_danger",
+        "value": 1
+      }
+    ],
+    "conflicts": [],
+    "tags": [
+      "work"
+    ],
+    "weight": 6,
+    "min_rarity": "common"
+  },
+  {
+    "id": "shopaholic",
+    "name_ru": "Шопоголичка",
+    "sign": "-",
+    "tier": 1,
+    "kind": "character",
+    "effects": [
+      {
+        "type": "cost_mult",
+        "value": 0.1
+      }
+    ],
+    "conflicts": [],
+    "tags": [
+      "money"
+    ],
+    "weight": 8,
+    "min_rarity": "common"
+  },
+  {
+    "id": "procrastinator",
+    "name_ru": "Прокрастинаторша",
+    "sign": "-",
+    "tier": 2,
+    "kind": "character",
+    "effects": [
+      {
+        "type": "output_add",
+        "value": -0.2,
+        "cond": "shift_start"
+      }
+    ],
+    "conflicts": [
+      "workaholic"
+    ],
+    "tags": [
+      "work"
+    ],
+    "weight": 6,
+    "min_rarity": "uncommon"
+  },
+  {
+    "id": "hothead",
+    "name_ru": "Вспыльчивая",
+    "sign": "-",
+    "tier": 2,
+    "kind": "character",
+    "effects": [
+      {
+        "type": "event_mod",
+        "value": 0.1
+      }
+    ],
+    "conflicts": [],
+    "tags": [
+      "social"
+    ],
+    "weight": 6,
+    "min_rarity": "uncommon"
+  },
+  {
+    "id": "bad_knees",
+    "name_ru": "Больные колени",
+    "sign": "-",
+    "tier": 2,
+    "kind": "quirk",
+    "effects": [
+      {
+        "type": "mult",
+        "stat": "end",
+        "value": 0.75
+      }
+    ],
+    "conflicts": [],
+    "tags": [
+      "body"
+    ],
+    "weight": 6,
+    "min_rarity": "uncommon"
+  },
+  {
+    "id": "dark_fear",
+    "name_ru": "Боится темноты",
+    "sign": "-",
+    "tier": 2,
+    "kind": "quirk",
+    "effects": [
+      {
+        "type": "mult",
+        "stat": "output",
+        "value": 0.7,
+        "cond": "night"
+      }
+    ],
+    "conflicts": [
+      "night_owl"
+    ],
+    "tags": [
+      "night"
+    ],
+    "weight": 6,
+    "min_rarity": "uncommon"
+  },
+  {
+    "id": "gambler",
+    "name_ru": "Азартная",
+    "sign": "-",
+    "tier": 3,
+    "kind": "character",
+    "effects": [
+      {
+        "type": "mult",
+        "stat": "lck",
+        "value": 1.1
+      },
+      {
+        "type": "contract_mult",
+        "value": -0.05
+      }
+    ],
+    "conflicts": [],
+    "tags": [
+      "luck"
+    ],
+    "weight": 4,
+    "min_rarity": "rare"
+  },
+  {
+    "id": "mob_debtor",
+    "name_ru": "Должница мафии",
+    "sign": "-",
+    "tier": 3,
+    "kind": "character",
+    "effects": [
+      {
+        "type": "contract_mult",
+        "value": -0.05
+      }
+    ],
+    "conflicts": [],
+    "tags": [
+      "money"
+    ],
+    "weight": 3,
+    "min_rarity": "rare"
+  },
+  {
+    "id": "saboteur",
+    "name_ru": "Саботажница",
+    "sign": "-",
+    "tier": 3,
+    "kind": "quirk",
+    "effects": [
+      {
+        "type": "event_mod",
+        "value": 0.03
+      }
+    ],
+    "conflicts": [],
+    "tags": [
+      "work"
+    ],
+    "weight": 2,
+    "min_rarity": "epic"
+  }
+]

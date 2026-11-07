@@ -1,0 +1,142 @@
+[
+  {
+    "id": "terran",
+    "name_ru": "Терранки",
+    "mult": {
+      "str": 1,
+      "spd": 1,
+      "acc": 1,
+      "end": 1,
+      "cha": 1,
+      "lck": 1
+    },
+    "passive": "+10% опыта",
+    "weakness": "Нет бонуса к выработке",
+    "effects": [
+      {
+        "type": "xp_mult",
+        "value": 0.1
+      }
+    ]
+  },
+  {
+    "id": "felid",
+    "name_ru": "Фелиды",
+    "mult": {
+      "str": 1,
+      "spd": 1.08,
+      "acc": 1,
+      "end": 0.95,
+      "cha": 1,
+      "lck": 1
+    },
+    "passive": "+8% скорости погрузки",
+    "weakness": "−5% выносливости",
+    "effects": [
+      {
+        "type": "output_add",
+        "value": 0.08
+      }
+    ]
+  },
+  {
+    "id": "kitsune",
+    "name_ru": "Кицунэ",
+    "mult": {
+      "str": 0.95,
+      "spd": 1,
+      "acc": 1,
+      "end": 1,
+      "cha": 1,
+      "lck": 1.08
+    },
+    "passive": "+8% удачи",
+    "weakness": "−5% силы",
+    "effects": []
+  },
+  {
+    "id": "astrel",
+    "name_ru": "Астрэли",
+    "mult": {
+      "str": 1,
+      "spd": 1,
+      "acc": 1.08,
+      "end": 0.95,
+      "cha": 1,
+      "lck": 1
+    },
+    "passive": "+8% точности",
+    "weakness": "−5% выносливости",
+    "effects": []
+  },
+  {
+    "id": "drakei",
+    "name_ru": "Дракеи",
+    "mult": {
+      "str": 1.1,
+      "spd": 0.92,
+      "acc": 1,
+      "end": 1,
+      "cha": 1,
+      "lck": 1
+    },
+    "passive": "+10% силы",
+    "weakness": "−8% скорости",
+    "effects": []
+  },
+  {
+    "id": "synth",
+    "name_ru": "Синты",
+    "mult": {
+      "str": 1,
+      "spd": 1,
+      "acc": 1,
+      "end": 1.05,
+      "cha": 0.85,
+      "lck": 1
+    },
+    "passive": "Выносливость падает медленнее",
+    "weakness": "−15% к бонусам морали",
+    "effects": []
+  },
+  {
+    "id": "aquali",
+    "name_ru": "Аквали",
+    "mult": {
+      "str": 0.95,
+      "spd": 1,
+      "acc": 1,
+      "end": 1.1,
+      "cha": 1,
+      "lck": 1
+    },
+    "passive": "+10% восстановления",
+    "weakness": "−5% силы",
+    "effects": [
+      {
+        "type": "stamina_regen",
+        "value": 0.1
+      }
+    ]
+  },
+  {
+    "id": "inferni",
+    "name_ru": "Инферни",
+    "mult": {
+      "str": 1,
+      "spd": 1,
+      "acc": 1,
+      "end": 1,
+      "cha": 0.95,
+      "lck": 1
+    },
+    "passive": "+8% дохода с контрактов",
+    "weakness": "−5% морали",
+    "effects": [
+      {
+        "type": "contract_mult",
+        "value": 0.08
+      }
+    ]
+  }
+]

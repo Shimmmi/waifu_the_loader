@@ -5,6 +5,7 @@ import { buildApp } from './app.js';
 import { migrate, registerConfigVersion, sql } from './db.js';
 import { env } from './env.js';
 import { seedReserve } from './pool.js';
+import { seedV3Templates } from './v3.js';
 import { LocalDiskStorage } from './storage.js';
 
 async function main(): Promise<void> {
@@ -13,12 +14,13 @@ async function main(): Promise<void> {
   const configVersion = await registerConfigVersion();
   const storage = new LocalDiskStorage(env.portraitsDir, env.portraitsPublicUrl);
   const seeded = await seedReserve(storage, resolve(process.cwd(), 'assets', 'portraits', 'base'));
+  const templates = await seedV3Templates(sql);
 
   const redis = new Redis(env.redisUrl, { maxRetriesPerRequest: 1, enableOfflineQueue: false, lazyConnect: false });
   redis.on('error', (e) => console.error('redis:', e.message));
 
   const app = await buildApp({ storage, configVersion, redis });
-  app.log.info({ applied, configVersion, seeded }, 'startup');
+  app.log.info({ applied, configVersion, seeded, templates }, 'startup');
   await app.listen({ port: env.port, host: env.host });
 
   const shutdown = async () => {

@@ -1,0 +1,75 @@
+{
+  "version": "v3-gacha-0.1.0",
+  "cost": 100,
+  "cost10": 900,
+  "weights": {
+    "common": 58,
+    "uncommon": 27,
+    "rare": 11,
+    "epic": 3.5,
+    "legendary": 0.5
+  },
+  "pity": {
+    "rare": 10,
+    "epic": 50,
+    "legendary": 100
+  },
+  "race_weight": 12.5,
+  "focus_mult": 3,
+  "focus_cost": 1.2,
+  "banners_enabled": false,
+  "new_template_weight": 4,
+  "card_weights": [
+    {
+      "until": 3,
+      "common": 70,
+      "rare": 27,
+      "epic": 3,
+      "legendary": 0
+    },
+    {
+      "until": 8,
+      "common": 50,
+      "rare": 38,
+      "epic": 11,
+      "legendary": 1
+    },
+    {
+      "until": null,
+      "common": 35,
+      "rare": 40,
+      "epic": 20,
+      "legendary": 5
+    }
+  ],
+  "card_guarantee_dry": 5,
+  "card_stacks": {
+    "common": 3,
+    "rare": 2,
+    "epic": 1,
+    "legendary": 1
+  },
+  "base_weights": [
+    {
+      "until": 1,
+      "common": 60,
+      "rare": 35,
+      "epic": 5,
+      "legendary": 0
+    },
+    {
+      "until": 3,
+      "common": 40,
+      "rare": 40,
+      "epic": 18,
+      "legendary": 2
+    },
+    {
+      "until": null,
+      "common": 25,
+      "rare": 40,
+      "epic": 28,
+      "legendary": 7
+    }
+  ]
+}

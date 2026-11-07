@@ -1,0 +1,5 @@
+# MINI_CARD
+same character as human_mechanic_card_tired_sx_v1
+format: head and collar, square, for mini cards
+emotion: tired
+background: same workshop, soft

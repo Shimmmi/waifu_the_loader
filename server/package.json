@@ -10,6 +10,8 @@
     "migrate": "tsx src/cli/migrate.ts",
     "invite": "tsx src/cli/invite.ts",
     "wipe:terminal": "tsx src/cli/wipe-terminal.ts",
+    "v3:flag": "tsx src/cli/v3-flag.ts",
+    "v3:migrate": "tsx src/cli/v3-migrate.ts",
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {

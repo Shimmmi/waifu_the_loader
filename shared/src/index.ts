@@ -15,3 +15,5 @@ export * from './looks.js';
 export * from './management.js';
 export * from './stock.js';
 export * from './meta.js';
+export * as v3 from './v3/index.js';
+export type { V3View, Game, Template } from './v3/engine.js';

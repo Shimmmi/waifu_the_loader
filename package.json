@@ -22,7 +22,10 @@
     "sim:gacha": "npm run gacha -w scripts",
     "sim:progress": "npm run progress -w scripts",
     "invite": "npm run invite -w server --",
-    "wipe:terminal": "npm run wipe:terminal -w server"
+    "wipe:terminal": "npm run wipe:terminal -w server",
+    "v3:pregen": "tsx tools/pregen/generate.ts --per=5 --approve",
+    "v3:flag": "npm run v3:flag -w server --",
+    "v3:migrate": "npm run v3:migrate -w server --"
   },
   "devDependencies": {
     "@eslint/js": "^9.12.0",

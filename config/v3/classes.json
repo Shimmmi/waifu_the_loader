@@ -1,0 +1,202 @@
+[
+  {
+    "id": "loader",
+    "name_ru": "Грузчица",
+    "role": "Тоннаж",
+    "key_stat": "str",
+    "synergy_building": "dock",
+    "class_mult": 1,
+    "weight": 20,
+    "base": {
+      "str": 12,
+      "spd": 6,
+      "acc": 5,
+      "end": 8,
+      "cha": 4,
+      "lck": 4
+    },
+    "growth": {
+      "str": 0.4,
+      "spd": 0.2,
+      "acc": 0.15,
+      "end": 0.25,
+      "cha": 0.1,
+      "lck": 0.1
+    }
+  },
+  {
+    "id": "forklift",
+    "name_ru": "Оператор погрузчика",
+    "role": "Скорость",
+    "key_stat": "spd",
+    "synergy_building": "dock",
+    "class_mult": 1.05,
+    "weight": 15,
+    "base": {
+      "str": 6,
+      "spd": 12,
+      "acc": 8,
+      "end": 6,
+      "cha": 4,
+      "lck": 5
+    },
+    "growth": {
+      "str": 0.15,
+      "spd": 0.4,
+      "acc": 0.2,
+      "end": 0.15,
+      "cha": 0.1,
+      "lck": 0.15
+    }
+  },
+  {
+    "id": "crane",
+    "name_ru": "Крановщица",
+    "role": "Тяжёлые грузы",
+    "key_stat": "acc",
+    "synergy_building": "dock",
+    "class_mult": 1.15,
+    "weight": 12,
+    "base": {
+      "str": 7,
+      "spd": 5,
+      "acc": 12,
+      "end": 7,
+      "cha": 4,
+      "lck": 5
+    },
+    "growth": {
+      "str": 0.2,
+      "spd": 0.15,
+      "acc": 0.4,
+      "end": 0.2,
+      "cha": 0.1,
+      "lck": 0.15
+    }
+  },
+  {
+    "id": "stocker",
+    "name_ru": "Кладовщица",
+    "role": "Склад",
+    "key_stat": "acc",
+    "synergy_building": "warehouse",
+    "class_mult": 0.9,
+    "weight": 14,
+    "base": {
+      "str": 6,
+      "spd": 5,
+      "acc": 11,
+      "end": 8,
+      "cha": 5,
+      "lck": 5
+    },
+    "growth": {
+      "str": 0.15,
+      "spd": 0.15,
+      "acc": 0.35,
+      "end": 0.25,
+      "cha": 0.15,
+      "lck": 0.15
+    }
+  },
+  {
+    "id": "dispatcher",
+    "name_ru": "Диспетчер",
+    "role": "Бригада",
+    "key_stat": "cha",
+    "synergy_building": "dispatch",
+    "class_mult": 0.7,
+    "weight": 12,
+    "base": {
+      "str": 4,
+      "spd": 5,
+      "acc": 6,
+      "end": 6,
+      "cha": 12,
+      "lck": 6
+    },
+    "growth": {
+      "str": 0.1,
+      "spd": 0.15,
+      "acc": 0.15,
+      "end": 0.15,
+      "cha": 0.4,
+      "lck": 0.2
+    }
+  },
+  {
+    "id": "mechanic",
+    "name_ru": "Механик",
+    "role": "Ремонт",
+    "key_stat": "end",
+    "synergy_building": "workshop",
+    "class_mult": 0.75,
+    "weight": 10,
+    "base": {
+      "str": 7,
+      "spd": 5,
+      "acc": 8,
+      "end": 12,
+      "cha": 4,
+      "lck": 5
+    },
+    "growth": {
+      "str": 0.2,
+      "spd": 0.15,
+      "acc": 0.25,
+      "end": 0.4,
+      "cha": 0.1,
+      "lck": 0.15
+    }
+  },
+  {
+    "id": "guard",
+    "name_ru": "Охрана",
+    "role": "Защита",
+    "key_stat": "str",
+    "synergy_building": "security",
+    "class_mult": 0.85,
+    "weight": 9,
+    "base": {
+      "str": 11,
+      "spd": 6,
+      "acc": 5,
+      "end": 8,
+      "cha": 8,
+      "lck": 4
+    },
+    "growth": {
+      "str": 0.35,
+      "spd": 0.2,
+      "acc": 0.15,
+      "end": 0.25,
+      "cha": 0.25,
+      "lck": 0.1
+    }
+  },
+  {
+    "id": "medic_cook",
+    "name_ru": "Медик-кок",
+    "role": "Мораль",
+    "key_stat": "cha",
+    "synergy_building": "canteen",
+    "class_mult": 0.65,
+    "weight": 8,
+    "base": {
+      "str": 5,
+      "spd": 5,
+      "acc": 5,
+      "end": 8,
+      "cha": 12,
+      "lck": 6
+    },
+    "growth": {
+      "str": 0.15,
+      "spd": 0.15,
+      "acc": 0.15,
+      "end": 0.25,
+      "cha": 0.4,
+      "lck": 0.2
+    }
+  }
+]

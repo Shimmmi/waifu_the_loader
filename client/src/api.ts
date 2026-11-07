@@ -1,4 +1,6 @@
-import type { AiSettings, Look, GachaHistoryItemDTO, NoticeDTO, PullResponseDTO, Rarity, StateDTO, UserSettings } from '@wl/shared';
+import type { AiSettings, Look, GachaHistoryItemDTO, NoticeDTO, PullResponseDTO, Rarity, StateDTO, UserSettings, V3View } from '@wl/shared';
+
+export type V3Client = V3View & { hero: string; isAdmin: boolean };
 
 const BASE = `${import.meta.env.BASE_URL}api`;
 
@@ -74,6 +76,30 @@ export const api = {
   terminalCourse: (waifuId: string, job: string) => req<StateDTO>('POST', '/terminal/course', { waifuId, job }),
   terminalAck: (what: 'intro' | 'report') => req<StateDTO>('POST', '/terminal/ack', { what }),
   track: (name: string, props: Record<string, unknown> = {}) => req<{ ok: true }>('POST', '/analytics', { name, props }).catch(() => undefined),
+  v3boot: () => req<{ live: boolean }>('GET', '/v3/boot'),
+  v3state: () => req<V3Client>('GET', '/v3/state'),
+  v3roll: (count: 1 | 10, requestId: string) => req<V3Client>('POST', '/v3/roll', { count, requestId }),
+  v3expand: (kind: 'up' | 'down') => req<V3Client>('POST', '/v3/base/expand', { kind }),
+  v3pick: (id: string) => req<V3Client>('POST', '/v3/cards/pick', { id }),
+  v3reroll: () => req<V3Client>('POST', '/v3/cards/reroll', {}),
+  v3skip: () => req<V3Client>('POST', '/v3/cards/skip', {}),
+  v3build: (plotId: string, typeId: string) => req<V3Client>('POST', '/v3/base/build', { plotId, typeId }),
+  v3upgrade: (plotId: string) => req<V3Client>('POST', '/v3/base/upgrade', { plotId }),
+  v3assign: (plotId: string, characterId: string) => req<V3Client>('POST', '/v3/staff/assign', { plotId, characterId }),
+  v3unassign: (plotId: string, characterId: string) => req<V3Client>('POST', '/v3/staff/unassign', { plotId, characterId }),
+  v3preview: () => req<V3Client>('POST', '/v3/rebirth/preview', {}),
+  v3confirm: (id: string) => req<V3Client>('POST', '/v3/rebirth/confirm', { id }),
+  v3baseReroll: () => req<V3Client>('POST', '/v3/rebirth/reroll', {}),
+  v3meta: (id: string) => req<V3Client>('POST', `/v3/meta/${id}`, {}),
+  v3gramota: (slot: 0 | 1 | 2) => req<V3Client>('POST', '/v3/gramota', { slot }),
+  v3ack: (skip: boolean) => req<V3Client>('POST', '/v3/story/ack', { skip }),
+  v3contract: (id: string) => req<V3Client>('POST', '/v3/contracts/start', { id }),
+  v3company: (name: string) => req<V3Client>('POST', '/v3/company', { name }),
+  v3motion: (on: boolean) => req<V3Client>('POST', '/v3/motion', { on }),
+  v3offline: () => req<V3Client>('POST', '/v3/offline/ack', {}),
+  v3ending: (id: 'sell' | 'refuse' | 'buy') => req<V3Client>('POST', '/v3/ending', { id }),
+  v3templates: () => req<{ items: { template_id: string; race: string; class: string; first_name: string; last_name: string; portrait: string; thumb: string; status: string }[] }>('GET', '/v3/admin/templates'),
+  v3template: (id: string, status: 'approved' | 'rejected' | 'draft') => req<{ ok: true }>('POST', `/v3/admin/templates/${id}`, { status }),
 };
 
 // ---------- админка ИИ (ТЗ 10.3) ----------

@@ -1,0 +1,564 @@
+[
+  {
+    "id": "m01_prologue",
+    "act": 1,
+    "title_ru": "Увольнение",
+    "trigger": {
+      "type": "flag",
+      "key": "act"
+    },
+    "messages": [
+      {
+        "speaker": "hero",
+        "key": "story.m01.0"
+      },
+      {
+        "speaker": "hero",
+        "key": "story.m01.1"
+      },
+      {
+        "speaker": "hero",
+        "key": "story.m01.2"
+      },
+      {
+        "speaker": "hero",
+        "key": "story.m01.3"
+      },
+      {
+        "speaker": "hero",
+        "key": "story.m01.4"
+      }
+    ],
+    "rewards": [
+      {
+        "type": "grant",
+        "key": "credits",
+        "amount": 120
+      },
+      {
+        "type": "grant",
+        "key": "free_roll",
+        "amount": 1
+      }
+    ],
+    "once": true
+  },
+  {
+    "id": "m02_first_cargo",
+    "act": 1,
+    "title_ru": "Первый клиент",
+    "trigger": {
+      "type": "counter",
+      "key": "tons_total",
+      "gte": 10
+    },
+    "messages": [
+      {
+        "speaker": "hero",
+        "key": "story.m02.0"
+      }
+    ],
+    "rewards": [
+      {
+        "type": "flag",
+        "key": "hire_open",
+        "value": 1
+      }
+    ],
+    "once": true
+  },
+  {
+    "id": "m03_first_hire",
+    "act": 1,
+    "title_ru": "Первая сотрудница",
+    "trigger": {
+      "type": "counter",
+      "key": "hires",
+      "gte": 1
+    },
+    "messages": [
+      {
+        "speaker": "hero",
+        "key": "story.m03.0"
+      }
+    ],
+    "rewards": [
+      {
+        "type": "grant",
+        "key": "free_roll",
+        "amount": 1
+      }
+    ],
+    "once": true
+  },
+  {
+    "id": "m04_first_contract",
+    "act": 1,
+    "title_ru": "Первая выручка",
+    "trigger": {
+      "type": "counter",
+      "key": "contracts_done",
+      "gte": 1
+    },
+    "messages": [
+      {
+        "speaker": "hero",
+        "key": "story.m04.0"
+      }
+    ],
+    "rewards": [
+      {
+        "type": "flag",
+        "key": "contracts_open",
+        "value": 1
+      }
+    ],
+    "once": true
+  },
+  {
+    "id": "m05_dorm",
+    "act": 1,
+    "title_ru": "Общежитие",
+    "trigger": {
+      "type": "building_level",
+      "id": "dorm",
+      "gte": 1
+    },
+    "messages": [
+      {
+        "speaker": "hero",
+        "key": "story.m05.0"
+      }
+    ],
+    "rewards": [
+      {
+        "type": "grant",
+        "key": "stars",
+        "amount": 20
+      }
+    ],
+    "once": true
+  },
+  {
+    "id": "m06_crew5",
+    "act": 1,
+    "title_ru": "Пять голосов",
+    "trigger": {
+      "type": "crew_size",
+      "gte": 5
+    },
+    "messages": [
+      {
+        "speaker": "hero",
+        "key": "story.m06.0"
+      }
+    ],
+    "rewards": [
+      {
+        "type": "crew_mult",
+        "value": 0.03
+      }
+    ],
+    "once": true
+  },
+  {
+    "id": "m07_first_expansion",
+    "act": 2,
+    "title_ru": "Это надолго",
+    "trigger": {
+      "type": "counter",
+      "key": "expansions_total",
+      "gte": 1
+    },
+    "messages": [
+      {
+        "speaker": "hero",
+        "key": "story.m07.0"
+      }
+    ],
+    "rewards": [
+      {
+        "type": "card_pick",
+        "pool": "expansion",
+        "rarity_min": "common"
+      }
+    ],
+    "once": true
+  },
+  {
+    "id": "m08_first_epic",
+    "act": 2,
+    "title_ru": "Звезда дока",
+    "trigger": {
+      "type": "rarity_obtained",
+      "rarity": "epic"
+    },
+    "messages": [
+      {
+        "speaker": "hero",
+        "key": "story.m08.0"
+      }
+    ],
+    "rewards": [
+      {
+        "type": "grant",
+        "key": "stars",
+        "amount": 50
+      }
+    ],
+    "once": true
+  },
+  {
+    "id": "m09_omnicon_letter",
+    "act": 2,
+    "title_ru": "Письмо",
+    "trigger": {
+      "type": "counter",
+      "key": "tons_total",
+      "gte": 1000
+    },
+    "messages": [
+      {
+        "speaker": "corp",
+        "key": "story.m09.0"
+      }
+    ],
+    "rewards": [
+      {
+        "type": "card_pick",
+        "pool": "expansion",
+        "rarity_min": "rare"
+      }
+    ],
+    "once": true
+  },
+  {
+    "id": "m10_act2",
+    "act": 2,
+    "title_ru": "Конец ссылки",
+    "trigger": {
+      "type": "all",
+      "of": [
+        {
+          "type": "building_level",
+          "id": "dispatch",
+          "gte": 5
+        },
+        {
+          "type": "counter",
+          "key": "contracts_done",
+          "gte": 4
+        }
+      ]
+    },
+    "messages": [
+      {
+        "speaker": "hero",
+        "key": "story.m10.0"
+      }
+    ],
+    "rewards": [
+      {
+        "type": "flag",
+        "key": "act2",
+        "value": 1
+      }
+    ],
+    "once": true
+  },
+  {
+    "id": "m11_rivals",
+    "act": 2,
+    "title_ru": "Филиал напротив",
+    "trigger": {
+      "type": "all",
+      "of": [
+        {
+          "type": "flag",
+          "key": "act2"
+        },
+        {
+          "type": "counter",
+          "key": "shift_tons",
+          "gte": 150
+        }
+      ]
+    },
+    "messages": [
+      {
+        "speaker": "rival",
+        "key": "story.m11.0"
+      }
+    ],
+    "rewards": [
+      {
+        "type": "flag",
+        "key": "chain_sabotage",
+        "value": 1
+      }
+    ],
+    "once": true
+  },
+  {
+    "id": "m12_inspection",
+    "act": 2,
+    "title_ru": "Проверка",
+    "trigger": {
+      "type": "counter",
+      "key": "events_done",
+      "gte": 15
+    },
+    "messages": [
+      {
+        "speaker": "hero",
+        "key": "story.m12.0"
+      }
+    ],
+    "rewards": [
+      {
+        "type": "grant",
+        "key": "credits",
+        "amount": 500
+      }
+    ],
+    "once": true
+  },
+  {
+    "id": "m13_union",
+    "act": 2,
+    "title_ru": "Профсоюз",
+    "trigger": {
+      "type": "all",
+      "of": [
+        {
+          "type": "crew_size",
+          "gte": 15
+        },
+        {
+          "type": "counter",
+          "key": "races_distinct",
+          "gte": 4
+        }
+      ]
+    },
+    "messages": [
+      {
+        "speaker": "hero",
+        "key": "story.m13.0"
+      }
+    ],
+    "rewards": [
+      {
+        "type": "crew_mult",
+        "value": 0.05
+      }
+    ],
+    "once": true
+  },
+  {
+    "id": "m14_act3",
+    "act": 3,
+    "title_ru": "А что если заново",
+    "trigger": {
+      "type": "building_level",
+      "id": "dispatch",
+      "gte": 10
+    },
+    "messages": [
+      {
+        "speaker": "hero",
+        "key": "story.m14.0"
+      }
+    ],
+    "rewards": [
+      {
+        "type": "flag",
+        "key": "rebirth_open",
+        "value": 1
+      }
+    ],
+    "once": true
+  },
+  {
+    "id": "m15_first_rebirth",
+    "act": 3,
+    "title_ru": "Переезд",
+    "trigger": {
+      "type": "rebirth_count",
+      "gte": 1
+    },
+    "messages": [
+      {
+        "speaker": "hero",
+        "key": "story.m15.0"
+      }
+    ],
+    "rewards": [
+      {
+        "type": "grant",
+        "key": "stars",
+        "amount": 30
+      }
+    ],
+    "once": true
+  },
+  {
+    "id": "m16_rebirth_3",
+    "act": 3,
+    "title_ru": "Три сектора",
+    "trigger": {
+      "type": "rebirth_count",
+      "gte": 3
+    },
+    "messages": [
+      {
+        "speaker": "hero",
+        "key": "story.m16.0"
+      }
+    ],
+    "rewards": [
+      {
+        "type": "card_pick",
+        "pool": "base",
+        "rarity_min": "rare"
+      }
+    ],
+    "once": true
+  },
+  {
+    "id": "m17_legend",
+    "act": 3,
+    "title_ru": "Корпорации заметили",
+    "trigger": {
+      "type": "rarity_obtained",
+      "rarity": "legendary"
+    },
+    "messages": [
+      {
+        "speaker": "hero",
+        "key": "story.m17.0"
+      }
+    ],
+    "rewards": [
+      {
+        "type": "grant",
+        "key": "stars",
+        "amount": 100
+      }
+    ],
+    "once": true
+  },
+  {
+    "id": "m18_buyout",
+    "act": 4,
+    "title_ru": "Выкуп",
+    "trigger": {
+      "type": "all",
+      "of": [
+        {
+          "type": "flag",
+          "key": "act4"
+        },
+        {
+          "type": "counter",
+          "key": "tons_total",
+          "gte": 1000000
+        }
+      ]
+    },
+    "messages": [
+      {
+        "speaker": "corp",
+        "key": "story.m18.0"
+      }
+    ],
+    "rewards": [],
+    "once": true
+  },
+  {
+    "id": "m19_ending_sell",
+    "act": 4,
+    "title_ru": "Продать",
+    "trigger": {
+      "type": "chain_step",
+      "id": "sell"
+    },
+    "messages": [
+      {
+        "speaker": "hero",
+        "key": "story.m19.sell"
+      }
+    ],
+    "rewards": [
+      {
+        "type": "flag",
+        "key": "ng_plus",
+        "value": 1
+      }
+    ],
+    "once": true
+  },
+  {
+    "id": "m19_ending_refuse",
+    "act": 4,
+    "title_ru": "Отказать",
+    "trigger": {
+      "type": "chain_step",
+      "id": "refuse"
+    },
+    "messages": [
+      {
+        "speaker": "hero",
+        "key": "story.m19.refuse"
+      }
+    ],
+    "rewards": [
+      {
+        "type": "flag",
+        "key": "ng_plus",
+        "value": 1
+      }
+    ],
+    "once": true
+  },
+  {
+    "id": "m19_ending_buy",
+    "act": 4,
+    "title_ru": "Купить корпорацию",
+    "trigger": {
+      "type": "chain_step",
+      "id": "buy"
+    },
+    "messages": [
+      {
+        "speaker": "hero",
+        "key": "story.m19.buy"
+      }
+    ],
+    "rewards": [
+      {
+        "type": "flag",
+        "key": "ng_plus",
+        "value": 1
+      }
+    ],
+    "once": true
+  },
+  {
+    "id": "m_meta_story",
+    "act": 1,
+    "title_ru": "Мемуары",
+    "trigger": {
+      "type": "flag",
+      "key": "meta_story"
+    },
+    "messages": [
+      {
+        "speaker": "hero",
+        "key": "story.meta.0"
+      }
+    ],
+    "rewards": [],
+    "once": true
+  }
+]

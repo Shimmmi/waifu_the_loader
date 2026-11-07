@@ -1,0 +1,453 @@
+[
+  {
+    "id": "dock",
+    "name_ru": "Погрузочный док",
+    "tag": "logistics",
+    "base_cost": 100,
+    "effects": [
+      {
+        "type": "tonnage_mult",
+        "value": 0.1
+      }
+    ],
+    "shift_slots": {
+      "base": 1,
+      "per_levels": 2
+    },
+    "zone": "surface",
+    "tier": 1,
+    "key_stat": "str",
+    "baseline": 8,
+    "class_affinity": [
+      "loader",
+      "forklift",
+      "crane"
+    ],
+    "race_affinity": [
+      "drakei",
+      "terran"
+    ],
+    "staff_slots": {
+      "base": 1,
+      "extra_at": [
+        3,
+        6,
+        10
+      ]
+    }
+  },
+  {
+    "id": "dispatch",
+    "name_ru": "Диспетчерская",
+    "tag": "office",
+    "base_cost": 250,
+    "effects": [
+      {
+        "type": "crew_mult",
+        "value": 0.02
+      }
+    ],
+    "contract_slots": {
+      "base": 1,
+      "extra_at": [
+        3,
+        6,
+        9
+      ]
+    },
+    "zone": "above",
+    "tier": 2,
+    "key_stat": "cha",
+    "baseline": 8,
+    "class_affinity": [
+      "dispatcher"
+    ],
+    "race_affinity": [
+      "kitsune"
+    ],
+    "staff_slots": {
+      "base": 1,
+      "extra_at": [
+        3,
+        6,
+        10
+      ]
+    }
+  },
+  {
+    "id": "dorm",
+    "name_ru": "Общежитие",
+    "tag": "comfort",
+    "base_cost": 400,
+    "effects": [
+      {
+        "type": "stamina_regen",
+        "value": 0.05
+      }
+    ],
+    "crew_slots": {
+      "at_1": 2,
+      "extra_at": [
+        3,
+        6,
+        9
+      ]
+    },
+    "zone": "any",
+    "tier": 1,
+    "key_stat": "end",
+    "baseline": 8,
+    "class_affinity": [],
+    "race_affinity": [
+      "terran"
+    ],
+    "staff_slots": {
+      "base": 1,
+      "extra_at": [
+        3,
+        6,
+        10
+      ]
+    }
+  },
+  {
+    "id": "warehouse",
+    "name_ru": "Склад",
+    "tag": "logistics",
+    "base_cost": 500,
+    "effects": [
+      {
+        "type": "loss_mult",
+        "value": -0.03
+      }
+    ],
+    "zone": "any",
+    "tier": 1,
+    "key_stat": "acc",
+    "baseline": 8,
+    "class_affinity": [
+      "stocker"
+    ],
+    "race_affinity": [
+      "synth",
+      "astrel"
+    ],
+    "staff_slots": {
+      "base": 1,
+      "extra_at": [
+        3,
+        6,
+        10
+      ]
+    }
+  },
+  {
+    "id": "canteen",
+    "name_ru": "Кантина",
+    "tag": "comfort",
+    "base_cost": 600,
+    "effects": [
+      {
+        "type": "morale",
+        "value": 3
+      },
+      {
+        "type": "stamina_regen",
+        "value": 0.04
+      }
+    ],
+    "zone": "any",
+    "tier": 1,
+    "key_stat": "cha",
+    "baseline": 8,
+    "class_affinity": [
+      "medic_cook"
+    ],
+    "race_affinity": [
+      "felid"
+    ],
+    "staff_slots": {
+      "base": 1,
+      "extra_at": [
+        3,
+        6,
+        10
+      ]
+    }
+  },
+  {
+    "id": "workshop",
+    "name_ru": "Мастерская",
+    "tag": "production",
+    "base_cost": 800,
+    "effects": [
+      {
+        "type": "loss_mult",
+        "value": -0.05
+      }
+    ],
+    "zone": "underground",
+    "tier": 2,
+    "key_stat": "end",
+    "baseline": 8,
+    "class_affinity": [
+      "mechanic"
+    ],
+    "race_affinity": [
+      "synth"
+    ],
+    "staff_slots": {
+      "base": 1,
+      "extra_at": [
+        3,
+        6,
+        10
+      ]
+    }
+  },
+  {
+    "id": "gym",
+    "name_ru": "Тренажёрный зал",
+    "tag": "social",
+    "base_cost": 900,
+    "effects": [
+      {
+        "type": "xp_mult",
+        "value": 0.06
+      }
+    ],
+    "zone": "any",
+    "tier": 2,
+    "key_stat": "str",
+    "baseline": 8,
+    "class_affinity": [
+      "loader",
+      "guard"
+    ],
+    "race_affinity": [
+      "drakei"
+    ],
+    "staff_slots": {
+      "base": 1,
+      "extra_at": [
+        3,
+        6,
+        10
+      ]
+    }
+  },
+  {
+    "id": "medbay",
+    "name_ru": "Медблок",
+    "tag": "comfort",
+    "base_cost": 1000,
+    "effects": [
+      {
+        "type": "stamina_regen",
+        "value": 0.08
+      }
+    ],
+    "zone": "any",
+    "tier": 2,
+    "key_stat": "cha",
+    "baseline": 8,
+    "class_affinity": [
+      "medic_cook"
+    ],
+    "race_affinity": [
+      "aquali"
+    ],
+    "staff_slots": {
+      "base": 1,
+      "extra_at": [
+        3,
+        6,
+        10
+      ]
+    }
+  },
+  {
+    "id": "hr_office",
+    "name_ru": "HR-офис",
+    "tag": "office",
+    "base_cost": 1200,
+    "effects": [
+      {
+        "type": "roll_cost_mult",
+        "value": -0.02
+      }
+    ],
+    "zone": "above",
+    "tier": 3,
+    "key_stat": "cha",
+    "baseline": 8,
+    "class_affinity": [
+      "dispatcher"
+    ],
+    "race_affinity": [
+      "kitsune"
+    ],
+    "staff_slots": {
+      "base": 1,
+      "extra_at": [
+        3,
+        6,
+        10
+      ]
+    }
+  },
+  {
+    "id": "security",
+    "name_ru": "Охранный пост",
+    "tag": "security",
+    "base_cost": 1500,
+    "effects": [
+      {
+        "type": "theft_mult",
+        "value": -0.08
+      }
+    ],
+    "zone": "underground",
+    "tier": 2,
+    "key_stat": "str",
+    "baseline": 8,
+    "class_affinity": [
+      "guard"
+    ],
+    "race_affinity": [
+      "inferni",
+      "drakei"
+    ],
+    "staff_slots": {
+      "base": 1,
+      "extra_at": [
+        3,
+        6,
+        10
+      ]
+    }
+  },
+  {
+    "id": "comms",
+    "name_ru": "Радиорубка",
+    "tag": "office",
+    "base_cost": 2000,
+    "effects": [
+      {
+        "type": "contract_mult",
+        "value": 0.04
+      }
+    ],
+    "zone": "above",
+    "tier": 3,
+    "key_stat": "cha",
+    "baseline": 8,
+    "class_affinity": [
+      "dispatcher"
+    ],
+    "race_affinity": [
+      "kitsune"
+    ],
+    "staff_slots": {
+      "base": 1,
+      "extra_at": [
+        3,
+        6,
+        10
+      ]
+    }
+  },
+  {
+    "id": "greenhouse",
+    "name_ru": "Оранжерея",
+    "tag": "production",
+    "base_cost": 2500,
+    "effects": [
+      {
+        "type": "passive_credits",
+        "value": 1
+      }
+    ],
+    "passive_credits": 20,
+    "zone": "surface",
+    "tier": 3,
+    "key_stat": "cha",
+    "baseline": 8,
+    "class_affinity": [
+      "medic_cook"
+    ],
+    "race_affinity": [
+      "aquali"
+    ],
+    "staff_slots": {
+      "base": 1,
+      "extra_at": [
+        3,
+        6,
+        10
+      ]
+    }
+  },
+  {
+    "id": "bar",
+    "name_ru": "Бар «Тупик»",
+    "tag": "social",
+    "base_cost": 3000,
+    "effects": [
+      {
+        "type": "event_mod",
+        "value": 0.05
+      }
+    ],
+    "zone": "above",
+    "tier": 3,
+    "key_stat": "cha",
+    "baseline": 8,
+    "class_affinity": [
+      "medic_cook"
+    ],
+    "race_affinity": [
+      "felid",
+      "inferni"
+    ],
+    "staff_slots": {
+      "base": 1,
+      "extra_at": [
+        3,
+        6,
+        10
+      ]
+    }
+  },
+  {
+    "id": "reactor",
+    "name_ru": "Реактор",
+    "tag": "production",
+    "base_cost": 5000,
+    "effects": [
+      {
+        "type": "global_mult",
+        "value": 0.05
+      }
+    ],
+    "zone": "underground",
+    "tier": 4,
+    "key_stat": "end",
+    "baseline": 10,
+    "class_affinity": [
+      "mechanic"
+    ],
+    "race_affinity": [
+      "synth",
+      "inferni"
+    ],
+    "staff_slots": {
+      "base": 1,
+      "extra_at": [
+        3,
+        6,
+        10
+      ]
+    }
+  }
+]

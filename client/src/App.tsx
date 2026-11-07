@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from './api';
+import { V3App } from './v3/V3App';
 import { OfflineModal, RecoveryModal } from './components/Modals';
 import { Shell } from './components/Shell';
 import { Toasts } from './components/ui';
@@ -75,6 +76,7 @@ function useHeartbeat(enabled: boolean) {
 
 export function App() {
   const auth = useStore((s) => s.auth);
+  const [v3on, setV3] = useState<boolean | null>(null);
   const screen = useStore((s) => s.screen);
   const load = useStore((s) => s.load);
   const isAdmin = useStore((s) => s.state?.user.isAdmin ?? false);
@@ -85,7 +87,13 @@ export function App() {
     void load();
   }, [load]);
 
-  if (auth === 'unknown') return <div className="login"><div className="counter-big">📦…</div></div>;
+  useEffect(() => {
+    if (auth !== 'in') return;
+    api.v3boot().then((b) => setV3(b.live)).catch(() => setV3(false));
+  }, [auth]);
+
+  if (auth === 'unknown' || (auth === 'in' && v3on === null)) return <div className="login"><div className="counter-big">📦…</div></div>;
+  if (v3on) return <V3App />;
   if (auth === 'guest')
     return (
       <>

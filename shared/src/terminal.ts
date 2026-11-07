@@ -249,6 +249,13 @@ export function psychoOf(id: string): Psychotype {
   return PSYCHOS[hash(id + ':ps') % 6]!;
 }
 
+/** Вклад пары в синергию смены: сумма таблиц знака и психотипа, в долях (5 → 0,05). */
+export function pairBond(a: string, b: string): number {
+  const el = STAR[elementOf(a)][elementOf(b)];
+  const ps = PSY[psychoOf(a)][psychoOf(b)];
+  return (el + ps) / 100;
+}
+
 const STAR: Record<ElementName, Record<ElementName, number>> = {
   fire: { fire: 5, earth: -5, air: 15, water: -15 },
   earth: { fire: -5, earth: 5, air: -10, water: 15 },

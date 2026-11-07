@@ -1,0 +1,28 @@
+{
+  "tabs": [
+    {
+      "id": "terminal",
+      "name_ru": "Терминал"
+    },
+    {
+      "id": "crew",
+      "name_ru": "Бригада"
+    },
+    {
+      "id": "contracts",
+      "name_ru": "Контракты"
+    },
+    {
+      "id": "world",
+      "name_ru": "Мир"
+    },
+    {
+      "id": "cabinet",
+      "name_ru": "Кабинет"
+    },
+    {
+      "id": "menu",
+      "name_ru": "Меню"
+    }
+  ]
+}
