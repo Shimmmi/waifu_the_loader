@@ -128,7 +128,7 @@ export class RouterAiClient {
         if (!url) throw new RouterAiError('модель не вернула картинку', 502, usage.cost ?? 0);
         return { value: await dataUrlToBuffer(url), model, costRub: usage.cost ?? 0, promptTokens: usage.prompt_tokens ?? null, completionTokens: usage.completion_tokens ?? null, durationMs: ms };
       } catch (e) {
-        if (!(e instanceof RouterAiError) || !/images endpoint/i.test(e.message)) throw e;
+        if (!(e instanceof RouterAiError) || !/images endpoint|capacity/i.test(e.message)) throw e;
         imagesEndpointModels.add(model);
       }
     }

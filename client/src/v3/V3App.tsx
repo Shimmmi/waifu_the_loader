@@ -46,6 +46,21 @@ function dealTime(sec: number): string {
   return m ? `${h} ч ${m} мин` : `${h} ч`;
 }
 
+function effectNow(text: string, level: number, k: number): string {
+  let milestone = 1;
+  if (level >= 10) milestone *= 2;
+  if (level >= 20) milestone *= 2;
+  if (level >= 30) milestone *= 2;
+  const factor = level * (milestone + k - 1);
+  if (!text) return 'без постоянного бонуса';
+  return text.replace(/(\d+(?:[.,]\d+)?)/g, (num) => {
+    const n = Number(num.replace(',', '.'));
+    if (!Number.isFinite(n)) return num;
+    const scaled = Math.round(n * factor * 10) / 10;
+    return String(scaled).replace(/\.0$/, '');
+  });
+}
+
 function src(path: string): string {
   if (!path) return '';
   if (path.startsWith('http') || path.startsWith('/')) return path;
@@ -168,19 +183,34 @@ export function V3App() {
   const [now, setNow] = useState(() => Date.now());
   const [buildFor, setBuildFor] = useState<string | null>(null);
   const [roomId, setRoomId] = useState<string | null>(null);
-  const [staffId, setStaffId] = useState('');
+  const [staffPick, setStaffPick] = useState(false);
+  const [staffAsk, setStaffAsk] = useState<{ id: string; name: string; where: string } | null>(null);
   const [race, setRace] = useState('');
   const [job, setJob] = useState('');
   const [rarity, setRarity] = useState('');
   const [sort, setSort] = useState<SortKey>('rarity');
   const [openId, setOpenId] = useState<string | null>(null);
+  const [drop, setDrop] = useState<'active' | 'bench' | ''>('');
   const [company, setCompany] = useState('');
+  const [hireWait, setHireWait] = useState(false);
 
   async function run(fn: () => Promise<V3Client>) {
     try {
       setState(await fn());
     } catch (e) {
       setPopup(e instanceof ApiError ? e.message : 'Не вышло');
+    }
+  }
+
+  async function hire(count: 1 | 10) {
+    if (hireWait) return;
+    setHireWait(true);
+    try {
+      setState(await api.v3roll(count, crypto.randomUUID()));
+    } catch (e) {
+      setPopup(e instanceof ApiError ? e.message : 'Не вышло');
+    } finally {
+      setHireWait(false);
     }
   }
 
@@ -200,6 +230,19 @@ export function V3App() {
     if (!state) return [];
     const rank: Record<string, number> = { common: 0, uncommon: 1, rare: 2, epic: 3, legendary: 4 };
     const list = state.characters.filter((c) => !c.reserve && (!race || c.race === race) && (!job || c.job === job) && (!rarity || c.rarity === rarity));
+    return [...list].sort((a, b) => {
+      if (sort === 'level') return b.level - a.level;
+      if (sort === 'power') return b.power - a.power;
+      if (sort === 'race') return a.raceName.localeCompare(b.raceName, 'ru');
+      if (sort === 'job') return a.jobName.localeCompare(b.jobName, 'ru');
+      return (rank[b.rarity] ?? 0) - (rank[a.rarity] ?? 0);
+    });
+  }, [state, race, job, rarity, sort]);
+
+  const bench = useMemo(() => {
+    if (!state) return [];
+    const rank: Record<string, number> = { common: 0, uncommon: 1, rare: 2, epic: 3, legendary: 4 };
+    const list = state.characters.filter((c) => c.reserve && (!race || c.race === race) && (!job || c.job === job) && (!rarity || c.rarity === rarity));
     return [...list].sort((a, b) => {
       if (sort === 'level') return b.level - a.level;
       if (sort === 'power') return b.power - a.power;
@@ -236,7 +279,7 @@ export function V3App() {
         <div className="v3-res">🪙 {state.credits}</div>
         <div className="v3-res">⭐ {state.stars}</div>
         <div className="v3-res">📦 {state.tonsPerSec} т/с</div>
-        <div className="v3-res">перерождений {state.rebirths}</div>
+        <div className="v3-res">переездов {state.rebirths}</div>
       </header>
       <div className="v3-layout">
         <nav className="v3-side">
@@ -247,6 +290,15 @@ export function V3App() {
         <main className="v3-panel">
           {tab === 'terminal' && (
             <div className="v3-shaft">
+              {state.floors.filter((f) => f.z > 0).length < 1 + state.rebirths && (
+                <div className="v3-floor" style={{ backgroundImage: `url(${src('v3/zones/sky-1.webp')})` }}>
+                  {Array.from({ length: state.floors[0]?.cells.length ?? 3 }, (_, i) => (
+                    <button key={`up-${i}`} type="button" className="v3-cell" disabled={state.credits < state.expandCost || !!state.pendingCards} onClick={() => void run(() => api.v3expand('up'))}>
+                      {i === Math.floor(((state.floors[0]?.cells.length ?? 3) - 1) / 2) ? <span className="v3-price">Вверх · {state.expandCost}</span> : null}
+                    </button>
+                  ))}
+                </div>
+              )}
               {state.floors.map((floor) => {
                 const layer = floor.z > 0 ? Math.min(floor.z, 4) : floor.z < 0 ? Math.min(-floor.z, 4) : 0;
                 const bg = floor.z > 0 ? `v3/zones/sky-${layer}.webp` : floor.z < 0 ? `v3/zones/ground-${layer}.webp` : 'v3/zones/surface.webp';
@@ -272,6 +324,15 @@ export function V3App() {
                   </div>
                 );
               })}
+              {state.floors.filter((f) => f.z < 0).length < 1 + state.rebirths && (
+                <div className="v3-floor" style={{ backgroundImage: `url(${src('v3/zones/ground-1.webp')})` }}>
+                  {Array.from({ length: state.floors[0]?.cells.length ?? 3 }, (_, i) => (
+                    <button key={`down-${i}`} type="button" className="v3-cell" disabled={state.credits < state.expandCost || !!state.pendingCards} onClick={() => void run(() => api.v3expand('down'))}>
+                      {i === Math.floor(((state.floors[0]?.cells.length ?? 3) - 1) / 2) ? <span className="v3-price">Вниз · {state.expandCost}</span> : null}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
           {tab === 'crew' && (
@@ -279,18 +340,15 @@ export function V3App() {
               <div className="heading">
                 <div aria-hidden>👷🏻‍♀️</div>
                 <h1>Бригада</h1>
-                <div className="capacity"><span>👥</span><div><span>{onShift} / {state.crewCap}</span><small>Макс. {state.crewCap}</small></div></div>
+                <div className="capacity"><span>{onShift} / {state.crewCap}</span></div>
               </div>
               <div className="toolbar">
                 <select className="filter" value={race} onChange={(e) => { setRace(e.target.value); setPage(0); }}><option value="">Все расы</option>{state.races.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}</select>
                 <select className="filter" value={job} onChange={(e) => { setJob(e.target.value); setPage(0); }}><option value="">Все классы</option>{state.classes.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}</select>
                 <select className="filter" value={rarity} onChange={(e) => { setRarity(e.target.value); setPage(0); }}><option value="">Все редкости</option>{Object.entries(RARITY).map(([id, r]) => <option key={id} value={id}>{r.label}</option>)}</select>
-                <span className="sort-label">Сортировка:</span>
                 <div className="sorts">
-                  {(['rarity', 'level', 'power', 'race', 'job'] as SortKey[]).map((key) => (
-                    <button key={key} className={`sort ${sort === key ? 'on' : ''}`} title={key === 'rarity' ? 'По редкости' : key === 'level' ? 'По уровню' : key === 'power' ? 'По силе' : key === 'race' ? 'По расе' : 'По классу'} onClick={() => setSort(key)}>
-                      {key === 'rarity' ? '✦' : key === 'level' ? '▥' : key === 'power' ? '⚔' : key === 'race' ? '♟' : '💼'}
-                    </button>
+                  {([['rarity', 'ред'], ['level', 'ур'], ['power', 'сила'], ['race', 'раса'], ['job', 'класс']] as [SortKey, string][]).map(([key, label]) => (
+                    <button key={key} className={`sort ${sort === key ? 'on' : ''}`} onClick={() => setSort(key)}>{label}</button>
                   ))}
                 </div>
               </div>
@@ -299,29 +357,29 @@ export function V3App() {
                   <p>Найм откроется после первых 10 тонн.</p>
                 ) : (
                   <>
-                    <button type="button" className="crew-roll" disabled={onShift >= state.crewCap && state.freeRolls === 0} onClick={() => void run(() => api.v3roll(1, crypto.randomUUID()))}>
+                    <button type="button" className="crew-roll" disabled={hireWait} onClick={() => void hire(1)}>
                       {state.freeRolls > 0 ? 'Бесплатный найм' : `Найм · ${state.rollCost}`}
                     </button>
-                    <button type="button" className="crew-roll" disabled={onShift + 10 > state.crewCap} onClick={() => void run(() => api.v3roll(10, crypto.randomUUID()))}>
+                    <button type="button" className="crew-roll" disabled={hireWait} onClick={() => void hire(10)}>
                       ×10 · {state.roll10}
                     </button>
-                    {onShift >= state.crewCap && state.freeRolls === 0 && <span>Нужно общежитие выше</span>}
+                    {onShift >= state.crewCap && <span>Состав полон: новые сразу в запас</span>}
                   </>
                 )}
               </div>
-              <div className="roster">
+              <div
+                className={`roster ${drop === 'active' ? 'over' : ''}`}
+                onDragOver={(e) => { e.preventDefault(); setDrop('active'); }}
+                onDragLeave={() => setDrop('')}
+                onDrop={(e) => { e.preventDefault(); setDrop(''); const id = e.dataTransfer.getData('text/plain'); if (id) void run(() => api.v3roster(id, false)); }}
+              >
                 {crew.slice(page * 8, page * 8 + 8).map((c) => (
-                  <article key={c.id} className={`waifu-card ${c.rarity}`} onClick={() => setOpenId(c.id)}>
-                    <div className="portrait">
-                      <img src={src(c.thumb || c.portrait)} alt="" />
-                      <span className="level">{c.level}</span>
-                      <span className="stars">{'★'.repeat((['common', 'uncommon', 'rare', 'epic', 'legendary'].indexOf(c.rarity) + 1) || 1)}</span>
-                      <span className="rarity-tag">{RARITY[c.rarity]?.label}</span>
-                    </div>
-                    <div className="card-info">
-                      <div className="name">{c.name}</div>
-                      <div className="stats"><span>✊ <b>{c.power}</b></span><span>🥾 <b>{c.stats.end}</b></span><span className="role" title={c.jobName}>{JOB_ICON[c.job] ?? '•'}</span></div>
-                    </div>
+                  <article key={c.id} draggable className={`waifu-card ${c.rarity}`} onDragStart={(e) => { e.dataTransfer.setData('text/plain', c.id); e.dataTransfer.effectAllowed = 'move'; }} onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }} onDrop={(e) => { e.preventDefault(); e.stopPropagation(); setDrop(''); const id = e.dataTransfer.getData('text/plain'); if (id && id !== c.id) void run(() => api.v3roster(id, false, c.id)); }} onClick={() => setOpenId(c.id)}>
+                    <img src={src(c.thumb || c.portrait)} alt="" />
+                    <span className="lv">{c.level}</span>
+                    <span className="who">{c.name.split(' «')[0]}</span>
+                    <span className="stars">{'★'.repeat((['common', 'uncommon', 'rare', 'epic', 'legendary'].indexOf(c.rarity) + 1) || 1)}</span>
+                    <div className="stats"><span>✊ <b>{c.power}</b></span><span>🥾 <b>{c.stats.end}</b></span><span className="role" title={c.jobName}>{JOB_ICON[c.job] ?? '•'}</span></div>
                   </article>
                 ))}
               </div>
@@ -332,6 +390,25 @@ export function V3App() {
                   <button className="sort" onClick={() => setPage((p) => p + 1)} disabled={(page + 1) * 8 >= crew.length}>›</button>
                 </div>
               )}
+              <h2 className="bench-title">Запас</h2>
+              <p className="bench-note">Перетащи карточку между составом и запасом. Когда мест станет больше, в состав сама встанет грузчица с самым высоким уровнем.</p>
+              <div
+                className={`roster ${drop === 'bench' ? 'over' : ''}`}
+                onDragOver={(e) => { e.preventDefault(); setDrop('bench'); }}
+                onDragLeave={() => setDrop('')}
+                onDrop={(e) => { e.preventDefault(); setDrop(''); const id = e.dataTransfer.getData('text/plain'); if (id) void run(() => api.v3roster(id, true)); }}
+              >
+                {bench.length === 0 && <p className="bench-empty">В запасе никого нет.</p>}
+                {bench.map((c) => (
+                  <article key={c.id} draggable className={`waifu-card ${c.rarity}`} onDragStart={(e) => { e.dataTransfer.setData('text/plain', c.id); e.dataTransfer.effectAllowed = 'move'; }} onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }} onDrop={(e) => { e.preventDefault(); e.stopPropagation(); setDrop(''); const id = e.dataTransfer.getData('text/plain'); if (id && id !== c.id) void run(() => api.v3roster(id, false, c.id)); }} onClick={() => setOpenId(c.id)}>
+                    <img src={src(c.thumb || c.portrait)} alt="" />
+                    <span className="lv">{c.level}</span>
+                    <span className="who">{c.name.split(' «')[0]}</span>
+                    <span className="stars">{'★'.repeat((['common', 'uncommon', 'rare', 'epic', 'legendary'].indexOf(c.rarity) + 1) || 1)}</span>
+                    <div className="stats"><span>✊ <b>{c.power}</b></span><span>🥾 <b>{c.stats.end}</b></span><span className="role" title={c.jobName}>{JOB_ICON[c.job] ?? '•'}</span></div>
+                  </article>
+                ))}
+              </div>
             </>
           )}
           {tab === 'contracts' && (
@@ -380,7 +457,7 @@ export function V3App() {
           )}
           {tab === 'cabinet' && (
             <div className="cab">
-              <img className="cab-banner" src={src(`v3/logos/logo-${(state.logoRev ?? 0) % 3}.webp`)} alt="" />
+              <img className="cab-banner" src={state.logoUrl || src(`v3/logos/logo-${(state.logoRev ?? 0) % 3}.webp`)} alt={state.company} />
               <div className="cab-name">
                 <input className="input" value={company} placeholder={state.company} onChange={(e) => setCompany(e.target.value)} />
                 <button type="button" className="cab-rename" onClick={() => void run(() => api.v3company(company || state.company))}>Переименовать</button>
@@ -412,6 +489,16 @@ export function V3App() {
           )}
         </main>
       </div>
+      {hireWait && (
+        <div className="hire-wait" role="status" aria-live="polite">
+          <div className="hire-wait-card">
+            <div className="hire-road" aria-hidden>
+              <span className="hire-lift">🚜</span>
+            </div>
+            <p>Ищем грузчицу…</p>
+          </div>
+        </div>
+      )}
       {state.offline && (
         <div className="v3-modal" onClick={() => void run(() => api.v3offline())}>
           <div className="away-note">
@@ -422,7 +509,17 @@ export function V3App() {
         </div>
       )}
       {state.queue.length > 0 && !state.offline && (
-        <div className="v3-modal"><div className="v3-sheet"><header><h3>{state.queue[0]?.speaker === 'hero' ? state.hero : state.queue[0]?.speaker}</h3></header><div className="pad"><p>{state.queue[0]?.text}</p><div className="row"><button className="btn primary v3-btn" onClick={() => void run(() => api.v3ack(false))}>Дальше</button><button className="btn v3-btn" onClick={() => void run(() => api.v3ack(true))}>Пропустить</button></div></div></div></div>
+        <div className="v3-modal">
+          <div className="story-sheet" role="dialog" aria-modal="true">
+            <header><h3>{state.queue[0]?.speaker === 'hero' ? state.hero : state.queue[0]?.speaker === 'corp' ? 'Омникон' : state.queue[0]?.speaker === 'rival' ? 'БыстроГруз' : state.queue[0]?.speaker}</h3></header>
+            <p>{state.queue[0]?.text}</p>
+            <div className="story-actions">
+              <button type="button" className="yes" onClick={() => void run(() => api.v3ack(false))}>Дальше</button>
+              <button type="button" onClick={() => void run(() => api.v3ack(true))}>Пропустить</button>
+            </div>
+            <p className="story-hint">Дальше — следующая реплика. Пропустить — закрыть все оставшиеся.</p>
+          </div>
+        </div>
       )}
       {state.pendingCards && (
         <div className="v3-modal">
@@ -461,20 +558,25 @@ export function V3App() {
       )}
       {state.pendingBases && (
         <div className="v3-modal">
-          <div className="v3-sheet">
-            <header><h3>Новая база</h3></header>
-            <div className="pad v3-bonus">
+          <div className="move-sheet" role="dialog" aria-modal="true">
+            <header><h3>Куда переезжаем?</h3></header>
+            <div className="move-row">
               {state.pendingBases.map((b) => (
-                <button key={b.id} style={{ borderColor: RARITY[b.rarity]?.color }} onClick={() => void run(() => api.v3confirm(b.id))}>
+                <button key={b.id} type="button" className={`move-card ${b.rarity}`} onClick={() => void run(() => api.v3confirm(b.id))}>
                   <b>{b.name}</b>
-                  <div>{RARITY[b.rarity]?.label} · риск {b.risk}</div>
-                  <p>{b.flavor}</p>
-                  <div>{b.buff}</div>
-                  {b.debuff && <small>{b.debuff}</small>}
+                  <img src={src('v3/bases/placeholder.svg')} alt="" />
+                  <span className="move-bonus">
+                    <span>{RARITY[b.rarity]?.label}</span>
+                    {b.start && <span>🏠 {b.start}</span>}
+                    <span>+ {b.buff || 'без постоянного плюса'}</span>
+                    <span>− {b.debuff || 'без постоянного минуса'}</span>
+                  </span>
                 </button>
               ))}
             </div>
-            <div className="pad"><button className="btn v3-btn" onClick={() => void run(() => api.v3baseReroll())}>Реролл · {state.baseRerollCost} звёзд</button></div>
+            <div className="move-reroll">
+              <button type="button" onClick={() => void run(() => api.v3baseReroll())}>Реролл · {state.baseRerollCost} звёзд</button>
+            </div>
           </div>
         </div>
       )}
@@ -488,48 +590,104 @@ export function V3App() {
         </div>
       )}
       {room && roomDef && (
-        <div className="v3-modal" onClick={() => setRoomId(null)}>
+        <div className="v3-modal" onClick={() => { setRoomId(null); setStaffPick(false); }}>
           <div className="room-sheet" onClick={(e) => e.stopPropagation()}>
             <header><h3>{roomDef.name}</h3><button className="close" onClick={() => setRoomId(null)}>×</button></header>
-            <div className="room-art">
-              <img src={src(PIXEL[roomDef.id] ?? '')} alt="" />
-              <button className="upgrade" disabled={(room.level ?? 1) >= roomDef.maxLevel} onClick={() => void run(() => api.v3upgrade(room.plotId))}>Улучшить</button>
-            </div>
-            <div className="bonus-frame">
-              <b>Уровень {room.level ?? 1} из {roomDef.maxLevel}. Тир {roomDef.tier}.</b>
-              <p>Комната: {roomDef.effect || 'без постоянного бонуса'}</p>
-              <p>Карточка: {state.runCards.find((c) => c.id === room.bonusId)?.text || 'бонус при постройке не выбран'}</p>
-            </div>
             {(() => {
               const post = state.posts.find((p) => p.plotId === room.plotId);
-              if (!post) return null;
-              const taken = new Set(state.posts.flatMap((p) => p.crew.map((m) => m.id)));
-              const free = state.characters.filter((c) => !taken.has(c.id));
+              const level = room.level ?? 1;
+              const nextCost = level >= roomDef.maxLevel ? null : Math.round(roomDef.cost * state.levelCostGrowth ** level);
+              const poor = nextCost != null && state.credits < nextCost;
+              const slots = Array.from({ length: post?.slots ?? 0 }, (_, i) => post?.crew[i] ?? null);
               return (
-                <div className="staff-box">
-                  <b>Смена комнаты · мест {post.slots}</b>
-                  <p>Ключ: {post.keyName} {post.baseline}. Бонус ×{post.k.toFixed(2)}.</p>
-                  <p>Лучше: {post.classNames.join(', ') || 'любой класс'}{post.raceNames.length ? ` · ${post.raceNames.join(', ')}` : ''}.</p>
-                  <p>Наёмница умножает базовый бонус. Удвоения на 10, 20 и 30 уровне остаются отдельно.</p>
-                  {post.crew.map((m) => (
-                    <div key={m.id} className="staff-row">
-                      <span>{m.name}</span>
-                      <small>{post.keyName} {m.stat}{m.classMatch ? ' · класс' : ''}{m.raceMatch ? ' · раса' : ''}</small>
-                      <button type="button" onClick={() => void run(() => api.v3unassign(room.plotId, m.id))}>Снять</button>
+                <>
+                  <div className="room-art">
+                    <img className="room-photo" src={src(PIXEL[roomDef.id] ?? '')} alt="" />
+                    <span className="room-tag tier">Т{roomDef.tier}</span>
+                    <span className="room-tag lv">Ур. {level}/{roomDef.maxLevel}</span>
+                    <div className="room-minis">
+                      {post?.crew.map((m) => {
+                        const who = state.characters.find((c) => c.id === m.id);
+                        return who ? <img key={m.id} src={src(who.thumb || who.portrait)} alt="" /> : null;
+                      })}
                     </div>
-                  ))}
-                  {post.crew.length < post.slots && (
-                    <div className="staff-row">
-                      <select value={staffId} onChange={(e) => setStaffId(e.target.value)}>
-                        <option value="">Кого поставить</option>
-                        {free.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                      </select>
-                      <button type="button" disabled={!staffId} onClick={() => { const id = staffId; setStaffId(''); void run(() => api.v3assign(room.plotId, id)); }}>Поставить</button>
+                    <button className="upgrade" disabled={nextCost == null || poor} onClick={() => void run(() => api.v3upgrade(room.plotId))}>
+                      {nextCost == null ? 'Максимум' : `Улучшить · ${nextCost}`}
+                    </button>
+                  </div>
+                  <div className="bonus-frame">
+                    <p>Сейчас: {effectNow(roomDef.effect, level, post?.k ?? 1)}.</p>
+                    <p>Это бонус на текущем уровне: базовая ставка умножается на уровень. Удвоения на 10, 20 и 30 считаются отдельно.</p>
+                    <p>Карточка: {state.runCards.find((c) => c.id === room.bonusId)?.text || 'бонус при постройке не выбран'}</p>
+                  </div>
+                  {post && (
+                    <div className="staff-box">
+                      <p>Ключ: {post.keyName} {post.baseline}. Бонус ×{post.k.toFixed(2)}. Лучше: {post.classNames.join(', ') || 'любой класс'}{post.raceNames.length ? ` · ${post.raceNames.join(', ')}` : ''}.</p>
+                      <p>Запас тоже ставится сюда. Свой груз она не везёт, бонус комнаты растёт.</p>
+                      <div className="staff-slots">
+                        {slots.map((m, i) => {
+                          const who = m ? state.characters.find((c) => c.id === m.id) : null;
+                          return who ? (
+                            <button key={who.id} type="button" className={`staff-slot${who.reserve ? ' bench' : ''}`} title="Снять" onClick={() => void run(() => api.v3unassign(room.plotId, who.id))}>
+                              <img src={src(who.thumb || who.portrait)} alt="" />
+                              {who.reserve && <span className="bench-tag">запас</span>}
+                            </button>
+                          ) : (
+                            <button key={`add-${i}`} type="button" className="staff-slot add" onClick={() => setStaffPick(true)}>+</button>
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
-                </div>
+                </>
               );
             })()}
+          </div>
+        </div>
+      )}
+      {staffPick && room && roomDef && (
+        <div className="v3-modal" onClick={() => setStaffPick(false)}>
+          <div className="pick-sheet" onClick={(e) => e.stopPropagation()}>
+            <header><h3>Кого поставить</h3><button className="close" onClick={() => setStaffPick(false)}>×</button></header>
+            <p className="pick-note">Запас не везёт груз. Бонус здания всё равно растёт.</p>
+            {(['shift', 'bench'] as const).map((group) => {
+              const list = state.characters.filter((c) => (group === 'bench' ? c.reserve : !c.reserve));
+              if (!list.length) return null;
+              return (
+                <div key={group}>
+                  <p className="pick-label">{group === 'shift' ? 'Смена' : 'Запас'}</p>
+                  <div className="pick-grid">
+                    {list.map((c) => {
+                      const post = state.posts.find((p) => p.plotId === room.plotId);
+                      const fit = !!post && (post.classNames.includes(c.jobName) || post.raceNames.includes(c.raceName));
+                      const other = state.posts.find((p) => p.plotId !== room.plotId && p.crew.some((m) => m.id === c.id));
+                      const whereCell = other ? state.floors.flatMap((f) => f.cells).find((cell) => cell.plotId === other.plotId) : null;
+                      const where = state.catalogBuildings.find((b) => b.id === whereCell?.typeId)?.name ?? 'другом здании';
+                      return (
+                        <button key={c.id} type="button" className={`pick-card${fit ? ' fit' : ''}${other ? ' busy' : ''}`} onClick={() => {
+                          if (other) setStaffAsk({ id: c.id, name: c.name, where });
+                          else { setStaffPick(false); void run(() => api.v3assign(room.plotId, c.id)); }
+                        }}>
+                          <img src={src(c.thumb || c.portrait)} alt="" />
+                          <b>{c.name.split(' «')[0]}</b>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+      {staffAsk && room && (
+        <div className="v3-modal" onClick={() => setStaffAsk(null)}>
+          <div className="ask-sheet" onClick={(e) => e.stopPropagation()}>
+            <p>Вы хотите назначить «{staffAsk.name}» сюда? Она работает в «{staffAsk.where}».</p>
+            <div className="ask-actions">
+              <button type="button" className="yes" onClick={() => { const id = staffAsk.id; setStaffAsk(null); setStaffPick(false); void run(() => api.v3assign(room.plotId, id)); }}>Да</button>
+              <button type="button" onClick={() => setStaffAsk(null)}>Нет</button>
+            </div>
           </div>
         </div>
       )}

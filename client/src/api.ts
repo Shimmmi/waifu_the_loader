@@ -1,6 +1,6 @@
 import type { AiSettings, Look, GachaHistoryItemDTO, NoticeDTO, PullResponseDTO, Rarity, StateDTO, UserSettings, V3View } from '@wl/shared';
 
-export type V3Client = V3View & { hero: string; isAdmin: boolean };
+export type V3Client = V3View & { hero: string; isAdmin: boolean; logoUrl?: string | null };
 
 const BASE = `${import.meta.env.BASE_URL}api`;
 
@@ -85,6 +85,7 @@ export const api = {
   v3skip: () => req<V3Client>('POST', '/v3/cards/skip', {}),
   v3build: (plotId: string, typeId: string) => req<V3Client>('POST', '/v3/base/build', { plotId, typeId }),
   v3upgrade: (plotId: string) => req<V3Client>('POST', '/v3/base/upgrade', { plotId }),
+  v3roster: (characterId: string, reserve: boolean, swapWith?: string) => req<V3Client>('POST', '/v3/roster', { characterId, reserve, swapWith }),
   v3assign: (plotId: string, characterId: string) => req<V3Client>('POST', '/v3/staff/assign', { plotId, characterId }),
   v3unassign: (plotId: string, characterId: string) => req<V3Client>('POST', '/v3/staff/unassign', { plotId, characterId }),
   v3preview: () => req<V3Client>('POST', '/v3/rebirth/preview', {}),

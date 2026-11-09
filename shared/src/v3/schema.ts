@@ -211,7 +211,7 @@ export const EconomyV3Schema = z.object({
   xp_growth: z.number(),
   duplicate_stars: z.record(z.enum(V3_RARITIES), z.number()),
   rarity_mult: z.record(z.enum(V3_RARITIES), z.number()),
-  level_cap: z.record(z.enum(V3_RARITIES), z.number()),
+  level_cap: z.number().int().positive(),
   r_window: z.record(z.enum(V3_RARITIES), z.object({ min: z.number().optional(), max: z.number().optional() })),
   trait_slots: z.record(z.enum(V3_RARITIES), z.object({ min: z.number(), max: z.number() })),
   tag_sets: z.record(z.string(), z.array(EffectSchema)),

@@ -1,10 +1,11 @@
 import { randomInt, randomUUID } from 'node:crypto';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { v3, type Game, type Template } from '@wl/shared';
 import type { Sql, Tx } from './db.js';
+import { getAiSettings } from './ai-store.js';
 import { env } from './env.js';
 import { GameError } from './player.js';
 
@@ -309,9 +310,96 @@ async function askText(userId: string, model: string, ch: Game['characters'][num
   return null;
 }
 
+function logoPrompt(name: string): string {
+  return `Pixel-art text logo, wide horizontal banner for a small freight company on a remote planet. The only readable text is the company name, spelled exactly and centered in one line of large chunky pixel letters: "${name}". Dark blue warehouse sign, warm lamp, crates at the edges, no people, no watermark, no extra words and no letters besides that name. Crisp hard pixels, limited palette, no anti-aliasing.`;
+}
+
+function logoFile(userId: string, rev: number): { dir: string; base: string } {
+  return { dir: resolve(env.portraitsDir, 'logos'), base: `${userId}-${rev}` };
+}
+
+function findLogo(userId: string, rev: number): string | null {
+  if (rev <= 0) return null;
+  const { dir, base } = logoFile(userId, rev);
+  for (const ext of ['webp', 'png', 'jpg', 'svg']) {
+    if (existsSync(resolve(dir, `${base}.${ext}`))) return `${env.portraitsPublicUrl}/logos/${base}.${ext}`;
+  }
+  return null;
+}
+
+function svgLogo(name: string): string {
+  const text = name.replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch] ?? ch);
+  const size = name.length > 18 ? 36 : 48;
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200">
+  <rect width="800" height="200" fill="#16344a"/>
+  <rect x="18" y="18" width="764" height="164" fill="none" stroke="#e7c56a" stroke-width="8"/>
+  <text x="400" y="116" text-anchor="middle" font-family="monospace" font-size="${size}" fill="#f6e2ad">${text}</text>
+</svg>`;
+}
+
+function imageExt(buf: Buffer): 'png' | 'jpg' | 'webp' {
+  if (buf[0] === 0x89 && buf[1] === 0x50) return 'png';
+  if (buf[0] === 0xff && buf[1] === 0xd8) return 'jpg';
+  if (buf.toString('ascii', 0, 4) === 'RIFF') return 'webp';
+  return 'png';
+}
+
+async function askLogo(userId: string, name: string, db: Sql): Promise<Buffer | null> {
+  const model = (await getAiSettings()).settings.image.model;
+  const prompt = logoPrompt(name);
+  const t0 = Date.now();
+  try {
+    const res = await fetch(`${env.routerai.baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: { authorization: `Bearer ${env.routerai.apiKey}`, 'content-type': 'application/json' },
+      body: JSON.stringify({
+        model,
+        modalities: ['image'],
+        messages: [{ role: 'user', content: prompt }],
+        image_config: { aspect_ratio: '16:9' },
+      }),
+      signal: AbortSignal.timeout(45_000),
+    });
+    const json = (await res.json()) as {
+      choices?: { message?: { images?: { image_url?: { url?: string } }[] } }[];
+      usage?: { total_tokens?: number };
+      error?: { message?: string };
+    };
+    const url = json.choices?.[0]?.message?.images?.[0]?.image_url?.url ?? '';
+    await db`INSERT INTO ai_log (user_id, model, tokens, ok, detail) VALUES (${userId}, ${model}, ${json.usage?.total_tokens ?? null}, ${!!url}, ${db.json({ ms: Date.now() - t0, kind: 'logo', name })})`;
+    if (!url) return null;
+    if (url.startsWith('data:')) return Buffer.from(url.slice(url.indexOf(',') + 1), 'base64');
+    const file = await fetch(url, { signal: AbortSignal.timeout(30_000) });
+    if (!file.ok) return null;
+    return Buffer.from(await file.arrayBuffer());
+  } catch (e) {
+    await db`INSERT INTO ai_log (user_id, model, tokens, ok, detail) VALUES (${userId}, ${model}, ${null}, ${false}, ${db.json({ error: (e as Error).message, kind: 'logo' })})`;
+    return null;
+  }
+}
+
+async function ensureLogo(userId: string, company: string, rev: number, db: Sql): Promise<string | null> {
+  const ready = findLogo(userId, rev);
+  if (ready || rev <= 0) return ready;
+  const { dir, base } = logoFile(userId, rev);
+  mkdirSync(dir, { recursive: true });
+  const name = company.replace(/[\r\n"]/g, ' ').trim();
+  if (env.routerai.apiKey) {
+    const buf = await askLogo(userId, name, db);
+    if (buf && buf.length > 32) {
+      const ext = imageExt(buf);
+      writeFileSync(resolve(dir, `${base}.${ext}`), buf);
+      return `${env.portraitsPublicUrl}/logos/${base}.${ext}`;
+    }
+  }
+  writeFileSync(resolve(dir, `${base}.svg`), svgLogo(name));
+  return `${env.portraitsPublicUrl}/logos/${base}.svg`;
+}
+
 async function play(db: Sql, userId: string, fn: (game: Game, cat: ReturnType<typeof catalog>) => Promise<Game> | Game) {
   try {
-    return await db.begin(async (tx) => {
+    const view = await db.begin(async (tx) => {
       const opened = await open(tx, userId);
       const before = new Set(opened.game.characters.map((c) => c.id));
       let game = await fn(opened.game, opened.cat);
@@ -321,6 +409,8 @@ async function play(db: Sql, userId: string, fn: (game: Game, cat: ReturnType<ty
       const [user] = await tx<{ nickname: string; is_admin: boolean }[]>`SELECT nickname, is_admin FROM users WHERE id = ${userId}`;
       return { ...v3.view(game, opened.cat), hero: user?.nickname ?? opened.cat.story.hero_default, isAdmin: user?.is_admin ?? false };
     });
+    const logoUrl = await ensureLogo(userId, view.company, view.logoRev ?? 0, db);
+    return { ...view, logoUrl };
   } catch (e) {
     if (e instanceof v3.V3Error) throw new GameError(e.code, e.message);
     throw e;
@@ -362,6 +452,10 @@ export function registerV3(game: FastifyInstance, db: Sql): void {
   game.post('/v3/base/build', async (req) => {
     const body = z.object({ plotId: z.string(), typeId: z.string() }).parse(req.body);
     return play(db, req.userId, (g, cat) => v3.act(g, { type: 'build', plotId: body.plotId, typeId: body.typeId, rng }, cat));
+  });
+  game.post('/v3/roster', async (req) => {
+    const body = z.object({ characterId: z.string(), reserve: z.boolean(), swapWith: z.string().optional() }).parse(req.body);
+    return play(db, req.userId, (g, cat) => v3.act(g, { type: 'roster', characterId: body.characterId, reserve: body.reserve, swapWith: body.swapWith }, cat));
   });
   game.post('/v3/staff/assign', async (req) => {
     const body = z.object({ plotId: z.string(), characterId: z.string() }).parse(req.body);

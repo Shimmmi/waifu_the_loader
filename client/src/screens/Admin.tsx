@@ -378,7 +378,7 @@ function Settings({ current, onSaved }: { current: AiSettingsVersion; onSaved: (
           </Field>
         </div>
         <Field label="Стиль (добавляется к каждому портрету)">{area(['image', 'style_prompt'], 4)}</Field>
-        <Field label="Негативный промпт" hint="Оговорка «adult woman, 21+» добавляется сервером всегда и не редактируется">
+        <Field label="Негативный промпт">
           {area(['image', 'negative_prompt'], 3)}
         </Field>
         <div className="grid2">

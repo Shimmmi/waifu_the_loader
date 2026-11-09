@@ -72,7 +72,7 @@ describe('Образы ИИ-портретов', () => {
     expect(ip).not.toMatch(/work clothes/);
     expect(ip).not.toMatch(/Avoid:/);
     expect(ip).not.toMatch(/\bSFW\b/);
-    expect(ip).toMatch(/Modern TV anime style/);
+    expect(ip).toMatch(/High-quality anime pixel art/);
     if (look.brand) expect(ip).toContain(look.brand);
   });
 });

@@ -88,13 +88,7 @@
     "epic": 1.65,
     "legendary": 2
   },
-  "level_cap": {
-    "common": 10,
-    "uncommon": 15,
-    "rare": 20,
-    "epic": 30,
-    "legendary": 40
-  },
+  "level_cap": 40,
   "r_window": {
     "common": {
       "max": 2.49

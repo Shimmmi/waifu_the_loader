@@ -82,7 +82,7 @@ describe('ИИ: сборка профиля', () => {
     expect(u).toContain('от 21 до 55');
     expect(u).toContain(`сумма строго ${rarityConfig(cfg, 'UR').stat_budget}`);
     const ip = imagePrompt('adult woman in her thirties', 'UR', DEFAULT_AI_SETTINGS);
-    expect(ip).toMatch(/adult woman, 21 or older/);
+    expect(ip).not.toMatch(/21 or older/);
     expect(ip).not.toMatch(/Avoid:/);
     expect(ip).not.toMatch(/\bSFW\b/);
     expect(ip).toContain(DEFAULT_AI_SETTINGS.image.rarity_modifiers.UR);

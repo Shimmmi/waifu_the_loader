@@ -88,21 +88,21 @@ export const DEFAULT_AI_SETTINGS: AiSettings = {
     ].join('\n'),
   },
   image: {
-    model: 'google/gemini-nano-banana-2.1',
+    model: 'openai/gpt-image-2.6-sunburst',
     fallback: 'bytedance-seed/seedream-5-0-flash',
     timeout_sec: 180,
     aspect_ratio: '3:4',
     resolution: '',
     seed: 0,
     style_prompt:
-      'Modern TV anime style, like a frame from a seasonal anime series. Simple cel shading with one shadow tone, clean bold outlines, flat bright colors, expressive anime eyes. Simplified background with few details, soft even lighting. Vertical character card art.',
+      'High-quality anime pixel art, bust portrait, vertical character card. Fine crisp pixels with readable detail, not a blurry painting and not a weekly TV anime frame. Clean 1-pixel dark outline, large expressive anime eyes, mature adult face, flat cel shading in three hard tones, limited but rich palette, no anti-aliasing, no smooth gradients, no 3D, no photorealism. Fully clothed, modest and practical, sci-fi cargo terminal. Plain flat muted background. No text, no watermark, no logo, no frame.',
     negative_prompt: 'unused, the image prompt does not append an avoid line',
     rarity_modifiers: {
-      N: 'Plain everyday look, simple composition.',
-      R: 'Subtle cool blue rim light.',
-      SR: 'Soft violet glow outline around the character.',
-      SSR: 'Golden rim light and a few simple anime sparkles.',
-      UR: 'Heroic pose with a bold crimson-and-gold aura drawn as simple flat anime effect shapes.',
+      N: 'Plain everyday pixel look, simple composition.',
+      R: 'A few cool blue pixel highlights on the outline.',
+      SR: 'A thin violet pixel outline around the character.',
+      SSR: 'Gold pixel highlights and a few square sparkles.',
+      UR: 'Heroic pose with a crimson-and-gold aura drawn as flat pixel shapes.',
     },
     themes: DEFAULT_THEMES,
     poses: DEFAULT_POSES,
@@ -306,8 +306,6 @@ export function buildAiProfile(
 
 // ---------- Портрет ----------
 
-export const ADULT_CLAUSE = 'The character is an adult woman, 21 or older, with a mature adult face and adult body proportions.';
-
 export function imagePrompt(characterPrompt: string, rarity: Rarity, s: AiSettings, look?: Look): string {
   const scene = look
     ? [
@@ -318,7 +316,7 @@ export function imagePrompt(characterPrompt: string, rarity: Rarity, s: AiSettin
         CARRY_BAN,
       ].join(' ')
     : CARRY_BAN;
-  return [s.image.style_prompt, s.image.rarity_modifiers[rarity] ?? '', scene, look?.brand ?? '', `Character: ${characterPrompt}`, ADULT_CLAUSE]
+  return [s.image.style_prompt, s.image.rarity_modifiers[rarity] ?? '', scene, look?.brand ?? '', `Character: ${characterPrompt}`]
     .filter(Boolean)
     .join('\n');
 }

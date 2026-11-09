@@ -30,8 +30,6 @@ const CHARS: Record<string, string> = {
     'Adult woman around thirty, tanned athletic build, short messy orange hair, big confident grin, sporty two-piece swimsuit with board shorts, sunglasses pushed up on her head. A full-size red vending machine stands on the sand beside her, one hand on it. She is not lifting it.',
 };
 
-const ADULT = 'The character is an adult woman, 21 or older, with a mature adult face and adult body proportions.';
-
 const model = process.argv[2] ?? DEFAULT_AI_SETTINGS.image.model;
 const out = resolve(process.cwd(), '..', 'data', 'ai-test', 'styles');
 mkdirSync(out, { recursive: true });
@@ -41,7 +39,7 @@ let total = 0;
 
 for (const [sid, style] of Object.entries(STYLES)) {
   for (const [cid, ch] of Object.entries(CHARS)) {
-    const prompt = `${style}\nVertical full-body character card art.\nCharacter: ${ch}\n${ADULT}`;
+    const prompt = `${style}\nVertical full-body character card art.\nCharacter: ${ch}`;
     const t0 = Date.now();
     try {
       const r = await client.image(model, prompt, { aspectRatio: '3:4', seed: 4242, timeoutSec: 180 });

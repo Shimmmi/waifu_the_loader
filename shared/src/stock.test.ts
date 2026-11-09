@@ -8,7 +8,7 @@ describe('стоковые портреты', () => {
     expect(isAiRarity('N')).toBe(false);
     expect(isAiRarity('SR')).toBe(true);
     expect(DEFAULT_AI_SETTINGS.pool.ai_rarities).toEqual([]);
-    expect(DEFAULT_AI_SETTINGS.image.model).toBe('google/gemini-nano-banana-2.1');
+    expect(DEFAULT_AI_SETTINGS.image.model).toBe('openai/gpt-image-2.6-sunburst');
   });
 
   it('у каждого архетипа три кадра, seed выбирает один и тот же', () => {

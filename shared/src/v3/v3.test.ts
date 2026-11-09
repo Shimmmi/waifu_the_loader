@@ -245,6 +245,75 @@ describe('staff and contracts', () => {
     expect(production(g, c).tonsPerSec).toBeCloseTo(before, 6);
   });
 
+  it('весь активный состав получает опыт, запас нет', () => {
+    const c = cat();
+    let g = newGame(0, c);
+    const girl = {
+      templateId: null,
+      legacy: false,
+      race: 'terran',
+      job: 'loader',
+      rarity: 'common' as const,
+      lastName: 'Вокс',
+      nickname: 'Ржавая',
+      bio: 'bio',
+      quote: 'quote',
+      traits: [] as string[],
+      level: 1,
+      xp: 0,
+      starRank: 0,
+      portrait: '/p.webp',
+      thumb: '/t.webp',
+    };
+    g.characters.push(
+      { ...girl, id: 'a', firstName: 'Ася', reserve: false },
+      { ...girl, id: 'b', firstName: 'Рита', reserve: false },
+      { ...girl, id: 'c', firstName: 'Софа', reserve: true },
+    );
+    g = sync(g, g.lastTick + 10_000, c);
+    const xp = Object.fromEntries(g.characters.map((ch) => [ch.id, ch.xp]));
+    expect(xp.a).toBeGreaterThan(0);
+    expect(xp.b).toBe(xp.a);
+    expect(xp.c).toBe(0);
+  });
+
+  it('запас в здании не возит свой груз, но поднимает бонус комнаты', () => {
+    const c = cat();
+    let g = newGame(0, c);
+    const girl = {
+      templateId: null,
+      legacy: false,
+      race: 'terran',
+      job: 'loader',
+      rarity: 'common' as const,
+      firstName: 'Мира',
+      lastName: 'Вокс',
+      nickname: 'Ржавая',
+      bio: 'bio',
+      quote: 'quote',
+      traits: [] as string[],
+      level: 10,
+      xp: 0,
+      starRank: 0,
+      portrait: '/p.webp',
+      thumb: '/t.webp',
+    };
+    g.characters.push({ ...girl, id: 'work', reserve: false }, { ...girl, id: 'bench', reserve: true });
+    const dock = g.base.floors.flatMap((f) => f.cells).find((cell) => cell.typeId === 'dock');
+    expect(dock).toBeTruthy();
+    const alone = production(g, c).tonsPerSec;
+    expect(alone).toBeGreaterThan(0);
+    g = act(g, { type: 'assign', plotId: dock!.plotId, characterId: 'bench' }, c);
+    expect(g.characters.find((ch) => ch.id === 'bench')!.reserve).toBe(true);
+    const boosted = production(g, c).tonsPerSec;
+    expect(boosted).toBeGreaterThan(alone);
+    const post = view(g, c).posts.find((p) => p.plotId === dock!.plotId);
+    expect(post?.k).toBeGreaterThan(1);
+    expect(post?.crew.some((m) => m.id === 'bench')).toBe(true);
+    g.characters = g.characters.filter((ch) => ch.id === 'bench');
+    expect(production(g, c).tonsPerSec).toBe(0);
+  });
+
   it('доска роллится один раз и не переписывает награду', () => {
     const c = cat();
     let g = newGame(0, c);

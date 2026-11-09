@@ -185,6 +185,7 @@ export type Action =
   | { type: 'upgrade'; plotId: string }
   | { type: 'assign'; plotId: string; characterId: string }
   | { type: 'unassign'; plotId: string; characterId: string }
+  | { type: 'roster'; characterId: string; reserve: boolean; swapWith?: string }
   | { type: 'rebirth-preview'; rng: () => number }
   | { type: 'rebirth-confirm'; id: string }
   | { type: 'reroll-bases'; rng: () => number }
@@ -659,9 +660,8 @@ function buildingLevel(g: Game, id: string): number {
   return m;
 }
 
-function onShift(g: Game, cat: Catalog): Character[] {
-  const cap = shiftSlots(g, cat);
-  return g.characters.filter((c) => !c.reserve).slice(0, cap);
+function onShift(g: Game, _cat: Catalog): Character[] {
+  return g.characters.filter((c) => !c.reserve);
 }
 
 export function production(g: Game, cat: Catalog): { tonsPerSec: number; creditsPerSec: number } {
@@ -848,10 +848,19 @@ function evaluate(g: Game, cat: Catalog): void {
 
 function placeReserve(g: Game, cat: Catalog): void {
   const cap = crewCap(g, cat);
-  const active = g.characters.filter((c) => !c.reserve);
-  if (active.length <= cap) return;
-  const extra = active.slice(cap);
-  for (const c of extra) c.reserve = true;
+  const seen = g.flags.crewCapSeen ?? cap;
+  const byLevel = (a: Character, b: Character) => a.level - b.level || a.xp - b.xp;
+  let active = g.characters.filter((c) => !c.reserve);
+  if (active.length > cap) {
+    const drop = [...active].sort(byLevel);
+    for (const c of drop.slice(0, active.length - cap)) c.reserve = true;
+    active = g.characters.filter((c) => !c.reserve);
+  }
+  if (cap > seen && active.length < cap) {
+    const bench = g.characters.filter((c) => c.reserve).sort((a, b) => b.level - a.level || b.xp - a.xp);
+    for (const c of bench.slice(0, cap - active.length)) c.reserve = false;
+  }
+  g.flags.crewCapSeen = cap;
 }
 
 function offerReady(o: Offer): boolean {
@@ -927,7 +936,7 @@ export function sync(game: Game, now: number, cat: Catalog): Game {
   g.counters.shift_tons = Math.max(g.counters.shift_tons ?? 0, tonsPerSec * 300);
   const crew = onShift(g, cat);
   for (const ch of crew) {
-    const capLv = cat.economy.level_cap[ch.rarity] ?? 10;
+    const capLv = cat.economy.level_cap;
     ch.xp += tons * (1 + metaLv(g, 'meta_xp') * (cat.meta.find((m) => m.id === 'meta_xp')?.per_level ?? 0.04));
     while (ch.level < capLv && ch.xp >= xpNeed(ch.level, cat.economy)) {
       ch.xp -= xpNeed(ch.level, cat.economy);
@@ -1042,7 +1051,7 @@ function pullOne(g: Game, cat: Catalog, rng: () => number, ids: () => string, fo
     starRank: 0,
     portrait: picked.portrait,
     thumb: picked.thumb,
-    reserve: false,
+    reserve: g.characters.filter((c) => !c.reserve).length >= crewCap(g, cat),
   };
   const text = fallbackText(cat, draft, used);
   draft.nickname = text.nickname;
@@ -1396,6 +1405,25 @@ export function act(game: Game, action: Action, cat: Catalog): Game {
     evaluate(g, cat);
     return g;
   }
+  if (action.type === 'roster') {
+    const ch = g.characters.find((c) => c.id === action.characterId);
+    if (!ch) throw new V3Error('crew', 'Нет такой наёмницы');
+    if (action.swapWith) {
+      const other = g.characters.find((c) => c.id === action.swapWith);
+      if (!other || other.id === ch.id) return g;
+      const was = ch.reserve;
+      ch.reserve = other.reserve;
+      other.reserve = was;
+    } else {
+      if (!action.reserve && ch.reserve && g.characters.filter((c) => !c.reserve).length >= crewCap(g, cat)) {
+        throw new V3Error('slots', 'В составе нет места. Построй или прокачай общежитие.');
+      }
+      ch.reserve = action.reserve;
+    }
+    g.flags.crewCapSeen = crewCap(g, cat);
+    evaluate(g, cat);
+    return g;
+  }
   if (action.type === 'rebirth-preview') {
     const due = rebirthDue(g.spent, g.rebirths, cat.economy);
     if (g.credits < due) throw new V3Error('rebirth', 'Не хватает кредитов на переезд');
@@ -1436,7 +1464,6 @@ export function act(game: Game, action: Action, cat: Catalog): Game {
     if (g.rebirths === 1) g.pendingFreeRolls += metaLv(g, 'meta_extra_roll');
     applyBase(g, cat, action.id);
     g.pendingBases = null;
-    g.queue.push({ speaker: 'hero', text: `Переезд №${g.rebirths}. База продана, бригада едет следом.`, milestoneId: 'rebirth' });
     offerGramoty(g, cat);
     evaluate(g, cat);
     return g;
@@ -1507,7 +1534,7 @@ export interface V3View {
   floors: Floor[];
   catalogBuildings: { id: string; name: string; tag: string; zone: string; tier: number; cost: number; count: number; maxLevel: number; maxCopies: number; effect: string }[];
   pendingCards: { id: string; name: string; rarity: string; tags: string[]; text: string; curse: string }[] | null;
-  pendingBases: { id: string; name: string; rarity: string; risk: string; flavor: string; buff: string; debuff: string }[] | null;
+  pendingBases: { id: string; name: string; rarity: string; risk: string; flavor: string; buff: string; debuff: string; start: string }[] | null;
   runCards: { id: string; name: string; stacks: number; rarity: string; text: string }[];
   queue: { speaker: string; text: string }[];
   journal: { id: string; title: string; lines: string[] }[];
@@ -1548,6 +1575,7 @@ export interface V3View {
   act: number;
   endingOpen: boolean;
   expandCost: number;
+  levelCostGrowth: number;
   freeRolls: number;
 }
 
@@ -1575,6 +1603,11 @@ export function humanEffect(e: Effect): string {
   if (e.type === 'grant' && e.key === 'credits') return `кредиты +${raw}`;
   if (e.type === 'grant' && e.key === 'stars') return `звёзды +${raw}`;
   if (e.type === 'grant' && e.key === 'free_roll') return 'бесплатный ролл';
+  if (e.type === 'slot_add' && e.key === 'crew') return `мест в бригаде ${sign}${Math.abs(raw)}`;
+  if (e.type === 'event_mod') return raw < 0 ? `события реже на ${pct}%` : `события чаще на ${pct}%`;
+  if (e.type === 'timed_burst') return `выработка скачет, вспышки ${sign}${pct}%`;
+  if (e.type === 'passive_credits') return `пассив ${sign}${Math.abs(raw)} кредитов в час`;
+  if (e.type === 'flag' && e.key === 'no_medbay') return 'медблок на этой базе закрыт';
   return '';
 }
 
@@ -1662,7 +1695,8 @@ export function view(g: Game, cat: Catalog): V3View {
     pendingBases: g.pendingBases
       ? g.pendingBases.map((id) => {
           const b = cat.bases.find((x) => x.id === id);
-          return { id, name: b?.name_ru ?? id, rarity: b?.rarity ?? 'common', risk: b?.risk ?? 'low', flavor: b?.flavor_ru ?? '', buff: effectText(b?.buffs ?? []), debuff: effectText(b?.debuffs ?? []) };
+          const start = (b?.start_buildings ?? []).map((s) => `${cat.buildings.find((x) => x.id === s.type)?.name_ru ?? s.type} ${s.level} ур.`).join(', ');
+          return { id, name: b?.name_ru ?? id, rarity: b?.rarity ?? 'common', risk: b?.risk ?? 'low', flavor: b?.flavor_ru ?? '', buff: effectText(b?.buffs ?? []), debuff: effectText(b?.debuffs ?? []), start };
         })
       : null,
     runCards: g.runCards.map((c) => {
@@ -1722,6 +1756,7 @@ export function view(g: Game, cat: Catalog): V3View {
     act: g.flags.act4 ? 4 : g.flags.act2 ? Math.max(g.flags.act ?? 1, 2) : (g.flags.act ?? 1),
     endingOpen: g.seen.includes('m18_buyout') && !g.flags.chain_sell && !g.flags.chain_refuse && !g.flags.chain_buy,
     expandCost: g.pendingCards ? 0 : expandCost(g, cat),
+    levelCostGrowth: cat.economy.level_cost_growth,
     freeRolls: g.pendingFreeRolls,
   };
 }
